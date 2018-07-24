@@ -6,7 +6,9 @@ import com.atex.onecms.content.files.FileService;
 import com.atex.onecms.content.metadata.MetadataInfo;
 import com.atex.onecms.image.ImageInfoAspectBean;
 import com.polopoly.application.Application;
+import com.polopoly.cm.ExternalContentId;
 import com.polopoly.cm.client.*;
+import com.polopoly.cm.policy.PolicyCMServer;
 import com.polopoly.integration.IntegrationServerApplication;
 import com.polopoly.metadata.Metadata;
 import org.apache.commons.beanutils.BeanUtils;
@@ -32,24 +34,24 @@ public class ContentPublisher
     public static final Subject SYSTEM_SUBJECT 	  = new Subject("98", null);
     public static final String SCHEME_TMP = "tmp";
 
-    private final static String[] ACCEPTED_IMAGE_EXTENSIONS = { "jpg", "jpeg", "png", "gif", "zip", "jar" };
-    public static final String MAIL_PROCESSOR_ARTICLEBEAN = "mail-processor.articlebean";
-    public static final String MAIL_PROCESSOR_IMAGEBEAN = "mail-processor.imagebean";
-
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private FileService fileService = null;
     private ContentManager contentManager = null;
     private MailProcessorUtils mailProcessorUtils = null;
-    private String imageBeanName;
+    private PolicyCMServer cmServer = null;
+    private MailImporterConfigPolicy config = null;
 
     public ContentPublisher()
     {
-        imageBeanName = System.getProperty(MAIL_PROCESSOR_IMAGEBEAN, "com.atex.nosql.image.ImageContentDataBean");
     }
 
     private Application getApplication() {
         return IntegrationServerApplication.getPolopolyApplication();
+    }
+
+    private MailImporterConfigPolicy getConfig(PolicyCMServer cmServer) throws CMException {
+        return (MailImporterConfigPolicy) cmServer.getPolicy(new ExternalContentId(MailImporterConfigPolicy.CONFIG_EXT_ID));
     }
 
     public ContentId publish(final MailBean mail)
@@ -71,19 +73,25 @@ public class ContentPublisher
             contentManager = cmclient.getContentManager();
         }
 
-        if (mailProcessorUtils == null) {
-            mailProcessorUtils = new MailProcessorUtils(contentManager);
+        if (cmServer == null) {
+            cmServer = cmclient.getPolicyCMServer();
+        }
+
+        if (config == null) {
+            config = getConfig(cmServer);
         }
 
         if (fileService == null) {
             fileService = getFileService(application);
         }
 
+        if (mailProcessorUtils == null) {
+            mailProcessorUtils = new MailProcessorUtils(contentManager, config);
+        }
+
         try {
             Object articleBean = createArticle(mail);
-
             ContentResult<Object> cr = writeArticleBean(mailProcessorUtils, articleBean);
-
             return cr.getContentId().getContentId();
         } catch (CMException e) {
             throw new RuntimeException("Failed to publish contents!", e);
@@ -91,10 +99,8 @@ public class ContentPublisher
     }
 
     public Object createArticle(MailBean mail) throws Exception {
-        String articleBeanName = System.getProperty(MAIL_PROCESSOR_ARTICLEBEAN, "com.atex.nosql.article.ArticleBean");
+        String articleBeanName = config.getArticleBean();
         Object articleBean = mailProcessorUtils.getPopulatedArticleBean(articleBeanName, mail);
-
-
         List<ContentId> images = new ArrayList<>();
         for (String filename : mail.getAttachments().keySet()) {
             if (isAcceptedImageExtension(filename)) {
@@ -126,7 +132,8 @@ public class ContentPublisher
 
     private boolean isAcceptedImageExtension(final String filename)
     {
-        for (String suffix : ACCEPTED_IMAGE_EXTENSIONS) {
+        List<String> acceptedImageExtensions = config.getAcceptedImageExtensions();
+        for (String suffix : acceptedImageExtensions) {
             if (filename.toLowerCase().endsWith(suffix)) {
                 return true;
             }
@@ -138,12 +145,9 @@ public class ContentPublisher
         ByteArrayInputStream bis = new ByteArrayInputStream(imageData);
 
         String mimeType = mailProcessorUtils.getFormatName(bis);
-
         bis.reset();
 
         MailProcessorUtils.MetadataTagsHolder metadataTags = mailProcessorUtils.getMetadataTags(bis);
-
-
         bis.reset();
 
         FileInfo fInfo = fileService.uploadFile(SCHEME_TMP, null, name, bis, mimeType, SYSTEM_SUBJECT);
@@ -152,10 +156,9 @@ public class ContentPublisher
         ImageInfoAspectBean imageInfoAspectBean = mailProcessorUtils.getImageInfoAspectBean(metadataTags.tags, fInfo);
         InsertionInfoAspectBean insertionInfoAspectBean = mailProcessorUtils.getInsertionInfoAspectBean();
 
-        Object bean = mailProcessorUtils.getPopulatedImageBean(imageBeanName, mailBean, metadataTags, name);
+        Object bean = mailProcessorUtils.getPopulatedImageBean(config.getImageBean(), mailBean, metadataTags, name);
 
         // leave creation date to prestore hook
-
         MetadataInfo metadataInfo = mailProcessorUtils.getMetadataInfo();
         Metadata metadata = new Metadata();
 

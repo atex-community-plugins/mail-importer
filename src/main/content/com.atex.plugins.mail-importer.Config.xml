@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template-definition version="1.0" xmlns="http://www.polopoly.com/polopoly/cm/app/xml">
+  <input-template name="com.atex.plugins.mail-importer.Config" label="Mail Importer Configuration">
+    <policy>com.atex.plugins.mailimporter.MailImporterConfigPolicy</policy>
+    <editor>com.polopoly.plugin.OPluginConfigContextPolicyWidget</editor>
+    <viewer>com.polopoly.plugin.OPluginConfigContextPolicyWidget</viewer>
+
+    <type>AppConfig</type>
+
+    <param name="EditState_saveAndInsert">false</param>
+    <param name="EditState_saveAndView">true</param>
+    <param name="EditState_saveAndClose">true</param>
+    <param name="ViewState_insert">false</param>
+
+    <field name="article_bean" input-template="p.TextInput"
+           label="com.atex.plugins.mail-importer.Config.article_bean">
+    </field>
+    <field name="image_bean" input-template="p.TextInput"
+           label="com.atex.plugins.mail-importer.Config.image_bean">
+    </field>
+    <field name="accepted_image_extensions" input-template="p.TextInput"
+           label="com.atex.plugins.mail-importer.Config.accepted_image_extensions">
+    </field>
+    <field name="article_name_pattern" input-template="p.TextInput"
+           label="com.atex.plugins.mail-importer.Config.article_name_pattern">
+    </field>
+    <field name="attachment_name_pattern" input-template="p.TextInput"
+           label="com.atex.plugins.mail-importer.Config.attachment_name_pattern">
+    </field>
+
+  </input-template>
+</template-definition>

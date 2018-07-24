@@ -1,0 +1,11 @@
+id:.
+major:appconfig
+inputtemplate:com.atex.plugins.mail-importer.Config
+name:Mail Importer Configuration
+securityparent:p.siteengine.Configuration.d
+component:article_bean:value:com.atex.nosql.article.ArticleBean
+component:image_bean:value:com.atex.nosql.image.ImageContentDataBean
+component:accepted_image_extensions:value:[ 'jpg','jpeg','png','gif','zip','jar' ]
+component:attachment_name_pattern:value:Attachment_${from}_${filename}
+component:article_name_pattern:value:Email_${from}_${subject}
+

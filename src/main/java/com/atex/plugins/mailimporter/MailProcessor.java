@@ -1,6 +1,8 @@
 package com.atex.plugins.mailimporter;
 
 import com.atex.onecms.content.ContentId;
+import com.polopoly.cm.ExternalContentId;
+import com.polopoly.cm.client.CMException;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.slf4j.Logger;
@@ -36,4 +38,6 @@ public class MailProcessor
 
         LOG.info(String.format("Article from mail published as '%s'!", contentId.toString()));
     }
+
+
 }

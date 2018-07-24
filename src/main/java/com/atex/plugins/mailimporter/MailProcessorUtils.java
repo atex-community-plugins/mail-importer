@@ -13,6 +13,7 @@ import com.drew.metadata.Tag;
 import com.drew.metadata.icc.IccDirectory;
 import com.drew.metadata.iptc.IptcDirectory;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.text.StrLookup;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.slf4j.Logger;
@@ -32,10 +33,12 @@ public class MailProcessorUtils {
     public static final String SECURITY_PARENT 	  = "dam.assets.common.d";
     public static final String TAXONOMY_ID = "PolopolyPost.d";
 
-    private ContentManager contentManager;
+    private final ContentManager contentManager;
+    private final MailImporterConfigPolicy config;
 
-    public MailProcessorUtils(ContentManager contentManager) {
+    public MailProcessorUtils(ContentManager contentManager, MailImporterConfigPolicy config) {
         this.contentManager = contentManager;
+        this.config = config;
     }
 
     public String getFormatName(InputStream is) throws Exception {
@@ -72,9 +75,8 @@ public class MailProcessorUtils {
         public String lookup(String name) {
             try {
                 return BeanUtils.getProperty(bean, name);
-            } catch (IllegalAccessException e) {
-            } catch (InvocationTargetException e) {
-            } catch (NoSuchMethodException e) {
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                log.error("failed to find bean field "+name,e);
             }
             if (map != null)
                 return map.get(name);
@@ -85,8 +87,7 @@ public class MailProcessorUtils {
     public String expandBean(Object bean, Map<String, String> map, String property) {
         StrLookup resolver = new BeanStrLookup(bean,map);
         StrSubstitutor strSubstitutor = new StrSubstitutor(resolver);
-        String result = strSubstitutor.replace(property);
-        return result;
+        return strSubstitutor.replace(property);
     }
 
     class MetadataTagsHolder {
@@ -213,15 +214,15 @@ public class MailProcessorUtils {
         try {
             Object bean = Class.forName(imageBeanName).newInstance();
             String byline = metadataTags.customTags.getByline();
-            BeanUtils.setProperty(bean, "byline", byline);
+            setProperty(bean, "byline", byline);
             String subject = metadataTags.customTags.getSubject();
-            BeanUtils.setProperty(bean, "section", subject);
+            setProperty(bean, "section", subject);
             Integer imageWidth = metadataTags.tags.getImageWidth();
-            BeanUtils.setProperty(bean, "width", imageWidth);
+            setProperty(bean, "width", imageWidth);
             Integer imageHeight = metadataTags.tags.getImageHeight();
-            BeanUtils.setProperty(bean, "height", imageHeight);
+            setProperty(bean, "height", imageHeight);
             String description = metadataTags.customTags.getDescription();
-            BeanUtils.setProperty(bean, "description", description);
+            setProperty(bean, "description", description);
             Map<String,String> map = new HashMap<>();
             map.put("filename",filename);
             map.put("width", Integer.toString(imageWidth));
@@ -229,21 +230,41 @@ public class MailProcessorUtils {
             map.put("description", description);
             map.put("section", subject);
             map.put("byline", byline);
-            String name = expandBean(mailBean,map,System.getProperty("mail-processor.attachementname-pattern", "Attachment_${from}_${filename}"));
-            BeanUtils.setProperty(bean,"name", name);
+            String name = expandBean(mailBean,map,config.getImageNamePattern());
+            setProperty(bean,"name", name);
             return bean;
-        } catch (IllegalAccessException | InvocationTargetException | ClassNotFoundException | InstantiationException e) {
+        } catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
             log.error("Could not create image bean",e);
         }
         return null;
     }
 
+    private void setProperty(Object bean, String field, Object value) {
+        try {
+            Class propertyType = PropertyUtils.getPropertyType(bean, field);
+            if (propertyType.getName().equals("com.atex.plugins.structured.text.StructuredText") ) {
+                StructuredText structuredText = (StructuredText)PropertyUtils.getProperty(bean,field);
+                if (structuredText == null) {
+                    structuredText = new StructuredText();
+                }
+                structuredText.setText((String)value);
+                PropertyUtils.setProperty(bean, field, structuredText);
+            } else if (propertyType.equals("java.lang.String")){
+                BeanUtils.setProperty(bean, field, value);
+            } else
+                throw new RuntimeException("unknown type");
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | RuntimeException e) {
+            log.error("unable to use type to set properties",e);
+        }
+
+    }
+
     public Object getPopulatedArticleBean(String articleBeanName, MailBean mail) {
         try {
             Object articleBean = Class.forName(articleBeanName).newInstance();
-            String articlePattern = System.getProperty("mail-processor.articlename-pattern", "Email_${from}_${subject}");
+            String articlePattern = config.getArticleNamePattern();
             String name = expandBean(mail, null, articlePattern);
-            BeanUtils.setProperty(articleBean, "name", name);
+            setProperty(articleBean, "name", name);
             StructuredText body = new StructuredText();
             body.setText(mail.getBody());
             BeanUtils.setProperty(articleBean, "body", body);
@@ -256,5 +277,7 @@ public class MailProcessorUtils {
             return null;
         }
     }
+
+
 
 }

@@ -39,7 +39,7 @@ public class MailParser
         Message originalMessage = mailMessage.getOriginalMessage();
 
         if (!(originalMessage instanceof MimeMessage)) {
-            throw new RuntimeException("Unknown e-mail message format recieved!");
+            throw new RuntimeException("Unknown e-mail message format received!");
         }
 
         MimeMessage realMessage = (MimeMessage) originalMessage;
