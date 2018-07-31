@@ -5,7 +5,8 @@ name:Mail Importer Configuration
 securityparent:p.siteengine.Configuration.d
 component:article_bean:value:com.atex.nosql.article.ArticleBean
 component:image_bean:value:com.atex.nosql.image.ImageContentDataBean
-component:accepted_image_extensions:value:[ 'jpg','jpeg','png','gif','zip','jar' ]
+component:accepted_image_extensions:value:jpg,jpeg,png,gif,zip,jar
 component:attachment_name_pattern:value:Attachment_${from}_${filename}
 component:article_name_pattern:value:Email_${from}_${subject}
-
+component:mailimporter_enabled:value:false
+component:mail_uri:value:pop3\://localhost\:110?username=admin@localhost&password=admin&delete=true

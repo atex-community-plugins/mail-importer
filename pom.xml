@@ -11,8 +11,8 @@
   <parent>
     <groupId>com.polopoly</groupId>
     <artifactId>public</artifactId>
-    <version>10.16.5-fp1</version>
-   <!-- <relativePath /> -->
+    <version>10.16.5-fp2</version>
+    <relativePath />
   </parent>
 
   <organization>
@@ -57,7 +57,9 @@
   </scm>
 
   <properties>
-    <polopoly.version>10.16.5-fp1</polopoly.version>
+    <polopoly.version>10.16.5-fp2</polopoly.version>
+    <camel.version>2.13.2</camel.version>
+    <spring.version>4.1.0.RELEASE</spring.version>
   </properties>
 
   <pluginRepositories>
@@ -121,19 +123,19 @@
     <dependency>
       <groupId>com.polopoly</groupId>
       <artifactId>camel-polopoly</artifactId>
-      <version>10.17.0-SNAPSHOT</version>
+      <version>${polopoly.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-mail</artifactId>
-      <version>2.21.1</version>
+      <version>${camel.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>com.polopoly</groupId>
       <artifactId>polopoly</artifactId>
-      <version>10.16.5-fp1</version>
+      <version>${polopoly.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-beanutils</groupId>
@@ -152,6 +154,21 @@
       <artifactId>structured-text</artifactId>
       <version>1.5.2</version>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-spring</artifactId>
+      <version>${camel.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context-support</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.atex</groupId>
+      <artifactId>module-desk</artifactId>
+      <version>1.11-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
