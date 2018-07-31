@@ -7,6 +7,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 
@@ -22,6 +23,7 @@ import javax.annotation.PostConstruct;
  *   project.
  * </p>
  */
+@Component
 public class MailProcessor
     implements Processor
 {
