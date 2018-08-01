@@ -65,10 +65,11 @@ public class ContentPublisher
 
         /**
          * Please note that the mapping between data and Polopoly types we have to perform here will be
-         * very much simplified in f,uture versions of Polopoly, where the Data-API will have support for
-         * write operations. It will the/  n be pj.. ,,ossible to manage data mapping and conversions centralized
+         * very much simplified in future versions of Polopoly, where the Data-API will have support for
+         * write operations. It will then be possible to manage data mapping and conversions centralized
          * for the entire project.
-         * nn       vfolopoly > Data-API.
+         *
+         * http://support.polopoly.com/confluence/display/Polopoly > Data-API.
          */
 
         try {
