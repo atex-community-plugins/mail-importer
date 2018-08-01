@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <template-definition version="1.0" xmlns="http://www.polopoly.com/polopoly/cm/app/xml">
   <input-template name="com.atex.plugins.mail-importer.Config" label="Mail Importer Configuration">
-    <policy>com.atex.plugins.mailimporter.MailImporterConfigPolicy</policy>
+    <policy>com.atex.plugins.baseline.policy.BaselinePolicy</policy>
     <editor>com.polopoly.plugin.OPluginConfigContextPolicyWidget</editor>
     <viewer>com.polopoly.plugin.OPluginConfigContextPolicyWidget</viewer>
 
@@ -26,6 +26,12 @@
     </field>
     <field name="attachment_name_pattern" input-template="p.TextInput"
            label="com.atex.plugins.mail-importer.Config.attachment_name_pattern">
+    </field>
+    <field name="mailimporter_enabled" input-template="p.Checkbox" label="com.atex.plugins.mail-importer.Config.mailimporter_enabled">
+      <param name="checked">false</param>
+    </field>
+    <field name="mail_uri" input-template="p.TextInput"
+           label="com.atex.plugins.mail-importer.Config.mail_uri">
     </field>
 
   </input-template>

@@ -1,17 +1,9 @@
 package com.atex.plugins.mailimporter;
 
-import com.atex.onecms.content.ContentResult;
-import com.atex.onecms.content.ContentResultBuilder;
-import com.atex.onecms.content.ContentWrite;
-import com.atex.onecms.content.LegacyContentAdapter;
 import com.atex.plugins.baseline.policy.BaselinePolicy;
-import com.atex.plugins.sitemap.SitemapConfigBean;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.polopoly.cm.client.CMException;
-import com.polopoly.cm.policymvc.PolicyModelDomain;
-
 import java.util.List;
 
 /**
@@ -19,7 +11,7 @@ import java.util.List;
  *
  * @author mnova
  */
-public class MailImporterConfigPolicy extends BaselinePolicy {
+public class MailImporterConfig {
 
     public static final String CONFIG_EXT_ID = "plugins.com.atex.plugins.mail-importer.Config";
 
@@ -28,6 +20,14 @@ public class MailImporterConfigPolicy extends BaselinePolicy {
     private static final String ACCEPTED_IMAGE_EXTENSIONS = "accepted_image_extensions";
     private static final String ATTACHMENT_NAME_PATTERN = "attachment_name_pattern";
     private static final String ARTICLE_NAME_PATTERN = "article_name_pattern";
+    private static final String MAIL_URI = "mail_uri";
+    private static final String MAILIMPORTER_ENABLED = "mailimporter_enabled";
+
+    private final BaselinePolicy baselinePolicy;
+
+    MailImporterConfig(BaselinePolicy baselinePolicy) {
+        this.baselinePolicy = baselinePolicy;
+    }
 
     public String getArticleBean() {
         return Strings.nullToEmpty(getChildValue(ARTICLEBEAN, "com.atex.nosql.article.ArticleBean"));
@@ -45,8 +45,8 @@ public class MailImporterConfigPolicy extends BaselinePolicy {
         return Strings.nullToEmpty(getChildValue(ARTICLE_NAME_PATTERN, "Email_${from}_${subject}"));
     }
 
-    public String getImageNamePattern() {
-        return null;
+    private String getChildValue(String property, String defaultValue) {
+        return baselinePolicy.getChildValue(property, defaultValue);
     }
 
     public List<String> getAcceptedImageExtensions() {
@@ -61,5 +61,13 @@ public class MailImporterConfigPolicy extends BaselinePolicy {
                 .trimResults()
                 .split(value)
         );
+    }
+
+    public String getMailUri() {
+        return Strings.nullToEmpty(getChildValue(MAIL_URI, "pop3://localhost:110?username=admin@localhost&password=admin&delete=true"));
+    }
+
+    public boolean isEnabled() {
+        return Boolean.parseBoolean(getChildValue(MAILIMPORTER_ENABLED, "false"));
     }
 }

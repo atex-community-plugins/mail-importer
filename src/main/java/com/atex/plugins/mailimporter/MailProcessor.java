@@ -1,14 +1,15 @@
 package com.atex.plugins.mailimporter;
 
 import com.atex.onecms.content.ContentId;
-import com.polopoly.cm.ExternalContentId;
+import com.polopoly.application.IllegalApplicationStateException;
 import com.polopoly.cm.client.CMException;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
-import java.util.logging.Level;
+import javax.annotation.PostConstruct;
 
 /**
  * <p>
@@ -22,13 +23,23 @@ import java.util.logging.Level;
  *   project.
  * </p>
  */
+@Component
 public class MailProcessor
     implements Processor
 {
     private final Logger LOG = LoggerFactory.getLogger(getClass());
 
-    private final MailParser parser = new MailParser();
-    private final ContentPublisher publisher = new ContentPublisher();
+    private MailParser parser = null;
+    private ContentPublisher publisher = null;
+
+    @PostConstruct
+    public void init() throws CMException, IllegalApplicationStateException {
+        if (parser == null) parser = new MailParser();
+        if (publisher == null) {
+            publisher = new ContentPublisher();
+            publisher.init();
+        }
+    }
 
     public void process(final Exchange exchange)
         throws Exception
@@ -40,4 +51,7 @@ public class MailProcessor
     }
 
 
+    public MailImporterConfig getConfig() {
+        return publisher.getConfig();
+    }
 }

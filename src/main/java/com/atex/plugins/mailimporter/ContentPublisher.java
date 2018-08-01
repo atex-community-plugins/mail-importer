@@ -5,6 +5,7 @@ import com.atex.onecms.content.files.FileInfo;
 import com.atex.onecms.content.files.FileService;
 import com.atex.onecms.content.metadata.MetadataInfo;
 import com.atex.onecms.image.ImageInfoAspectBean;
+import com.atex.plugins.baseline.policy.BaselinePolicy;
 import com.polopoly.application.Application;
 import com.polopoly.cm.ExternalContentId;
 import com.polopoly.cm.client.*;
@@ -40,7 +41,6 @@ public class ContentPublisher
     private ContentManager contentManager = null;
     private MailProcessorUtils mailProcessorUtils = null;
     private PolicyCMServer cmServer = null;
-    private MailImporterConfigPolicy config = null;
 
     public ContentPublisher()
     {
@@ -50,8 +50,13 @@ public class ContentPublisher
         return IntegrationServerApplication.getPolopolyApplication();
     }
 
-    private MailImporterConfigPolicy getConfig(PolicyCMServer cmServer) throws CMException {
-        return (MailImporterConfigPolicy) cmServer.getPolicy(new ExternalContentId(MailImporterConfigPolicy.CONFIG_EXT_ID));
+    public MailImporterConfig getConfig() {
+        try {
+            return new MailImporterConfig(((BaselinePolicy)cmServer.getPolicy(new ExternalContentId(MailImporterConfig.CONFIG_EXT_ID))));
+        } catch (CMException e) {
+            log.error("unable to load mail importer config",e);
+            return null;
+        }
     }
 
     public ContentId publish(final MailBean mail)
@@ -67,6 +72,17 @@ public class ContentPublisher
          * http://support.polopoly.com/confluence/display/Polopoly > Data-API.
          */
 
+        try {
+            MailImporterConfig config = getConfig();
+            Object articleBean = createArticle(config,mail);
+            ContentResult<Object> cr = writeArticleBean(mailProcessorUtils, articleBean);
+            return cr.getContentId().getContentId();
+        } catch (CMException e) {
+            throw new RuntimeException("Failed to publish contents!", e);
+        }
+    }
+
+    public void init() throws CMException, com.polopoly.application.IllegalApplicationStateException {
         Application application = getApplication();
         CmClient cmclient = getCmClient(application);
         if (contentManager == null) {
@@ -77,34 +93,21 @@ public class ContentPublisher
             cmServer = cmclient.getPolicyCMServer();
         }
 
-        if (config == null) {
-            config = getConfig(cmServer);
-        }
-
         if (fileService == null) {
             fileService = getFileService(application);
         }
 
         if (mailProcessorUtils == null) {
-            mailProcessorUtils = new MailProcessorUtils(contentManager, config);
-        }
-
-        try {
-            Object articleBean = createArticle(mail);
-            ContentResult<Object> cr = writeArticleBean(mailProcessorUtils, articleBean);
-            return cr.getContentId().getContentId();
-        } catch (CMException e) {
-            throw new RuntimeException("Failed to publish contents!", e);
+            mailProcessorUtils = new MailProcessorUtils(contentManager);
         }
     }
 
-    public Object createArticle(MailBean mail) throws Exception {
-        String articleBeanName = config.getArticleBean();
-        Object articleBean = mailProcessorUtils.getPopulatedArticleBean(articleBeanName, mail);
+    public Object createArticle(MailImporterConfig config, MailBean mail) throws Exception {
+        Object articleBean = mailProcessorUtils.getPopulatedArticleBean(config, mail);
         List<ContentId> images = new ArrayList<>();
         for (String filename : mail.getAttachments().keySet()) {
-            if (isAcceptedImageExtension(filename)) {
-                ContentId contentId = createImage(mail, filename, mail.getAttachments().get(filename));
+            if (isAcceptedImageExtension(config.getAcceptedImageExtensions(), filename)) {
+                ContentId contentId = createImage(config, mail, filename, mail.getAttachments().get(filename));
                 images.add(0, contentId);
             }
         }
@@ -130,9 +133,8 @@ public class ContentPublisher
         return httpFileServiceClient.getFileService();
     }
 
-    private boolean isAcceptedImageExtension(final String filename)
+    private boolean isAcceptedImageExtension(final List<String> acceptedImageExtensions, final String filename)
     {
-        List<String> acceptedImageExtensions = config.getAcceptedImageExtensions();
         for (String suffix : acceptedImageExtensions) {
             if (filename.toLowerCase().endsWith(suffix)) {
                 return true;
@@ -141,7 +143,7 @@ public class ContentPublisher
         return false;
     }
 
-    private ContentId createImage(MailBean mailBean, final String name, final byte[] imageData)  throws Exception {
+    private ContentId createImage(MailImporterConfig config, MailBean mailBean, final String name, final byte[] imageData)  throws Exception {
         ByteArrayInputStream bis = new ByteArrayInputStream(imageData);
 
         String mimeType = mailProcessorUtils.getFormatName(bis);
@@ -156,7 +158,7 @@ public class ContentPublisher
         ImageInfoAspectBean imageInfoAspectBean = mailProcessorUtils.getImageInfoAspectBean(metadataTags.tags, fInfo);
         InsertionInfoAspectBean insertionInfoAspectBean = mailProcessorUtils.getInsertionInfoAspectBean();
 
-        Object bean = mailProcessorUtils.getPopulatedImageBean(config.getImageBean(), mailBean, metadataTags, name);
+        Object bean = mailProcessorUtils.getPopulatedImageBean(config, mailBean, metadataTags, name);
 
         // leave creation date to prestore hook
         MetadataInfo metadataInfo = mailProcessorUtils.getMetadataInfo();

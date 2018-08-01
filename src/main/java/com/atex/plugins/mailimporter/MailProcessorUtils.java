@@ -34,11 +34,9 @@ public class MailProcessorUtils {
     public static final String TAXONOMY_ID = "PolopolyPost.d";
 
     private final ContentManager contentManager;
-    private final MailImporterConfigPolicy config;
 
-    public MailProcessorUtils(ContentManager contentManager, MailImporterConfigPolicy config) {
+    public MailProcessorUtils(ContentManager contentManager) {
         this.contentManager = contentManager;
-        this.config = config;
     }
 
     public String getFormatName(InputStream is) throws Exception {
@@ -49,7 +47,7 @@ public class MailProcessorUtils {
             if (!iter.hasNext()) {
                 return null;
             }
-            ImageReader reader = (ImageReader) iter.next();
+            ImageReader reader = iter.next();
             iis.close();
             if (reader.getOriginatingProvider().getMIMETypes().length > 0)
                 return reader.getOriginatingProvider().getMIMETypes()[0];
@@ -62,10 +60,6 @@ public class MailProcessorUtils {
 
         private Object bean;
         private Map<String,String> map;
-
-        BeanStrLookup(Object bean) {
-            this.bean = bean;
-        }
 
         BeanStrLookup(Object bean, Map<String,String> map) {
             this.bean = bean;
@@ -210,9 +204,9 @@ public class MailProcessorUtils {
         return metadataInfo;
     }
 
-    public Object getPopulatedImageBean(String imageBeanName, MailBean mailBean, MailProcessorUtils.MetadataTagsHolder metadataTags, String filename) {
+    public Object getPopulatedImageBean(MailImporterConfig config, MailBean mailBean, MailProcessorUtils.MetadataTagsHolder metadataTags, String filename) {
         try {
-            Object bean = Class.forName(imageBeanName).newInstance();
+            Object bean = Class.forName(config.getImageBean()).newInstance();
             String byline = metadataTags.customTags.getByline();
             setProperty(bean, "byline", byline);
             String subject = metadataTags.customTags.getSubject();
@@ -230,7 +224,7 @@ public class MailProcessorUtils {
             map.put("description", description);
             map.put("section", subject);
             map.put("byline", byline);
-            String name = expandBean(mailBean,map,config.getImageNamePattern());
+            String name = expandBean(mailBean,map,config.getAttachmentNamePattern());
             setProperty(bean,"name", name);
             return bean;
         } catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
@@ -249,7 +243,7 @@ public class MailProcessorUtils {
                 }
                 structuredText.setText((String)value);
                 PropertyUtils.setProperty(bean, field, structuredText);
-            } else if (propertyType.equals("java.lang.String")){
+            } else if (propertyType.getName().equals("java.lang.String")){
                 BeanUtils.setProperty(bean, field, value);
             } else
                 throw new RuntimeException("unknown type");
@@ -259,9 +253,9 @@ public class MailProcessorUtils {
 
     }
 
-    public Object getPopulatedArticleBean(String articleBeanName, MailBean mail) {
+    public Object getPopulatedArticleBean(MailImporterConfig config, MailBean mail) {
         try {
-            Object articleBean = Class.forName(articleBeanName).newInstance();
+            Object articleBean = Class.forName(config.getArticleBean()).newInstance();
             String articlePattern = config.getArticleNamePattern();
             String name = expandBean(mail, null, articlePattern);
             setProperty(articleBean, "name", name);
