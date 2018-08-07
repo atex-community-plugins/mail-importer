@@ -70,10 +70,11 @@ public class MailProcessorUtils {
             try {
                 return BeanUtils.getProperty(bean, name);
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                log.error("failed to find bean field "+name,e);
+                // ignore missing property
             }
             if (map != null)
                 return map.get(name);
+            log.warn("failed to find property "+name+" in bean");
             return null;
         }
     };
@@ -243,12 +244,11 @@ public class MailProcessorUtils {
                 }
                 structuredText.setText((String)value);
                 PropertyUtils.setProperty(bean, field, structuredText);
-            } else if (propertyType.getName().equals("java.lang.String")){
+            } else {
                 BeanUtils.setProperty(bean, field, value);
-            } else
-                throw new RuntimeException("unknown type");
+            }
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | RuntimeException e) {
-            log.error("unable to use type to set properties",e);
+            log.error("unable to use type to set property "+field+" to value "+value.toString(),e);
         }
 
     }
@@ -259,14 +259,11 @@ public class MailProcessorUtils {
             String articlePattern = config.getArticleNamePattern();
             String name = expandBean(mail, null, articlePattern);
             setProperty(articleBean, "name", name);
-            StructuredText body = new StructuredText();
-            body.setText(mail.getBody());
-            BeanUtils.setProperty(articleBean, "body", body);
-            StructuredText headline = new StructuredText();
-            headline.setText(mail.getSubject());
-            BeanUtils.setProperty(articleBean, "headline", headline);
+            setProperty(articleBean, "body", mail.getBody());
+            setProperty(articleBean, "headline", mail.getSubject());
+            setProperty(articleBean, "lead", mail.getLead());
             return articleBean;
-        } catch (IllegalAccessException | InvocationTargetException | ClassNotFoundException | InstantiationException e) {
+        } catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
             log.error("Failed to create article bean",e);
             return null;
         }

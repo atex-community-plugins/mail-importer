@@ -93,6 +93,7 @@ public class MailParser
 
     private String normalizeLineEndings(final String text)
     {
+        if (text == null) return "";
         return text.replaceAll("\\r\\n", "\n").replaceAll("\\r", "\n");
     }
 
