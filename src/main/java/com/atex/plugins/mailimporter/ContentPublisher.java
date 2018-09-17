@@ -16,8 +16,10 @@ import com.polopoly.metadata.Metadata;
 import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -122,7 +124,15 @@ public class ContentPublisher
     private ContentResult<Object> writeArticleBean(MailProcessorUtils mailProcessorUtils, Object articleBean) {
         ContentWriteBuilder<Object> cwb = new ContentWriteBuilder<>();
         cwb.mainAspectData(articleBean);
-        cwb.type(articleBean.getClass().getName());
+        try {
+            cwb.type(BeanUtils.getProperty(articleBean,"_type"));
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
 
         InsertionInfoAspectBean insertionInfoAspectBean = mailProcessorUtils.getInsertionInfoAspectBean();
         cwb.aspect("p.InsertionInfo", insertionInfoAspectBean);
@@ -170,7 +180,7 @@ public class ContentPublisher
         metadataInfo.setMetadata(metadata);
 
         ContentWriteBuilder cwb = new ContentWriteBuilder();
-        cwb.type(bean.getClass().getName());
+        cwb.type(BeanUtils.getProperty(bean,"_type"));
         cwb.mainAspectData(bean);
 
         cwb.aspect(FilesAspectBean.ASPECT_NAME, filesAspectBean);
