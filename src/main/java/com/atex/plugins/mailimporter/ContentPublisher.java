@@ -125,7 +125,7 @@ public class ContentPublisher
         ContentWriteBuilder<Object> cwb = new ContentWriteBuilder<>();
         cwb.mainAspectData(articleBean);
         try {
-            cwb.type(BeanUtils.getProperty(articleBean,"_type"));
+            cwb.type(BeanUtils.getProperty(articleBean,"ASPECT_NAME"));
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
@@ -180,7 +180,7 @@ public class ContentPublisher
         metadataInfo.setMetadata(metadata);
 
         ContentWriteBuilder cwb = new ContentWriteBuilder();
-        cwb.type(BeanUtils.getProperty(bean,"_type"));
+        cwb.type(BeanUtils.getProperty(bean,"ASPECT_NAME"));
         cwb.mainAspectData(bean);
 
         cwb.aspect(FilesAspectBean.ASPECT_NAME, filesAspectBean);
