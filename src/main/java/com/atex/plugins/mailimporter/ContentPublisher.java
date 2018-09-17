@@ -7,6 +7,7 @@ import com.atex.onecms.content.metadata.MetadataInfo;
 import com.atex.onecms.image.ImageInfoAspectBean;
 import com.atex.plugins.baseline.policy.BaselinePolicy;
 import com.polopoly.application.Application;
+import com.polopoly.application.IllegalApplicationStateException;
 import com.polopoly.cm.ExternalContentId;
 import com.polopoly.cm.client.*;
 import com.polopoly.cm.policy.PolicyCMServer;
@@ -186,7 +187,10 @@ public class ContentPublisher
     }
 
     private CmClient getCmClient(Application application) {
-        return (CmClient)application.getApplicationComponent(CmClientBase.DEFAULT_COMPOUND_NAME);
+        try {
+            return application.getPreferredApplicationComponent(CmClient.class);
+        } catch (IllegalApplicationStateException var3) {
+            return null;
+        }
     }
-
 }
