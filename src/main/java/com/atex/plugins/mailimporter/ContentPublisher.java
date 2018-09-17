@@ -48,7 +48,9 @@ public class ContentPublisher
     }
 
     private Application getApplication() {
-        return IntegrationServerApplication.getPolopolyApplication();
+        Application app = IntegrationServerApplication.getPolopolyApplication();
+        if (app == null) log.error("Failed to get Application");
+        return app;
     }
 
     public MailImporterConfig getConfig() {
@@ -189,7 +191,8 @@ public class ContentPublisher
     private CmClient getCmClient(Application application) {
         try {
             return application.getPreferredApplicationComponent(CmClient.class);
-        } catch (IllegalApplicationStateException var3) {
+        } catch (IllegalApplicationStateException e) {
+            log.error("Failed to get CmClient",e);
             return null;
         }
     }
