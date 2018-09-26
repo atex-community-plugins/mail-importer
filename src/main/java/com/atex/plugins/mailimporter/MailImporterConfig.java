@@ -22,6 +22,8 @@ public class MailImporterConfig {
     private static final String ARTICLE_NAME_PATTERN = "article_name_pattern";
     private static final String MAIL_URI = "mail_uri";
     private static final String MAILIMPORTER_ENABLED = "mailimporter_enabled";
+    private static final String IMAGE_PARTITION = "image_partition";
+    private static final String ARTICLE_PARTITION = "article_partition";
 
     private final BaselinePolicy baselinePolicy;
 
@@ -67,7 +69,16 @@ public class MailImporterConfig {
         return Strings.nullToEmpty(getChildValue(MAIL_URI, "pop3://localhost:110?username=admin@localhost&password=admin&delete=true"));
     }
 
+    public String getImagePartition() {
+        return Strings.nullToEmpty(getChildValue(IMAGE_PARTITION, ""));
+    }
+
+    public String getArticlePartition() {
+        return Strings.nullToEmpty(getChildValue(ARTICLE_PARTITION, ""));
+    }
+
     public boolean isEnabled() {
         return Boolean.parseBoolean(getChildValue(MAILIMPORTER_ENABLED, "false"));
     }
+
 }

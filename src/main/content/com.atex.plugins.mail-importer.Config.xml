@@ -33,6 +33,12 @@
     <field name="mail_uri" input-template="p.TextInput"
            label="com.atex.plugins.mail-importer.Config.mail_uri">
     </field>
+    <field name="article_partition" input-template="p.TextInput"
+           label="com.atex.plugins.mail-importer.Config.article_partition">
+    </field>
+    <field name="image_partition" input-template="p.TextInput"
+           label="com.atex.plugins.mail-importer.Config.image_partition">
+    </field>
 
   </input-template>
 </template-definition>

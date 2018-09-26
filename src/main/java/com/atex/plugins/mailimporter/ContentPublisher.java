@@ -11,16 +11,17 @@ import com.polopoly.application.IllegalApplicationStateException;
 import com.polopoly.cm.ExternalContentId;
 import com.polopoly.cm.client.*;
 import com.polopoly.cm.policy.PolicyCMServer;
+import com.polopoly.common.lang.StringUtil;
 import com.polopoly.integration.IntegrationServerApplication;
+import com.polopoly.metadata.Dimension;
+import com.polopoly.metadata.Entity;
 import com.polopoly.metadata.Metadata;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Bean;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -38,6 +39,7 @@ public class ContentPublisher
 {
     public static final Subject SYSTEM_SUBJECT 	  = new Subject("98", null);
     public static final String SCHEME_TMP = "tmp";
+    public static final String DIMENSION_PARTITION = "dimension.partition";
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -118,6 +120,19 @@ public class ContentPublisher
             }
         }
 
+        MetadataInfo metadataInfo = mailProcessorUtils.getMetadataInfo();
+
+        Metadata metadata = new Metadata();
+        if (!StringUtil.isEmpty(config.getArticlePartition())) {
+            Dimension partition = createDimensionWithEntity(DIMENSION_PARTITION, config.getArticlePartition());
+            metadata.addDimension(partition);
+        }
+
+        metadataInfo.setMetadata(metadata);
+
+
+        metadataInfo.setMetadata(metadata);
+
         BeanUtils.setProperty(articleBean,"images", images);
         return articleBean;
     }
@@ -154,6 +169,10 @@ public class ContentPublisher
         return false;
     }
 
+    private Dimension createDimensionWithEntity(String dimension, String entity) {
+        return new Dimension(dimension, dimension, false, new Entity(entity, entity));
+    }
+
     private ContentId createImage(MailImporterConfig config, MailBean mailBean, final String name, final byte[] imageData)  throws Exception {
         ByteArrayInputStream bis = new ByteArrayInputStream(imageData);
 
@@ -173,7 +192,12 @@ public class ContentPublisher
 
         // leave creation date to prestore hook
         MetadataInfo metadataInfo = mailProcessorUtils.getMetadataInfo();
+
         Metadata metadata = new Metadata();
+        if (!StringUtil.isEmpty(config.getImagePartition())) {
+            Dimension partition = createDimensionWithEntity(DIMENSION_PARTITION, config.getImagePartition());
+            metadata.addDimension(partition);
+        }
 
         metadataInfo.setMetadata(metadata);
 

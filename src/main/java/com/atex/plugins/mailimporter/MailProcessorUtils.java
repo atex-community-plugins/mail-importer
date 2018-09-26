@@ -1,5 +1,6 @@
 package com.atex.plugins.mailimporter;
 
+import com.atex.onecms.app.dam.DeskStaticConfig;
 import com.atex.onecms.content.*;
 import com.atex.onecms.content.files.FileInfo;
 import com.atex.onecms.content.metadata.MetadataInfo;
@@ -31,7 +32,7 @@ public class MailProcessorUtils {
     private Logger log = LoggerFactory.getLogger(getClass());
 
     public static final String SECURITY_PARENT 	  = "dam.assets.common.d";
-    public static final String TAXONOMY_ID = "PolopolyPost.d";
+    public static final String TAXONOMY_ID = DeskStaticConfig.TAXONOMY_ID;
 
     private final ContentManager contentManager;
 

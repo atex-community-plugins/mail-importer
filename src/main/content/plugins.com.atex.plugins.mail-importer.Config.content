@@ -10,3 +10,5 @@ component:attachment_name_pattern:value:Attachment_${from}_${filename}
 component:article_name_pattern:value:Email_${from}_${subject}
 component:mailimporter_enabled:value:false
 component:mail_uri:value:pop3\://localhost\:110?username=admin@localhost&password=admin&delete=true
+component:article_partition:value:
+component:image_partition:value:
