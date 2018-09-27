@@ -120,19 +120,6 @@ public class ContentPublisher
             }
         }
 
-        MetadataInfo metadataInfo = mailProcessorUtils.getMetadataInfo();
-
-        Metadata metadata = new Metadata();
-        if (!StringUtil.isEmpty(config.getArticlePartition())) {
-            Dimension partition = createDimensionWithEntity(DIMENSION_PARTITION, config.getArticlePartition());
-            metadata.addDimension(partition);
-        }
-
-        metadataInfo.setMetadata(metadata);
-
-
-        metadataInfo.setMetadata(metadata);
-
         BeanUtils.setProperty(articleBean,"images", images);
         return articleBean;
     }
@@ -146,6 +133,16 @@ public class ContentPublisher
             e.printStackTrace();
         }
 
+        MetadataInfo metadataInfo = mailProcessorUtils.getMetadataInfo();
+
+        Metadata metadata = new Metadata();
+        if (!StringUtil.isEmpty(getConfig().getArticlePartition())) {
+            Dimension partition = createDimensionWithEntity(DIMENSION_PARTITION, getConfig().getArticlePartition());
+            metadata.addDimension(partition);
+        }
+
+        metadataInfo.setMetadata(metadata);
+        cwb.aspect(MetadataInfo.ASPECT_NAME, metadataInfo);
 
         InsertionInfoAspectBean insertionInfoAspectBean = mailProcessorUtils.getInsertionInfoAspectBean();
         cwb.aspect("p.InsertionInfo", insertionInfoAspectBean);
