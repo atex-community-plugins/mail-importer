@@ -2,6 +2,7 @@ package com.atex.plugins.mailimporter;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.component.mail.MailMessage;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.mail.util.MimeMessageParser;
 
 import javax.activation.DataHandler;
@@ -71,11 +72,11 @@ public class MailParser
         lead = removeInlinedCIDReferences(lead);
         body = removeInlinedCIDReferences(body);
 
-        body = "<p>" + body.replaceAll(PARAGRAPH_DELIMITER, "</p><p>").replaceAll("\\n", "<br />") + "</p>";
+        body = "<p>" + StringEscapeUtils.escapeHtml(body) + "</p>";
 
         Map<String, DataHandler> attachments = exchange.getIn().getAttachments();
 
-        Map<String, byte[]> attachmentFiles = new HashMap<String, byte[]>();
+        Map<String, byte[]> attachmentFiles = new HashMap<>();
 
         if (attachments.size() > 0) {
             for (String attachmentKey : attachments.keySet()) {
@@ -94,11 +95,11 @@ public class MailParser
     private String normalizeLineEndings(final String text)
     {
         if (text == null) return "";
-        return text.replaceAll("\\r\\n", "\n").replaceAll("\\r", "\n");
+        return text.replaceAll("\r\n", "\n").replaceAll("\r", "\n");
     }
 
     private String removeInlinedCIDReferences(final String text)
     {
-        return text.replaceAll("\\[cid:.*?\\]\\n*", "");
+        return text.replaceAll("\\[cid:.*?\\]\n*", "");
     }
 }
