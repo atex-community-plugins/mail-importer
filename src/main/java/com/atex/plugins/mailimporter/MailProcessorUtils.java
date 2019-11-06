@@ -13,6 +13,9 @@ import com.drew.metadata.Directory;
 import com.drew.metadata.Tag;
 import com.drew.metadata.icc.IccDirectory;
 import com.drew.metadata.iptc.IptcDirectory;
+import com.polopoly.model.ModelDomain;
+import com.polopoly.model.ModelType;
+import com.polopoly.model.ModelTypeBean;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.text.StrLookup;
@@ -35,9 +38,11 @@ public class MailProcessorUtils {
     public static final String TAXONOMY_ID = DeskStaticConfig.TAXONOMY_ID;
 
     private final ContentManager contentManager;
+    private final ModelDomain modelDomain;
 
-    public MailProcessorUtils(ContentManager contentManager) {
+    public MailProcessorUtils(ContentManager contentManager, ModelDomain modelDomain) {
         this.contentManager = contentManager;
+        this.modelDomain = modelDomain;
     }
 
     public String getFormatName(InputStream is) throws Exception {
@@ -208,7 +213,9 @@ public class MailProcessorUtils {
 
     public Object getPopulatedImageBean(MailImporterConfig config, MailBean mailBean, MailProcessorUtils.MetadataTagsHolder metadataTags, String filename) {
         try {
-            Object bean = Class.forName(config.getImageBean()).newInstance();
+            ModelType typeFromAspectName = modelDomain.getModelType(config.getImageAspect());
+            Class fromAspectNameClass = ((ModelTypeBean) typeFromAspectName).getBeanClass();
+            Object bean = fromAspectNameClass.newInstance();
             String byline = metadataTags.customTags.getByline();
             setProperty(bean, "byline", byline);
             String subject = metadataTags.customTags.getSubject();
@@ -229,7 +236,7 @@ public class MailProcessorUtils {
             String name = expandBean(mailBean,map,config.getAttachmentNamePattern());
             setProperty(bean,"name", name);
             return bean;
-        } catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
+        } catch (IllegalAccessException | InstantiationException e) {
             log.error("Could not create image bean",e);
         }
         return null;
@@ -256,7 +263,9 @@ public class MailProcessorUtils {
 
     public Object getPopulatedArticleBean(MailImporterConfig config, MailBean mail) {
         try {
-            Object articleBean = Class.forName(config.getArticleBean()).newInstance();
+            ModelType typeFromAspectName = modelDomain.getModelType(config.getArticleAspect());
+            Class fromAspectNameClass = ((ModelTypeBean) typeFromAspectName).getBeanClass();
+            Object articleBean = fromAspectNameClass.newInstance();
             String articlePattern = config.getArticleNamePattern();
             String name = expandBean(mail, null, articlePattern);
             setProperty(articleBean, "name", name);
@@ -264,7 +273,7 @@ public class MailProcessorUtils {
             setProperty(articleBean, "headline", mail.getSubject());
             setProperty(articleBean, "lead", mail.getLead());
             return articleBean;
-        } catch (IllegalAccessException | ClassNotFoundException | InstantiationException e) {
+        } catch (IllegalAccessException | InstantiationException e) {
             log.error("Failed to create article bean",e);
             return null;
         }

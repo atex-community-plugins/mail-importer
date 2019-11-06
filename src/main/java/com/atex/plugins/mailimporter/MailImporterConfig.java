@@ -15,8 +15,8 @@ public class MailImporterConfig {
 
     public static final String CONFIG_EXT_ID = "plugins.com.atex.plugins.mail-importer.Config";
 
-    private static final String ARTICLEBEAN = "article_bean";
-    private static final String IMAGEBEAN = "image_bean";
+    private static final String ARTICLE_ASPECT = "article_aspect";
+    private static final String IMAGE_ASPECT = "image_aspect";
     private static final String ACCEPTED_IMAGE_EXTENSIONS = "accepted_image_extensions";
     private static final String ATTACHMENT_NAME_PATTERN = "attachment_name_pattern";
     private static final String ARTICLE_NAME_PATTERN = "article_name_pattern";
@@ -31,12 +31,12 @@ public class MailImporterConfig {
         this.baselinePolicy = baselinePolicy;
     }
 
-    public String getArticleBean() {
-        return Strings.nullToEmpty(getChildValue(ARTICLEBEAN, "com.atex.nosql.article.ArticleBean"));
+    public String getArticleAspect() {
+        return Strings.nullToEmpty(getChildValue(ARTICLE_ASPECT, "atex.onecms.article"));
     }
 
-    public String getImageBean() {
-        return Strings.nullToEmpty(getChildValue(IMAGEBEAN, "com.atex.nosql.image.ImageContentDataBean"));
+    public String getImageAspect() {
+        return Strings.nullToEmpty(getChildValue(IMAGE_ASPECT, "atex.onecms.image"));
     }
 
     public String getAttachmentNamePattern() {
