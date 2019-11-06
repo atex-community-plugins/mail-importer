@@ -16,6 +16,9 @@ import com.polopoly.integration.IntegrationServerApplication;
 import com.polopoly.metadata.Dimension;
 import com.polopoly.metadata.Entity;
 import com.polopoly.metadata.Metadata;
+import com.polopoly.model.ModelDomain;
+import com.polopoly.siteengine.dispatcher.SiteEngine;
+import com.polopoly.siteengine.dispatcher.SiteEngineApplication;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.slf4j.Logger;
@@ -47,6 +50,7 @@ public class ContentPublisher
     private ContentManager contentManager = null;
     private MailProcessorUtils mailProcessorUtils = null;
     private PolicyCMServer cmServer = null;
+    private ModelDomain modelDomain;
 
     public ContentPublisher()
     {
@@ -92,9 +96,11 @@ public class ContentPublisher
 
     public void init() throws CMException, com.polopoly.application.IllegalApplicationStateException {
         Application application = getApplication();
+
         CmClient cmclient = getCmClient(application);
         if (contentManager == null) {
             contentManager = cmclient.getContentManager();
+            modelDomain = cmclient.getPolicyModelDomain();
         }
 
         if (cmServer == null) {
@@ -106,7 +112,7 @@ public class ContentPublisher
         }
 
         if (mailProcessorUtils == null) {
-            mailProcessorUtils = new MailProcessorUtils(contentManager);
+            mailProcessorUtils = new MailProcessorUtils(contentManager, modelDomain);
         }
     }
 
