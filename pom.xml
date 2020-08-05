@@ -11,7 +11,7 @@
   <parent>
     <groupId>com.polopoly</groupId>
     <artifactId>public</artifactId>
-    <version>10.16.5-fp2</version>
+    <version>10.18.3-fp2</version>
     <relativePath />
   </parent>
 
@@ -58,9 +58,9 @@
 
   <properties>
     <polopoly.version>10.16.5-fp2</polopoly.version>
-    <camel.version>2.13.2</camel.version>
-    <desk.version>2.12.1</desk.version>
+    <camel.version>2.13.3</camel.version>
     <spring.version>4.1.0.RELEASE</spring.version>
+    <desk.version>2.12.1</desk.version>
   </properties>
 
   <distributionManagement>
@@ -188,6 +188,17 @@
       <artifactId>module-desk</artifactId>
       <version>${desk.version}</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>1.9.5</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

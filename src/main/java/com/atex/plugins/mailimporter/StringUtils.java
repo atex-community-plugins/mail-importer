@@ -27,7 +27,7 @@ public class StringUtils {
 	public static boolean notNull(String s) {
 		return ( ( s != null ) && (!(s.trim().toLowerCase().equalsIgnoreCase("null"))) &&  (!(s.trim().toLowerCase().equals(""))) );
 	}
-	
+
 	public static boolean notNull(Object obj) {
 		return ( obj != null );
 	}
@@ -35,7 +35,7 @@ public class StringUtils {
 	public static boolean notNull(List<?> list) {
 		return ( (list != null) && (!(list.isEmpty())) );
 	}
-	
+
 	public static String dateToUTCDateString(Date date) {
 		ZonedDateTime a = date.toInstant().atZone(ZoneId.of("UTC"));
 		return a.format(DateTimeFormatter.ISO_INSTANT);
@@ -201,6 +201,12 @@ public class StringUtils {
 //		l = 1497597331751L;
 //		System.out.println(longToUTCDateString(l));
 //		System.out.println(dateToUTCDateString(dt));
+	}
+
+	public static boolean isHtmlBody(String mailBody) {
+		Pattern matcher = Pattern.compile(".*<p>\\s?<\\/p>.*");
+		Matcher matcher1 = matcher.matcher(mailBody);
+		return matcher1.find();
 	}
 
 	protected static final Logger LOGGER = LoggerFactory.getLogger(StringUtils.class);
