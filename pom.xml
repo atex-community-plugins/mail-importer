@@ -57,8 +57,8 @@
   </scm>
 
   <properties>
-    <polopoly.version>10.16.5-fp2</polopoly.version>
-    <camel.version>2.13.3</camel.version>
+    <polopoly.version>10.18.3-fp2</polopoly.version>
+    <camel.version>2.24.2</camel.version>
     <spring.version>4.1.0.RELEASE</spring.version>
     <desk.version>2.12.1</desk.version>
   </properties>
@@ -139,21 +139,15 @@
       <artifactId>log4j</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.polopoly</groupId>
-      <artifactId>camel-polopoly</artifactId>
-      <version>${polopoly.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-mail</artifactId>
       <version>${camel.version}</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>com.polopoly</groupId>
       <artifactId>polopoly</artifactId>
       <version>${polopoly.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>commons-beanutils</groupId>
@@ -168,15 +162,10 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.atex.plugins</groupId>
-      <artifactId>structured-text</artifactId>
-      <version>1.5.3</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-spring</artifactId>
       <version>${camel.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>

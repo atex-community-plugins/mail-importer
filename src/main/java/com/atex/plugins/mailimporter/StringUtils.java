@@ -20,6 +20,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringUtils {
+
+	public static Pattern EMAIL_HTML_PATTERN = Pattern.compile("(.*)<p>(\\s*)<\\/p>(.*)");
+
 	public static boolean isNull(String s) {
 		return (!(notNull(s)));
 	}
@@ -204,9 +207,8 @@ public class StringUtils {
 	}
 
 	public static boolean isHtmlBody(String mailBody) {
-		Pattern matcher = Pattern.compile(".*<p>\\s?<\\/p>.*");
-		Matcher matcher1 = matcher.matcher(mailBody);
-		return matcher1.find();
+		Matcher matcher = EMAIL_HTML_PATTERN.matcher(mailBody);
+		return matcher.find();
 	}
 
 	protected static final Logger LOGGER = LoggerFactory.getLogger(StringUtils.class);

@@ -11,7 +11,8 @@ import javax.mail.internet.MimeMessage;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import static com.atex.plugins.mailimporter.StringUtils.EMAIL_HTML_PATTERN;
 
 /**
  * <p>
@@ -112,18 +113,33 @@ public class MailParser
         mailBean.setLead(lead);
     }
 
-    protected void setHtmlContent(MailBean mailBean, String body) {
-        String lead = "";
+    protected void setHtmlContent(MailBean mailBean, String fullText) {
+        /**
+         * HTML Layout is specified as:
+         *          lead
+         *          <p>{whitespace}</p>
+         *          body
+         *
+         *          newlines are not required.
+         */
+        String lead;
+        String body;
 
-        Pattern pattern = Pattern.compile("(.*)<p>(\\s*)<\\/p>(.*)");
-        Matcher matcher = pattern.matcher(body);
-        if (matcher.find()) {
-            int paragraphIndex = matcher.end(1);
+        Matcher matcher = EMAIL_HTML_PATTERN.matcher(fullText);
+        if (matcher.find() && matcher.groupCount() > 0) {
+            int paragraphTagIndex = matcher.end(1);
 
-            lead = body.substring(0, paragraphIndex).trim();
+            lead = fullText.substring(0, paragraphTagIndex).trim();
 
-            int bodyStart = matcher.start(3);
-            body = body.substring(bodyStart).trim();
+            if (matcher.groupCount() > 2) {
+                int bodyStart = matcher.start(3);
+                body = fullText.substring(bodyStart).trim();
+            } else {
+                body = "";
+            }
+        } else {
+            lead = "";
+            body = fullText;
         }
 
         /**
