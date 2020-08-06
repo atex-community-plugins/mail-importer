@@ -10,6 +10,9 @@ import javax.mail.Message;
 import javax.mail.internet.MimeMessage;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+
+import static com.atex.plugins.mailimporter.StringUtils.EMAIL_HTML_PATTERN;
 
 /**
  * <p>
@@ -46,11 +49,43 @@ public class MailParser
         MimeMessage realMessage = (MimeMessage) originalMessage;
         MimeMessageParser messageParser = new MimeMessageParser(realMessage).parse();
 
-        String subject = messageParser.getSubject();
-        String from = messageParser.getFrom();
+        MailBean mailBean = new MailBean();
 
-        String lead = "";
+        String subject = messageParser.getSubject();
+        mailBean.setSubject(subject);
+
+        String from = messageParser.getFrom();
+        mailBean.setFrom(from);
+
+        Map<String, DataHandler> attachments = exchange.getIn().getAttachments();
+
+        Map<String, byte[]> attachmentFiles = new HashMap<>();
+
+        if (attachments.size() > 0) {
+            for (String attachmentKey : attachments.keySet()) {
+                DataHandler dataHandler = attachments.get(attachmentKey);
+
+                String filename = dataHandler.getName();
+                byte[] data = exchange.getContext().getTypeConverter().convertTo(byte[].class, dataHandler.getInputStream());
+
+                attachmentFiles.put(filename, data);
+            }
+        }
+
+        mailBean.setAttachments(attachmentFiles);
+
         String body = normalizeLineEndings(messageParser.getPlainContent());
+        if (StringUtils.isHtmlBody(body)) {
+            setHtmlContent(mailBean, body);
+        } else {
+            setPlainTextContent(mailBean, body);
+        }
+
+        return mailBean;
+    }
+
+    protected void setPlainTextContent(MailBean mailBean, String body) {
+        String lead = "";
 
         if (body.contains(PARAGRAPH_DELIMITER)) {
             int paragraphIndex = body.indexOf(PARAGRAPH_DELIMITER);
@@ -74,22 +109,57 @@ public class MailParser
 
         body = "<p>" + StringEscapeUtils.escapeHtml(body) + "</p>";
 
-        Map<String, DataHandler> attachments = exchange.getIn().getAttachments();
+        mailBean.setBody(body);
+        mailBean.setLead(lead);
+    }
 
-        Map<String, byte[]> attachmentFiles = new HashMap<>();
+    protected void setHtmlContent(MailBean mailBean, String fullText) {
+        /**
+         * HTML Layout is specified as:
+         *          lead
+         *          <p>{whitespace}</p>
+         *          body
+         *
+         *          newlines are not required.
+         */
+        String lead;
+        String body;
 
-        if (attachments.size() > 0) {
-            for (String attachmentKey : attachments.keySet()) {
-                DataHandler dataHandler = attachments.get(attachmentKey);
+        Matcher matcher = EMAIL_HTML_PATTERN.matcher(fullText);
+        if (matcher.find() && matcher.groupCount() > 0) {
+            int paragraphTagIndex = matcher.end(1);
 
-                String filename = dataHandler.getName();
-                byte[] data = exchange.getContext().getTypeConverter().convertTo(byte[].class, dataHandler.getInputStream());
+            lead = fullText.substring(0, paragraphTagIndex).trim();
 
-                attachmentFiles.put(filename, data);
+            if (matcher.groupCount() > 2) {
+                int bodyStart = matcher.start(3);
+                body = fullText.substring(bodyStart).trim();
+            } else {
+                body = "";
             }
+        } else {
+            lead = "";
+            body = fullText;
         }
 
-        return new MailBean(subject, lead, body, from, attachmentFiles);
+        /**
+         * E-mail clients use in-line chunk data references to mark positions where images
+         * are in-lined in the mail. The default Mac Mail client (might be others as well)
+         * use a format like [cid:af1b90bbaa34355a] that neither GMail nor Apache Email
+         * seem to understand.
+         *
+         * I order to avoid these ugly markers in the resulting article texts, we try to clear
+         * them out, preferably without affecting anything else.
+         */
+
+        lead = removeInlinedCIDReferences(lead);
+        lead = StringEscapeUtils.unescapeXml(StringEscapeUtils.escapeHtml(lead));
+
+        body = removeInlinedCIDReferences(body);
+        body = StringEscapeUtils.unescapeXml(StringEscapeUtils.escapeHtml(body));
+
+        mailBean.setBody(body);
+        mailBean.setLead(lead);
     }
 
     private String normalizeLineEndings(final String text)

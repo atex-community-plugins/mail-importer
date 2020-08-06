@@ -20,6 +20,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringUtils {
+
+	public static Pattern EMAIL_HTML_PATTERN = Pattern.compile("(.*)<p>(\\s*)<\\/p>(.*)");
+
 	public static boolean isNull(String s) {
 		return (!(notNull(s)));
 	}
@@ -27,7 +30,7 @@ public class StringUtils {
 	public static boolean notNull(String s) {
 		return ( ( s != null ) && (!(s.trim().toLowerCase().equalsIgnoreCase("null"))) &&  (!(s.trim().toLowerCase().equals(""))) );
 	}
-	
+
 	public static boolean notNull(Object obj) {
 		return ( obj != null );
 	}
@@ -35,7 +38,7 @@ public class StringUtils {
 	public static boolean notNull(List<?> list) {
 		return ( (list != null) && (!(list.isEmpty())) );
 	}
-	
+
 	public static String dateToUTCDateString(Date date) {
 		ZonedDateTime a = date.toInstant().atZone(ZoneId.of("UTC"));
 		return a.format(DateTimeFormatter.ISO_INSTANT);
@@ -201,6 +204,11 @@ public class StringUtils {
 //		l = 1497597331751L;
 //		System.out.println(longToUTCDateString(l));
 //		System.out.println(dateToUTCDateString(dt));
+	}
+
+	public static boolean isHtmlBody(String mailBody) {
+		Matcher matcher = EMAIL_HTML_PATTERN.matcher(mailBody);
+		return matcher.find();
 	}
 
 	protected static final Logger LOGGER = LoggerFactory.getLogger(StringUtils.class);
