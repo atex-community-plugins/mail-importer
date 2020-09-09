@@ -64,6 +64,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("incoming", route.getImagePartition());
             Assert.assertEquals("incoming2", route.getArticlePartition());
             Assert.assertEquals("Taxo", route.getTaxonomyId());
+            Assert.assertEquals("98", route.getPrincipalId());
         }
     }
 
@@ -88,6 +89,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertFalse(route.isEnabled());
             Assert.assertEquals("incoming", route.getImagePartition());
             Assert.assertEquals("incoming2", route.getArticlePartition());
+            Assert.assertEquals("98", route.getPrincipalId());
         }
     }
 
@@ -115,6 +117,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("incoming", route.getImagePartition());
             Assert.assertEquals("incoming2", route.getArticlePartition());
             Assert.assertEquals("Taxo", route.getTaxonomyId());
+            Assert.assertEquals("98", route.getPrincipalId());
         }
         {
             final MailRouteConfig route = mailUris.get(1);
@@ -124,6 +127,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("production", route.getImagePartition());
             Assert.assertEquals("archive", route.getArticlePartition());
             Assert.assertEquals("Taxo", route.getTaxonomyId());
+            Assert.assertEquals("2020", route.getPrincipalId());
         }
     }
 
@@ -153,6 +157,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("dam.assets.incoming.sport.d", route.getDeskLevel());
             Assert.assertEquals("SPORT", route.getSection());
             Assert.assertEquals("MAILBOX", route.getSource());
+            Assert.assertEquals("2020", route.getPrincipalId());
         }
     }
 
@@ -197,6 +202,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("incoming", route.getImagePartition());
             Assert.assertEquals("production", route.getArticlePartition());
             Assert.assertEquals("t1", route.getTaxonomyId());
+            Assert.assertEquals("2021", route.getPrincipalId());
         }
         {
             final MailRouteConfig route = mailUris.get(1);
@@ -206,6 +212,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("incoming", route.getImagePartition());
             Assert.assertEquals("production", route.getArticlePartition());
             Assert.assertEquals("t2", route.getTaxonomyId());
+            Assert.assertEquals("2022", route.getPrincipalId());
         }
         {
             final MailRouteConfig route = mailUris.get(2);
@@ -215,6 +222,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("incoming", route.getImagePartition());
             Assert.assertEquals("production", route.getArticlePartition());
             Assert.assertEquals("Taxo", route.getTaxonomyId());
+            Assert.assertEquals("98", route.getPrincipalId());
         }
     }
 
@@ -247,6 +255,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("CRONACA", route.getSection());
             Assert.assertEquals("MAIL", route.getSource());
             Assert.assertEquals("myTaxonomy", route.getTaxonomyId());
+            Assert.assertEquals("98", route.getPrincipalId());
         }
     }
 
@@ -276,6 +285,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("dam.assets.incoming.d", route.getDeskLevel());
             Assert.assertEquals("CRONACA", route.getSection());
             Assert.assertEquals("MAIL", route.getSource());
+            Assert.assertEquals("98", route.getPrincipalId());
         }
     }
 
@@ -305,6 +315,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("dam.assets.incoming.d", route.getDeskLevel());
             Assert.assertEquals("CRONACA", route.getSection());
             Assert.assertEquals("MAIL", route.getSource());
+            Assert.assertEquals("2020", route.getPrincipalId());
 
             final Map<String, Map<String, String>> defaults = route.getFieldsDefaults();
             Assert.assertNotNull(defaults);
@@ -387,6 +398,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals(null, route.getDeskLevel());
             Assert.assertEquals(null, route.getSection());
             Assert.assertEquals(null, route.getSource());
+            Assert.assertEquals("98", route.getPrincipalId());
 
             final Map<String, Map<String, String>> defaults = route.getFieldsDefaults();
             Assert.assertNotNull(defaults);

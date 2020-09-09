@@ -4,7 +4,8 @@
     "deskLevel": "dam.assets.incoming.d",
     "section": "CRONACA",
     "source": "MAIL",
-    "taxonomyId": "myTaxonomy"
+    "taxonomyId": "myTaxonomy",
+    "principalId": ""
   },
   "mailUri": [
     {

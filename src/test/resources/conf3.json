@@ -4,12 +4,14 @@
       "uri": "imaps://imap.ethereal?username=rickey.berger",
       "articlePartition": "",
       "imagePartition": "",
-      "taxonomyId": "t1"
+      "taxonomyId": "t1",
+      "principalId": "2021"
     },
     {
       "enabled": true,
       "uri": "imaps://imap.ethereal?username=clay.regazzoni",
-      "taxonomyId": "t2"
+      "taxonomyId": "t2",
+      "principalId": "2022"
     },
     {
       "uri": "imaps://imap.ethereal?username=ayrton.senna"

@@ -3,6 +3,7 @@ package com.atex.plugins.mailimporter;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
@@ -49,7 +50,6 @@ import com.polopoly.model.ModelDomain;
 public class ContentPublisher {
     private static final Logger LOG = LoggerFactory.getLogger(ContentPublisher.class);
 
-    private static final Subject SYSTEM_SUBJECT = new Subject("98", null);
     private static final String SCHEME_TMP = "tmp";
     private static final String DIMENSION_PARTITION = "dimension.partition";
 
@@ -167,13 +167,6 @@ public class ContentPublisher {
         ContentWriteBuilder<Object> cwb = new ContentWriteBuilder<>();
         cwb.mainAspectData(articleBean);
         cwb.type(config.getArticleAspect());
-        /*
-        try {
-            cwb.type((String) FieldUtils.getField(articleBean.getClass(), "ASPECT_NAME").get(articleBean));
-        } catch (IllegalAccessException e) {
-            LOG.warn("cannot get field ASPECT_NAME from {}", articleBean.getClass().getName(), e);
-        }
-         */
 
         final MetadataInfo metadataInfo = mailProcessorUtils.getMetadataInfo(routeConfig.getTaxonomyId());
 
@@ -189,7 +182,15 @@ public class ContentPublisher {
         cwb.aspect(InsertionInfoAspectBean.ASPECT_NAME, insertionInfoAspectBean);
 
         ContentWrite<Object> content = cwb.buildCreate();
-        return contentManager.create(content, SYSTEM_SUBJECT);
+        return contentManager.create(content, createSubject(routeConfig));
+    }
+
+    private Subject createSubject(final MailRouteConfig config) {
+        final String principalId = Optional.ofNullable(config)
+                                           .map(MailRouteConfig::getPrincipalId)
+                                           .filter(StringUtil::notEmpty)
+                                           .orElse("98");
+        return new Subject(principalId, null);
     }
 
     private FileService getFileService(Application application) {
@@ -230,7 +231,7 @@ public class ContentPublisher {
             metadataTags = mailProcessorUtils.getMetadataTags(bis);
             bis.reset();
 
-            fInfo = fileService.uploadFile(SCHEME_TMP, null, name, bis, mimeType, SYSTEM_SUBJECT);
+            fInfo = fileService.uploadFile(SCHEME_TMP, null, name, bis, mimeType, createSubject(routeConfig));
             assert fInfo != null;
         }
 
@@ -260,7 +261,7 @@ public class ContentPublisher {
         cwb.aspect(MetadataInfo.ASPECT_NAME, metadataInfo);
 
         ContentWrite<Object> content = cwb.buildCreate();
-        ContentResult<Object> cr = contentManager.create(content, SYSTEM_SUBJECT);
+        ContentResult<Object> cr = contentManager.create(content, createSubject(routeConfig));
         if (!cr.getStatus().isSuccess()) {
             LOG.error("Error importing image: " + name + "." + cr.getStatus().toString());
         }

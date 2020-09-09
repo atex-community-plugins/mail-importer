@@ -4,6 +4,7 @@
     "deskLevel": "dam.assets.incoming.d",
     "section": "CRONACA",
     "source": "MAIL",
+    "principalId": "2020",
     "contentTypes": {
       "atex.onecms.article": {
         "contentType": "parentDocument",

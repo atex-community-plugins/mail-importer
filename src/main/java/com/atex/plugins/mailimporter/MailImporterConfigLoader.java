@@ -123,6 +123,7 @@ public class MailImporterConfigLoader {
         route.setImagePartition(getImagePartition());
         route.setUri(uri);
         route.setTaxonomyId(getTaxonomyId());
+        route.setPrincipalId("98");
         return route;
     }
 
@@ -186,6 +187,7 @@ public class MailImporterConfigLoader {
             final AtomicReference<String> defDeskLevel = new AtomicReference<>(null);
             final AtomicReference<String> defSection = new AtomicReference<>(null);
             final AtomicReference<String> defSource = new AtomicReference<>(null);
+            final AtomicReference<String> defPrincipalId = new AtomicReference<>(null);
             final Map<String, Map<String, String>> defFieldDefaults = new HashMap<>();
             jsonSection(jsonElement, "defaults", JsonElement::isJsonObject, JsonElement::getAsJsonObject)
                     .ifPresent(defaults -> {
@@ -194,18 +196,23 @@ public class MailImporterConfigLoader {
                         getPrimitive(defaults, "section", JsonElement::getAsString, defSection::set);
                         getPrimitive(defaults, "source", JsonElement::getAsString, defSource::set);
                         getPrimitive(defaults, "taxonomyId", JsonElement::getAsString, config::setTaxonomyId);
+                        getPrimitive(defaults, "principalId", JsonElement::getAsString, defPrincipalId::set);
                         defFieldDefaults.putAll(readContentTypesDefaults(defaults));
                     });
+            final String defaultPrincipalId = Optional.ofNullable(defPrincipalId.get())
+                                                      .filter(StringUtil::notEmpty)
+                                                      .orElse("98");
             final Map<String, Map<String, String>> defFieldMappings = readContentTypesMappings(jsonElement);
             if (StringUtil.notEmpty(loader.getMailUri()) && config.getMailUris().size() > 0) {
-                final MailRouteConfig mailRouteConfig = config.getMailUris().get(0);
-                mailRouteConfig.setWebPage(defWebPage.get());
-                mailRouteConfig.setDeskLevel(defDeskLevel.get());
-                mailRouteConfig.setSection(defSection.get());
-                mailRouteConfig.setSource(defSource.get());
-                mailRouteConfig.setTaxonomyId(loader.getTaxonomyId());
-                mailRouteConfig.setFieldsDefaults(defFieldDefaults);
-                mailRouteConfig.setFieldsMappings(defFieldMappings);
+                final MailRouteConfig mainRouteConfig = config.getMailUris().get(0);
+                mainRouteConfig.setWebPage(defWebPage.get());
+                mainRouteConfig.setDeskLevel(defDeskLevel.get());
+                mainRouteConfig.setSection(defSection.get());
+                mainRouteConfig.setSource(defSource.get());
+                mainRouteConfig.setTaxonomyId(loader.getTaxonomyId());
+                mainRouteConfig.setFieldsDefaults(defFieldDefaults);
+                mainRouteConfig.setFieldsMappings(defFieldMappings);
+                mainRouteConfig.setPrincipalId(defaultPrincipalId);
             }
             jsonSection(jsonElement, "mailUri", JsonElement::isJsonArray, JsonElement::getAsJsonArray)
                     .ifPresent(mailUri -> {
@@ -220,11 +227,13 @@ public class MailImporterConfigLoader {
                                     routeConfig.setSection(defSection.get());
                                     routeConfig.setSource(defSource.get());
                                     routeConfig.setTaxonomyId(config.getTaxonomyId());
+                                    routeConfig.setPrincipalId(defaultPrincipalId);
                                     getPrimitive(mailJson, "webPage", JsonElement::getAsString, routeConfig::setWebPage);
                                     getPrimitive(mailJson, "deskLevel", JsonElement::getAsString, routeConfig::setDeskLevel);
                                     getPrimitive(mailJson, "section", JsonElement::getAsString, routeConfig::setSection);
                                     getPrimitive(mailJson, "source", JsonElement::getAsString, routeConfig::setSource);
                                     getPrimitive(mailJson, "taxonomyId", JsonElement::getAsString, routeConfig::setTaxonomyId);
+                                    getPrimitive(mailJson, "principalId", JsonElement::getAsString, routeConfig::setPrincipalId);
                                     final Map<String, Map<String, String>> fieldDefaults = new HashMap<>();
                                     fieldDefaults.putAll(defFieldDefaults);
                                     fieldDefaults.putAll(readContentTypesDefaults(mailJson));

@@ -166,6 +166,10 @@ public class ContentPublisherTest {
         Assert.assertNotNull(insInfo);
         Assert.assertEquals(deskLevelId.getContentId(), insInfo.getSecurityParentId());
         Assert.assertEquals(gongWebPageId.getContentId(), insInfo.getInsertParentId());
+
+        final Subject subject = contentWriteSubjectCaptor.getValue();
+        Assert.assertNotNull(subject);
+        Assert.assertEquals("98", subject.getPrincipalId());
     }
 
     @Test
@@ -190,6 +194,7 @@ public class ContentPublisherTest {
         routeConfig.setTaxonomyId("routeTaxonomy.d");
         routeConfig.setArticlePartition("article-partition");
         routeConfig.setDeskLevel("dam.desk.level");
+        routeConfig.setPrincipalId("2020");
 
         final MailBean mail = new MailBean();
         mail.setSubject("This is the subject");
@@ -220,6 +225,10 @@ public class ContentPublisherTest {
         Assert.assertNotNull(insInfo);
         Assert.assertEquals(deskLevelId.getContentId(), insInfo.getSecurityParentId());
         Assert.assertNull(insInfo.getInsertParentId());
+
+        final Subject subject = contentWriteSubjectCaptor.getValue();
+        Assert.assertNotNull(subject);
+        Assert.assertEquals("2020", subject.getPrincipalId());
     }
 
     @Test
@@ -291,6 +300,10 @@ public class ContentPublisherTest {
         Assert.assertNotNull(insInfo);
         Assert.assertEquals(deskLevelId.getContentId(), insInfo.getSecurityParentId());
         Assert.assertEquals(gongWebPageId.getContentId(), insInfo.getInsertParentId());
+
+        final Subject subject = contentWriteSubjectCaptor.getValue();
+        Assert.assertNotNull(subject);
+        Assert.assertEquals("98", subject.getPrincipalId());
     }
 
     @Test
@@ -366,6 +379,10 @@ public class ContentPublisherTest {
         Assert.assertNotNull(insInfo);
         Assert.assertEquals(deskLevelId.getContentId(), insInfo.getSecurityParentId());
         Assert.assertEquals(gongWebPageId.getContentId(), insInfo.getInsertParentId());
+
+        final Subject subject = contentWriteSubjectCaptor.getValue();
+        Assert.assertNotNull(subject);
+        Assert.assertEquals("98", subject.getPrincipalId());
     }
 
     @Test
@@ -509,6 +526,12 @@ public class ContentPublisherTest {
             Assert.assertEquals(deskLevelId.getContentId(), insInfo.getSecurityParentId());
             Assert.assertEquals(gongWebPageId.getContentId(), insInfo.getInsertParentId());
         }
+
+        contentWriteSubjectCaptor.getAllValues()
+                                 .forEach(subject -> {
+                                     Assert.assertNotNull(subject);
+                                     Assert.assertEquals("98", subject.getPrincipalId());
+                                 });
     }
 
     @Test
@@ -580,6 +603,7 @@ public class ContentPublisherTest {
         routeConfig.setSection("URGENT");
         routeConfig.setSource("MAIL");
         routeConfig.setFieldsDefaults(fieldsDefaults);
+        routeConfig.setPrincipalId("1024");
 
         final MailBean mail = new MailBean();
         mail.setSubject("This is the subject");
@@ -675,6 +699,12 @@ public class ContentPublisherTest {
             Assert.assertEquals(deskLevelId.getContentId(), insInfo.getSecurityParentId());
             Assert.assertEquals(gongWebPageId.getContentId(), insInfo.getInsertParentId());
         }
+
+        contentWriteSubjectCaptor.getAllValues()
+                                 .forEach(subject -> {
+                                     Assert.assertNotNull(subject);
+                                     Assert.assertEquals("1024", subject.getPrincipalId());
+                                 });
     }
 
     private void assertPartition(final Metadata metadata, final String expectedPartition) {

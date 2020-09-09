@@ -35,7 +35,10 @@ Extendend configuration can be done in the json field, the following contains al
     // "section": "CRONACA",
 
     // "source" the source property
-    //"source": "MAIL",
+    // "source": "MAIL",
+
+    // "principalId" is the principalId of the user that will be used to import, defaults to "98".
+    // "principalId": "98",
 
     // The "contentTypes" allow you to specify some defaults for specific content types.
     "contentTypes": {
@@ -94,7 +97,8 @@ Extendend configuration can be done in the json field, the following contains al
       "webPage": "",
       "deskLevel": "",
       "section": "",
-      "source": ""
+      "source": "",
+      "principalId": ""
     },
     {
       "enabled": true,
