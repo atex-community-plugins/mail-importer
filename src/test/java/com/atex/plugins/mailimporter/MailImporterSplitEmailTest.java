@@ -1,10 +1,10 @@
 package com.atex.plugins.mailimporter;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 
-public class MailImporterSplitEmail {
+import org.junit.Test;
+
+public class MailImporterSplitEmailTest {
 
     @Test
     public void testSplitHtmlEmail() {

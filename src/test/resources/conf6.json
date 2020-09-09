@@ -1,0 +1,35 @@
+{
+  "defaults": {
+    "webPage": "la-stampa.2014v1.site",
+    "deskLevel": "dam.assets.incoming.d",
+    "section": "CRONACA",
+    "source": "MAIL",
+    "contentTypes": {
+      "atex.onecms.article": {
+        "contentType": "parentDocument",
+        "objectType": "article",
+        "inputTemplate": "p.DamWireArticle"
+      },
+      "atex.onecms.image": {
+        "contentType": "parentDocument",
+        "objectType": "image",
+        "inputTemplate": "p.DamWireImage"
+      },
+      "atex.dam.standard.Graphic": {
+        "contentType": "parentDocument",
+        "objectType": "graphic",
+        "inputTemplate": "p.DamWireGraphic"
+      }
+    }
+  },
+  "mappings": {
+    "atex.onecms.article": {
+      "name": "myname"
+    },
+    "atex.onecms.image": {
+      "contentType": "imageContentType"
+    },
+    "atex.dam.standard.Graphic": {
+    }
+  }
+}

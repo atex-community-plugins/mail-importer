@@ -1,16 +1,5 @@
 package com.atex.plugins.mailimporter;
 
-import com.atex.onecms.image.exif.MetadataTagsAspectBean;
-import com.drew.lang.Rational;
-import com.drew.metadata.Directory;
-import com.drew.metadata.Metadata;
-import com.drew.metadata.Tag;
-import com.drew.metadata.icc.IccDirectory;
-import com.drew.metadata.iptc.IptcDirectory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,11 +8,6 @@ import java.util.Map;
 public class CustomMetadataTags {
 
     private Map<String, Map<String, ?>> tags;
-
-    protected static final Logger log = LoggerFactory.getLogger(CustomMetadataTags.class);
-    
-    private static final int IMAGE_RIGHTS_CUSTOM_FIELD = 730;
-    private static final String CUSTOM_FIELD_19 = "CustomField19";
 
     private String byline;
     private String caption;
@@ -37,87 +21,6 @@ public class CustomMetadataTags {
     private String dateCreated;
     private Date dateCreatedAsDate;
     private String copyright;
-
-    public static CustomMetadataTags extract(Metadata metadata) {
-
-        CustomMetadataTags customMetadataTags = new CustomMetadataTags();
-
-        customMetadataTags.tags = new HashMap<>();
-
-        for (Directory directory : metadata.getDirectories()) {
-            if (!(directory instanceof IccDirectory)) {
-                Map<String, Object> tagsInDirectory = new HashMap<>();
-                for (Tag tag : directory.getTags()) {
-                    if(directory instanceof IptcDirectory && tag.getTagType() == IMAGE_RIGHTS_CUSTOM_FIELD){
-                        tagsInDirectory.put(CUSTOM_FIELD_19, getTagValue(directory, tag));
-                    }else{
-                        tagsInDirectory.put(tag.getTagName(), getTagValue(directory, tag));
-                    }
-                    if (directory instanceof IptcDirectory) {
-                        readIptcDirectoryTag(directory, tag, customMetadataTags);
-                    }
-                }
-                customMetadataTags.tags.put(directory.getName(), tagsInDirectory);
-            }
-
-        }
-
-        MetadataTagsAspectBean meta = new MetadataTagsAspectBean();
-
-        meta.setTags(customMetadataTags.tags);
-
-        return customMetadataTags;
-    }
-
-
-    private static Object getTagValue(final Directory directory, final Tag tag) {
-        Object tagValue = directory.getObject(tag.getTagType());
-        if (!(tagValue instanceof Rational) && tagValue instanceof Number) {
-            return tagValue;
-        }
-        return tag.getDescription();
-    }
-
-    public static void readIptcDirectoryTag(final Directory directory,
-                                            final Tag tag,
-                                            final CustomMetadataTags metadataTags) {
-        int type = tag.getTagType();
-
-        switch (type) {
-            case IptcDirectory.TAG_BY_LINE:
-                metadataTags.setByline(directory.getDescription(type));
-                break;
-            case IptcDirectory.TAG_SOURCE:
-                metadataTags.setSource(directory.getDescription(type));
-                break;
-            case IptcDirectory.TAG_CAPTION:
-                metadataTags.setDescription(directory.getDescription(type));
-                metadataTags.setCaption(directory.getDescription(type));
-                break;
-            case IptcDirectory.TAG_HEADLINE:
-                metadataTags.setHeadline(directory.getDescription(type));
-                break;
-            case IptcDirectory.TAG_CREDIT:
-                metadataTags.setCredit(directory.getDescription(type));
-                break;
-            case IptcDirectory.TAG_KEYWORDS:
-                metadataTags.setKeywords(directory.getDescription(type));
-                break;
-            case IptcDirectory.TAG_CATEGORY:
-                metadataTags.setSubject(directory.getDescription(type));
-                break;
-
-            case IptcDirectory.TAG_COUNTRY_OR_PRIMARY_LOCATION_NAME:
-            case IptcDirectory.TAG_SUB_LOCATION:
-                if (metadataTags.getLocation() == null) {
-                    metadataTags.setLocation(directory.getDescription(type));
-                } else
-                    metadataTags.setLocation(metadataTags.getLocation() + ";" + directory.getDescription(type));
-                break;
-            default:
-                break;
-        }
-    }
 
     public String getCaption() {
         return caption;

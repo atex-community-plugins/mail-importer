@@ -1,0 +1,8 @@
+{
+  "defaults": {
+    "webPage": "la-stampa.2014v1.site",
+    "deskLevel": "dam.assets.incoming.d",
+    "section": "CRONACA",
+    "source": "MAIL"
+  }
+}

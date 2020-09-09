@@ -1,31 +1,39 @@
 package com.atex.plugins.mailimporter;
 
-import com.atex.onecms.content.*;
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.atex.onecms.content.ContentId;
+import com.atex.onecms.content.ContentManager;
+import com.atex.onecms.content.ContentResult;
+import com.atex.onecms.content.ContentWrite;
+import com.atex.onecms.content.ContentWriteBuilder;
+import com.atex.onecms.content.FilesAspectBean;
+import com.atex.onecms.content.IdUtil;
+import com.atex.onecms.content.InsertionInfoAspectBean;
+import com.atex.onecms.content.RepositoryClient;
+import com.atex.onecms.content.Subject;
 import com.atex.onecms.content.files.FileInfo;
 import com.atex.onecms.content.files.FileService;
 import com.atex.onecms.content.metadata.MetadataInfo;
 import com.atex.onecms.image.ImageInfoAspectBean;
-import com.atex.plugins.baseline.policy.BaselinePolicy;
+import com.atex.plugins.mailimporter.MailImporterConfig.MailRouteConfig;
 import com.polopoly.application.Application;
 import com.polopoly.application.IllegalApplicationStateException;
-import com.polopoly.cm.ExternalContentId;
-import com.polopoly.cm.client.*;
+import com.polopoly.cm.client.CMException;
+import com.polopoly.cm.client.CmClient;
+import com.polopoly.cm.client.HttpFileServiceClient;
 import com.polopoly.cm.policy.PolicyCMServer;
 import com.polopoly.common.lang.StringUtil;
-import com.polopoly.integration.IntegrationServerApplication;
 import com.polopoly.metadata.Dimension;
 import com.polopoly.metadata.Entity;
 import com.polopoly.metadata.Metadata;
 import com.polopoly.model.ModelDomain;
-import com.polopoly.siteengine.dispatcher.SiteEngine;
-import com.polopoly.siteengine.dispatcher.SiteEngineApplication;
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang3.reflect.FieldUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.util.*;
 
 /**
  * Utility class used to publish a parsed {@link MailBean}
@@ -38,13 +46,14 @@ import java.util.*;
  *   <li>All content will have <code>PolopolyPost.d</code> as security parent.</li>
  * </ul>
  */
-public class ContentPublisher
-{
-    public static final Subject SYSTEM_SUBJECT 	  = new Subject("98", null);
-    public static final String SCHEME_TMP = "tmp";
-    public static final String DIMENSION_PARTITION = "dimension.partition";
+public class ContentPublisher {
+    private static final Logger LOG = LoggerFactory.getLogger(ContentPublisher.class);
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Subject SYSTEM_SUBJECT = new Subject("98", null);
+    private static final String SCHEME_TMP = "tmp";
+    private static final String DIMENSION_PARTITION = "dimension.partition";
+
+    static final ThreadLocal<MailImporterConfig> IMPORTER_CONFIG = new ThreadLocal<>();
 
     private FileService fileService = null;
     private ContentManager contentManager = null;
@@ -52,54 +61,73 @@ public class ContentPublisher
     private PolicyCMServer cmServer = null;
     private ModelDomain modelDomain;
 
-    public ContentPublisher()
-    {
+    private final Application application;
+
+    public ContentPublisher(final Application application) {
+        this.application = application;
+        if (application == null) {
+            LOG.error("Failed to get Application");
+        }
     }
 
     private Application getApplication() {
-        Application app = IntegrationServerApplication.getPolopolyApplication();
-        if (app == null) log.error("Failed to get Application");
-        return app;
+        return application;
     }
 
     public MailImporterConfig getConfig() {
+        final MailImporterConfig config = IMPORTER_CONFIG.get();
+        if (config != null) {
+            return config;
+        }
         try {
-            return new MailImporterConfig(((BaselinePolicy)cmServer.getPolicy(new ExternalContentId(MailImporterConfig.CONFIG_EXT_ID))));
+            return MailImporterConfigLoader.createConfig(cmServer);
         } catch (CMException e) {
-            log.error("unable to load mail importer config",e);
+            LOG.error("unable to load mail importer config", e);
             return null;
         }
     }
 
-    public ContentId publish(final MailBean mail)
-        throws Exception
-    {
+    public void setConfig(final MailImporterConfig config) {
+        IMPORTER_CONFIG.set(config);
+    }
 
-        /**
-         * Please note that the mapping between data and Polopoly types we have to perform here will be
-         * very much simplified in future versions of Polopoly, where the Data-API will have support for
-         * write operations. It will then be possible to manage data mapping and conversions centralized
-         * for the entire project.
-         *
-         * http://support.polopoly.com/confluence/display/Polopoly > Data-API.
-         */
+    public ContentId publish(final MailBean mail,
+                             final MailRouteConfig routeConfig) throws Exception {
+
+        // Please note that the mapping between data and Polopoly types we have to perform here will be
+        // very much simplified in future versions of Polopoly, where the Data-API will have support for
+        // write operations. It will then be possible to manage data mapping and conversions centralized
+        // for the entire project.
+        //
+        // http://support.polopoly.com/confluence/display/Polopoly > Data-API.
+
+        if (routeConfig == null) {
+            throw new Exception("Missing routeConfig, (did you forget to add header X-ROUTE-CONFIG?)");
+        }
 
         try {
-            MailImporterConfig config = getConfig();
-            Object articleBean = createArticle(config,mail);
-            ContentResult<Object> cr = writeArticleBean(mailProcessorUtils, articleBean);
+            final MailImporterConfig config = getConfig();
+            IMPORTER_CONFIG.set(config);
+
+            final Object articleBean = createArticle(config, routeConfig, mail);
+            final ContentResult<Object> cr = writeArticleBean(mailProcessorUtils, config, routeConfig, articleBean);
             return cr.getContentId().getContentId();
         } catch (CMException e) {
             throw new RuntimeException("Failed to publish contents!", e);
+        } finally {
+            IMPORTER_CONFIG.set(null);
         }
     }
 
-    public void init() throws CMException, com.polopoly.application.IllegalApplicationStateException {
-        Application application = getApplication();
+    public void init() {
+        final Application application = getApplication();
+        final CmClient cmclient = getCmClient(application);
 
-        CmClient cmclient = getCmClient(application);
         if (contentManager == null) {
-            contentManager = cmclient.getContentManager();
+            contentManager = getContentManager(application);
+        }
+
+        if (modelDomain == null) {
             modelDomain = cmclient.getPolicyModelDomain();
         }
 
@@ -116,54 +144,64 @@ public class ContentPublisher
         }
     }
 
-    public Object createArticle(MailImporterConfig config, MailBean mail) throws Exception {
-        Object articleBean = mailProcessorUtils.getPopulatedArticleBean(config, mail);
+    private Object createArticle(final MailImporterConfig config,
+                                 final MailRouteConfig routeConfig,
+                                 final MailBean mail) throws Exception {
+        Object articleBean = mailProcessorUtils.getPopulatedArticleBean(config, routeConfig, mail);
         List<ContentId> images = new ArrayList<>();
         for (String filename : mail.getAttachments().keySet()) {
             if (isAcceptedImageExtension(config.getAcceptedImageExtensions(), filename)) {
-                ContentId contentId = createImage(config, mail, filename, mail.getAttachments().get(filename));
+                ContentId contentId = createImage(config, routeConfig, mail, filename, mail.getAttachments().get(filename));
                 images.add(0, contentId);
             }
         }
 
-        BeanUtils.setProperty(articleBean,"images", images);
+        BeanUtils.setProperty(articleBean, "images", images);
         return articleBean;
     }
 
-    private ContentResult<Object> writeArticleBean(MailProcessorUtils mailProcessorUtils, Object articleBean) {
+    private ContentResult<Object> writeArticleBean(final MailProcessorUtils mailProcessorUtils,
+                                                   final MailImporterConfig config,
+                                                   final MailRouteConfig routeConfig,
+                                                   final Object articleBean) {
         ContentWriteBuilder<Object> cwb = new ContentWriteBuilder<>();
         cwb.mainAspectData(articleBean);
+        cwb.type(config.getArticleAspect());
+        /*
         try {
-            cwb.type((String) FieldUtils.getField(articleBean.getClass(),"ASPECT_NAME").get(articleBean));
+            cwb.type((String) FieldUtils.getField(articleBean.getClass(), "ASPECT_NAME").get(articleBean));
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            LOG.warn("cannot get field ASPECT_NAME from {}", articleBean.getClass().getName(), e);
+        }
+         */
+
+        final MetadataInfo metadataInfo = mailProcessorUtils.getMetadataInfo(routeConfig.getTaxonomyId());
+
+        if (StringUtil.notEmpty(routeConfig.getArticlePartition())) {
+            final Metadata metadata = new Metadata();
+            metadata.addDimension(createDimensionWithEntity(DIMENSION_PARTITION, routeConfig.getArticlePartition()));
+            metadataInfo.setMetadata(metadata);
         }
 
-        MetadataInfo metadataInfo = mailProcessorUtils.getMetadataInfo();
-
-        Metadata metadata = new Metadata();
-        if (!StringUtil.isEmpty(getConfig().getArticlePartition())) {
-            Dimension partition = createDimensionWithEntity(DIMENSION_PARTITION, getConfig().getArticlePartition());
-            metadata.addDimension(partition);
-        }
-
-        metadataInfo.setMetadata(metadata);
         cwb.aspect(MetadataInfo.ASPECT_NAME, metadataInfo);
 
-        InsertionInfoAspectBean insertionInfoAspectBean = mailProcessorUtils.getInsertionInfoAspectBean();
-        cwb.aspect("p.InsertionInfo", insertionInfoAspectBean);
+        final InsertionInfoAspectBean insertionInfoAspectBean = mailProcessorUtils.getInsertionInfoAspectBean(routeConfig);
+        cwb.aspect(InsertionInfoAspectBean.ASPECT_NAME, insertionInfoAspectBean);
 
         ContentWrite<Object> content = cwb.buildCreate();
         return contentManager.create(content, SYSTEM_SUBJECT);
     }
 
-    private FileService getFileService(Application application) throws com.polopoly.application.IllegalApplicationStateException {
-        HttpFileServiceClient httpFileServiceClient = application.getPreferredApplicationComponent(HttpFileServiceClient.class);
-        return httpFileServiceClient.getFileService();
+    private FileService getFileService(Application application) {
+        try {
+            HttpFileServiceClient httpFileServiceClient = application.getPreferredApplicationComponent(HttpFileServiceClient.class);
+            return httpFileServiceClient.getFileService();
+        } catch (IllegalApplicationStateException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private boolean isAcceptedImageExtension(final List<String> acceptedImageExtensions, final String filename)
-    {
+    private boolean isAcceptedImageExtension(final List<String> acceptedImageExtensions, final String filename) {
         for (String suffix : acceptedImageExtensions) {
             if (filename.toLowerCase().endsWith(suffix)) {
                 return true;
@@ -176,36 +214,44 @@ public class ContentPublisher
         return new Dimension(dimension, dimension, false, new Entity(entity, entity));
     }
 
-    private ContentId createImage(MailImporterConfig config, MailBean mailBean, final String name, final byte[] imageData)  throws Exception {
-        ByteArrayInputStream bis = new ByteArrayInputStream(imageData);
+    private ContentId createImage(final MailImporterConfig config,
+                                  final MailRouteConfig routeConfig,
+                                  final MailBean mailBean,
+                                  final String name,
+                                  final byte[] imageData) throws Exception {
+        final FileInfo fInfo;
+        final MailProcessorUtils.MetadataTagsHolder metadataTags;
 
-        String mimeType = mailProcessorUtils.getFormatName(bis);
-        bis.reset();
+        try (final ByteArrayInputStream bis = new ByteArrayInputStream(imageData)) {
 
-        MailProcessorUtils.MetadataTagsHolder metadataTags = mailProcessorUtils.getMetadataTags(bis);
-        bis.reset();
+            final String mimeType = mailProcessorUtils.getFormatName(bis);
+            bis.reset();
 
-        FileInfo fInfo = fileService.uploadFile(SCHEME_TMP, null, name, bis, mimeType, SYSTEM_SUBJECT);
+            metadataTags = mailProcessorUtils.getMetadataTags(bis);
+            bis.reset();
+
+            fInfo = fileService.uploadFile(SCHEME_TMP, null, name, bis, mimeType, SYSTEM_SUBJECT);
+            assert fInfo != null;
+        }
 
         FilesAspectBean filesAspectBean = mailProcessorUtils.getFilesAspectBean(fInfo);
         ImageInfoAspectBean imageInfoAspectBean = mailProcessorUtils.getImageInfoAspectBean(metadataTags.tags, fInfo);
-        InsertionInfoAspectBean insertionInfoAspectBean = mailProcessorUtils.getInsertionInfoAspectBean();
+        final InsertionInfoAspectBean insertionInfoAspectBean = mailProcessorUtils.getInsertionInfoAspectBean(routeConfig);
 
-        Object bean = mailProcessorUtils.getPopulatedImageBean(config, mailBean, metadataTags, name);
+        Object bean = mailProcessorUtils.getPopulatedImageBean(config, routeConfig, mailBean, metadataTags, name);
 
         // leave creation date to prestore hook
-        MetadataInfo metadataInfo = mailProcessorUtils.getMetadataInfo();
+        final MetadataInfo metadataInfo = mailProcessorUtils.getMetadataInfo(routeConfig.getTaxonomyId());
 
-        Metadata metadata = new Metadata();
-        if (!StringUtil.isEmpty(config.getImagePartition())) {
-            Dimension partition = createDimensionWithEntity(DIMENSION_PARTITION, config.getImagePartition());
+        if (!StringUtil.isEmpty(routeConfig.getImagePartition())) {
+            final Metadata metadata = new Metadata();
+            final Dimension partition = createDimensionWithEntity(DIMENSION_PARTITION, routeConfig.getImagePartition());
             metadata.addDimension(partition);
+            metadataInfo.setMetadata(metadata);
         }
 
-        metadataInfo.setMetadata(metadata);
-
-        ContentWriteBuilder cwb = new ContentWriteBuilder();
-        cwb.type((String) FieldUtils.getField(bean.getClass(),"ASPECT_NAME").get(bean));
+        ContentWriteBuilder<Object> cwb = new ContentWriteBuilder<>();
+        cwb.type(config.getImageAspect());
         cwb.mainAspectData(bean);
 
         cwb.aspect(FilesAspectBean.ASPECT_NAME, filesAspectBean);
@@ -213,12 +259,12 @@ public class ContentPublisher
         cwb.aspect(InsertionInfoAspectBean.ASPECT_NAME, insertionInfoAspectBean);
         cwb.aspect(MetadataInfo.ASPECT_NAME, metadataInfo);
 
-        ContentWrite content = cwb.buildCreate();
-        ContentResult cr = contentManager.create(content, SYSTEM_SUBJECT);
-        if (!cr.getStatus().isOk()) {
-            log.error("Error importing image: " + name + "." + cr.getStatus().toString());
+        ContentWrite<Object> content = cwb.buildCreate();
+        ContentResult<Object> cr = contentManager.create(content, SYSTEM_SUBJECT);
+        if (!cr.getStatus().isSuccess()) {
+            LOG.error("Error importing image: " + name + "." + cr.getStatus().toString());
         }
-        log.info("Inserted image " + name + " with contentid: " + cr.getContentId().getContentId());
+        LOG.info("Inserted image " + name + " with contentid: " + IdUtil.toIdString(cr.getContentId().getContentId()));
 
         return cr.getContentId().getContentId();
     }
@@ -227,8 +273,20 @@ public class ContentPublisher
         try {
             return application.getPreferredApplicationComponent(CmClient.class);
         } catch (IllegalApplicationStateException e) {
-            log.error("Failed to get CmClient",e);
-            return null;
+            LOG.error("Failed to get CmClient", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private ContentManager getContentManager(final Application application) {
+        try {
+            final RepositoryClient repositoryClient = application.getPreferredApplicationComponent(RepositoryClient.class);
+            if (repositoryClient == null) {
+                throw new RuntimeException("missing repository client");
+            }
+            return repositoryClient.getContentManager();
+        } catch (IllegalApplicationStateException e) {
+            throw new RuntimeException(e);
         }
     }
 }

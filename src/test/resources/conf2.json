@@ -1,0 +1,8 @@
+{
+  "mailUri": [
+    {
+      "enabled": false,
+      "uri": "imaps://imap.ethereal?username=rickey.berger"
+    }
+  ]
+}

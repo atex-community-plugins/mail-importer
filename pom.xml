@@ -24,7 +24,7 @@
 
   <groupId>com.atex.plugins</groupId>
   <artifactId>mail-importer</artifactId>
-  <version>1.2-SNAPSHOT</version>
+  <version>2.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <licenses>
@@ -57,10 +57,12 @@
   </scm>
 
   <properties>
+    <baseline.version>4.0.10</baseline.version>
     <polopoly.version>10.18.3-fp2</polopoly.version>
     <camel.version>2.24.2</camel.version>
     <spring.version>4.1.0.RELEASE</spring.version>
-    <desk.version>2.12.1</desk.version>
+    <desk.version>2.13.0-SNAPSHOT</desk.version>
+    <structured-text.version>1.6.0</structured-text.version>
   </properties>
 
   <distributionManagement>
@@ -108,16 +110,6 @@
       <version>1.5</version>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.6.0</version>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>com.polopoly</groupId>
       <artifactId>polopoly</artifactId>
       <version>${polopoly.version}</version>
@@ -129,14 +121,13 @@
       <groupId>com.polopoly</groupId>
       <artifactId>polopoly</artifactId>
       <version>${polopoly.version}</version>
-      <type>jar</type>
-      <scope>runtime</scope>
-      <optional>true</optional>
+      <scope>provided</scope>
     </dependency>
-    <!-- Test frameworks -->
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
+      <groupId>com.polopoly</groupId>
+      <artifactId>camel-polopoly</artifactId>
+      <version>${polopoly.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
@@ -144,22 +135,47 @@
       <version>${camel.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.polopoly</groupId>
-      <artifactId>polopoly</artifactId>
-      <version>${polopoly.version}</version>
-      <scope>provided</scope>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-quartz2</artifactId>
+      <version>${camel.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
-      <version>1.7.0</version>
-      <scope>compile</scope>
+      <version>1.9.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context-support</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.atex.plugins</groupId>
+      <artifactId>baseline</artifactId>
+      <version>${baseline.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.atex.plugins</groupId>
+      <artifactId>structured-text</artifactId>
+      <version>${structured-text.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.atex.gong</groupId>
       <artifactId>source-common</artifactId>
       <version>${desk.version}</version>
       <scope>provided</scope>
+    </dependency>
+    <!-- Test frameworks -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
@@ -168,25 +184,31 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context-support</artifactId>
-      <version>${spring.version}</version>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-test</artifactId>
+      <version>${camel.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.atex</groupId>
-      <artifactId>module-desk</artifactId>
-      <version>${desk.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-test-spring</artifactId>
+      <version>${camel.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>1.9.5</version>
+      <artifactId>mockito-core</artifactId>
+      <version>1.10.19</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -310,7 +332,7 @@
         <version>3.0.1</version>
         <configuration>
           <xmlOutput>true</xmlOutput>
-          <threshhold>Medium</threshhold>
+          <threshold>Medium</threshold>
           <xmlOutputDirectory>target/site</xmlOutputDirectory>
         </configuration>
       </plugin>

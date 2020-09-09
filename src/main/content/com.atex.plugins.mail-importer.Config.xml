@@ -23,21 +23,33 @@
     </field>
     <field name="article_name_pattern" input-template="p.TextInput"
            label="com.atex.plugins.mail-importer.Config.article_name_pattern">
+      <param name="maxsize">1000</param>
     </field>
     <field name="attachment_name_pattern" input-template="p.TextInput"
            label="com.atex.plugins.mail-importer.Config.attachment_name_pattern">
+      <param name="maxsize">1000</param>
     </field>
     <field name="mailimporter_enabled" input-template="p.Checkbox" label="com.atex.plugins.mail-importer.Config.mailimporter_enabled">
       <param name="checked">false</param>
     </field>
     <field name="mail_uri" input-template="p.TextInput"
            label="com.atex.plugins.mail-importer.Config.mail_uri">
+      <param name="maxsize">1000</param>
     </field>
     <field name="article_partition" input-template="p.TextInput"
            label="com.atex.plugins.mail-importer.Config.article_partition">
     </field>
     <field name="image_partition" input-template="p.TextInput"
            label="com.atex.plugins.mail-importer.Config.image_partition">
+    </field>
+
+    <field name="taxonomyId" input-template="p.TextInput"
+           label="com.atex.plugins.mail-importer.Config.taxonomyId">
+    </field>
+
+    <field name="json" input-template="p.siteengine.editor.CodeMirror" label="com.atex.plugins.mail-importer.Config.json">
+      <param name="height">600</param>
+      <param name="modeParameters">{mode: "javascript", lineNumbers: true}</param>
     </field>
 
   </input-template>

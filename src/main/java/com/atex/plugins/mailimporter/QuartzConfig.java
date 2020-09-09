@@ -22,15 +22,14 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 @Configuration
 public class QuartzConfig {
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass().getSimpleName());
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(QuartzConfig.class);
 
     @Autowired
     private ApplicationContext applicationContext;
 
     @PostConstruct
     public void init() {
-        log.debug("QuartzConfig initialized.");
+        LOGGER.debug("QuartzConfig initialized.");
     }
 
     @Bean
@@ -47,14 +46,14 @@ public class QuartzConfig {
 
         quartzScheduler.setQuartzProperties(quartzProperties());
 
-        Trigger[] triggers = { procesoMQTrigger().getObject() };
+        Trigger[] triggers = { processMQTrigger().getObject() };
         quartzScheduler.setTriggers(triggers);
 
         return quartzScheduler;
     }
 
     @Bean
-    public JobDetailFactoryBean procesoMQJob() {
+    public JobDetailFactoryBean processMQJob() {
         JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
         jobDetailFactory.setJobClass(MailImporterEnabledChecker.class);
         jobDetailFactory.setGroup("spring3-quartz");
@@ -62,9 +61,9 @@ public class QuartzConfig {
     }
 
     @Bean
-    public CronTriggerFactoryBean procesoMQTrigger() {
+    public CronTriggerFactoryBean processMQTrigger() {
         CronTriggerFactoryBean cronTriggerFactoryBean = new CronTriggerFactoryBean();
-        cronTriggerFactoryBean.setJobDetail(procesoMQJob().getObject());
+        cronTriggerFactoryBean.setJobDetail(processMQJob().getObject());
         cronTriggerFactoryBean.setCronExpression("0 0/2 * ? * * *");
         cronTriggerFactoryBean.setGroup("spring3-quartz");
         return cronTriggerFactoryBean;
@@ -80,7 +79,7 @@ public class QuartzConfig {
             properties = propertiesFactoryBean.getObject();
 
         } catch (IOException e) {
-            log.warn("Cannot load quartz.properties.");
+            LOGGER.warn("Cannot load quartz.properties: " + e.getMessage());
         }
 
         return properties;

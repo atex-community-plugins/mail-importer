@@ -1,44 +1,42 @@
 package com.atex.plugins.mailimporter;
 
+import static com.atex.plugins.mailimporter.StringUtils.EMAIL_HTML_PATTERN;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+
+import javax.activation.DataHandler;
+import javax.mail.Message;
+import javax.mail.internet.MimeMessage;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.component.mail.MailMessage;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.mail.util.MimeMessageParser;
 
-import javax.activation.DataHandler;
-import javax.mail.Message;
-import javax.mail.internet.MimeMessage;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-
-import static com.atex.plugins.mailimporter.StringUtils.EMAIL_HTML_PATTERN;
-
 /**
  * <p>
- *   Simple e-mail parser capable of parsing the example e-mail
- *   format used by this Polopoly Mail Publishing integration.
+ * Simple e-mail parser capable of parsing the example e-mail
+ * format used by this Polopoly Mail Publishing integration.
  * </p>
  *
  * <p>
- *   Since the Camel Mail component does not seem to provide
- *   much help in providing the plain content mail body for
- *   multipart e-mail, we use {@link MimeMessageParser}
- *   from Apache Email for that.
+ * Since the Camel Mail component does not seem to provide
+ * much help in providing the plain content mail body for
+ * multipart e-mail, we use {@link MimeMessageParser}
+ * from Apache Email for that.
  * </p>
  */
-public class MailParser
-{
+public class MailParser {
     private static final String PARAGRAPH_DELIMITER = "\n\n";
 
-    public MailParser()
-    {
+    public MailParser() {
 
     }
 
     public MailBean parse(final Exchange exchange)
-        throws Exception
-    {
+            throws Exception {
         MailMessage mailMessage = exchange.getIn(MailMessage.class);
         Message originalMessage = mailMessage.getOriginalMessage();
 
@@ -66,7 +64,9 @@ public class MailParser
                 DataHandler dataHandler = attachments.get(attachmentKey);
 
                 String filename = dataHandler.getName();
-                byte[] data = exchange.getContext().getTypeConverter().convertTo(byte[].class, dataHandler.getInputStream());
+                byte[] data = exchange.getContext()
+                                      .getTypeConverter()
+                                      .convertTo(byte[].class, dataHandler.getInputStream());
 
                 attachmentFiles.put(filename, data);
             }
@@ -94,15 +94,13 @@ public class MailParser
             body = body.substring(paragraphIndex + PARAGRAPH_DELIMITER.length()).trim();
         }
 
-        /**
-         * E-mail clients use in-line chunk data references to mark positions where images
-         * are in-lined in the mail. The default Mac Mail client (might be others as well)
-         * use a format like [cid:af1b90bbaa34355a] that neither GMail nor Apache Email
-         * seem to understand.
-         *
-         * I order to avoid these ugly markers in the resulting article texts, we try to clear
-         * them out, preferably without affecting anything else.
-         */
+        // E-mail clients use in-line chunk data references to mark positions where images
+        // are in-lined in the mail. The default Mac Mail client (might be others as well)
+        // use a format like [cid:af1b90bbaa34355a] that neither GMail nor Apache Email
+        // seem to understand.
+        //
+        // I order to avoid these ugly markers in the resulting article texts, we try to clear
+        // them out, preferably without affecting anything else.
 
         lead = removeInlinedCIDReferences(lead);
         body = removeInlinedCIDReferences(body);
@@ -114,14 +112,12 @@ public class MailParser
     }
 
     protected void setHtmlContent(MailBean mailBean, String fullText) {
-        /**
-         * HTML Layout is specified as:
-         *          lead
-         *          <p>{whitespace}</p>
-         *          body
-         *
-         *          newlines are not required.
-         */
+        // HTML Layout is specified as:
+        //          lead
+        //          <p>{whitespace}</p>
+        //          body
+        //
+        //          newlines are not required.
         String lead;
         String body;
 
@@ -142,15 +138,13 @@ public class MailParser
             body = fullText;
         }
 
-        /**
-         * E-mail clients use in-line chunk data references to mark positions where images
-         * are in-lined in the mail. The default Mac Mail client (might be others as well)
-         * use a format like [cid:af1b90bbaa34355a] that neither GMail nor Apache Email
-         * seem to understand.
-         *
-         * I order to avoid these ugly markers in the resulting article texts, we try to clear
-         * them out, preferably without affecting anything else.
-         */
+        // E-mail clients use in-line chunk data references to mark positions where images
+        // are in-lined in the mail. The default Mac Mail client (might be others as well)
+        // use a format like [cid:af1b90bbaa34355a] that neither GMail nor Apache Email
+        // seem to understand.
+        //
+        // I order to avoid these ugly markers in the resulting article texts, we try to clear
+        // them out, preferably without affecting anything else.
 
         lead = removeInlinedCIDReferences(lead);
         lead = StringEscapeUtils.unescapeXml(StringEscapeUtils.escapeHtml(lead));
@@ -162,14 +156,14 @@ public class MailParser
         mailBean.setLead(lead);
     }
 
-    private String normalizeLineEndings(final String text)
-    {
-        if (text == null) return "";
+    private String normalizeLineEndings(final String text) {
+        if (text == null) {
+            return "";
+        }
         return text.replaceAll("\r\n", "\n").replaceAll("\r", "\n");
     }
 
-    private String removeInlinedCIDReferences(final String text)
-    {
+    private String removeInlinedCIDReferences(final String text) {
         return text.replaceAll("\\[cid:.*?\\]\n*", "");
     }
 }

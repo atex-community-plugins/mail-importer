@@ -1,0 +1,20 @@
+{
+  "defaults": {
+    "webPage": "la-stampa.2014v1.site",
+    "deskLevel": "dam.assets.incoming.d",
+    "section": "CRONACA",
+    "source": "MAIL"
+  },
+  "mailUri": [
+    {
+      "enabled": true,
+      "uri": "imaps://imap.ethereal?username=rickey.berger",
+      "articlePartition": "archive",
+      "imagePartition": "production",
+      "webPage": "la-stampa.2014v1.sport.page",
+      "deskLevel": "dam.assets.incoming.sport.d",
+      "section": "SPORT",
+      "source": "MAILBOX"
+    }
+  ]
+}

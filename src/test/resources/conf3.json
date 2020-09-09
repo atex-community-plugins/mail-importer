@@ -1,0 +1,18 @@
+{
+  "mailUri": [
+    {
+      "uri": "imaps://imap.ethereal?username=rickey.berger",
+      "articlePartition": "",
+      "imagePartition": "",
+      "taxonomyId": "t1"
+    },
+    {
+      "enabled": true,
+      "uri": "imaps://imap.ethereal?username=clay.regazzoni",
+      "taxonomyId": "t2"
+    },
+    {
+      "uri": "imaps://imap.ethereal?username=ayrton.senna"
+    }
+  ]
+}

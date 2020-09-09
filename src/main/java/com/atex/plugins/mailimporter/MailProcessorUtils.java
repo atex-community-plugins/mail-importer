@@ -1,10 +1,42 @@
 package com.atex.plugins.mailimporter;
 
-import com.atex.onecms.app.dam.DeskStaticConfig;
-import com.atex.onecms.content.*;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.spi.ImageReaderWriterSpi;
+import javax.imageio.stream.ImageInputStream;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang.text.StrLookup;
+import org.apache.commons.lang.text.StrSubstitutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.atex.onecms.content.ContentFileInfo;
+import com.atex.onecms.content.ContentId;
+import com.atex.onecms.content.ContentManager;
+import com.atex.onecms.content.ContentVersionId;
+import com.atex.onecms.content.FilesAspectBean;
+import com.atex.onecms.content.InsertionInfoAspectBean;
+import com.atex.onecms.content.Subject;
 import com.atex.onecms.content.files.FileInfo;
 import com.atex.onecms.content.metadata.MetadataInfo;
 import com.atex.onecms.image.ImageInfoAspectBean;
+import com.atex.plugins.mailimporter.MailImporterConfig.MailRouteConfig;
 import com.atex.plugins.structured.text.StructuredText;
 import com.atex.standard.image.exif.MetadataTags;
 import com.drew.imaging.ImageMetadataReader;
@@ -13,56 +45,50 @@ import com.drew.metadata.Directory;
 import com.drew.metadata.Tag;
 import com.drew.metadata.icc.IccDirectory;
 import com.drew.metadata.iptc.IptcDirectory;
+import com.polopoly.common.lang.StringUtil;
 import com.polopoly.model.ModelDomain;
 import com.polopoly.model.ModelType;
 import com.polopoly.model.ModelTypeBean;
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.lang.text.StrLookup;
-import org.apache.commons.lang.text.StrSubstitutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
 
 public class MailProcessorUtils {
 
-    private Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(MailProcessorUtils.class);
 
-    public static final String SECURITY_PARENT 	  = "dam.assets.common.d";
-    public static final String TAXONOMY_ID = DeskStaticConfig.TAXONOMY_ID;
+    private static final Subject SYSTEM_SUBJECT = new Subject("98", "");
 
     private final ContentManager contentManager;
     private final ModelDomain modelDomain;
 
-    public MailProcessorUtils(ContentManager contentManager, ModelDomain modelDomain) {
+    public MailProcessorUtils(final ContentManager contentManager,
+                              final ModelDomain modelDomain) {
         this.contentManager = contentManager;
         this.modelDomain = modelDomain;
     }
 
-    public String getFormatName(InputStream is) throws Exception {
+    public String getFormatName(final InputStream is) throws Exception {
         try {
-
-            ImageInputStream iis = ImageIO.createImageInputStream(is);
-            Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
-            if (!iter.hasNext()) {
-                return null;
+            try (final ImageInputStream iis = ImageIO.createImageInputStream(is)) {
+                final Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
+                if (!iter.hasNext()) {
+                    return null;
+                }
+                final ImageReader reader = iter.next();
+                final Optional<String> mimeType = Optional.ofNullable(reader)
+                                                          .map(ImageReader::getOriginatingProvider)
+                                                          .map(ImageReaderWriterSpi::getMIMETypes)
+                                                          .filter(v -> v.length > 0)
+                                                          .map(v -> v[0]);
+                if (mimeType.isPresent()) {
+                    return mimeType.get();
+                }
             }
-            ImageReader reader = iter.next();
-            iis.close();
-            if (reader.getOriginatingProvider().getMIMETypes().length > 0)
-                return reader.getOriginatingProvider().getMIMETypes()[0];
         } catch (IOException e) {
+            LOG.warn(e.getMessage());
         }
         return null;
     }
 
-    class BeanStrLookup extends StrLookup {
+    static class BeanStrLookup extends StrLookup {
 
         private Object bean;
         private Map<String,String> map;
@@ -80,18 +106,18 @@ public class MailProcessorUtils {
             }
             if (map != null)
                 return map.get(name);
-            log.warn("failed to find property "+name+" in bean");
+            LOG.warn("failed to find property "+name+" in bean");
             return null;
         }
     };
 
     public String expandBean(Object bean, Map<String, String> map, String property) {
-        StrLookup resolver = new BeanStrLookup(bean,map);
+        StrLookup resolver = new BeanStrLookup(bean, map);
         StrSubstitutor strSubstitutor = new StrSubstitutor(resolver);
         return strSubstitutor.replace(property);
     }
 
-    class MetadataTagsHolder {
+    static class MetadataTagsHolder {
         MetadataTags tags;
         CustomMetadataTags customTags;
     }
@@ -134,29 +160,29 @@ public class MailProcessorUtils {
 
         switch (type) {
             case IptcDirectory.TAG_BY_LINE:
-                metadataTags.setByline(directory.getDescription(type));
+                metadataTags.setByline(trim(directory.getDescription(type)));
                 break;
             case IptcDirectory.TAG_SOURCE:
-                metadataTags.setSource(directory.getDescription(type));
+                metadataTags.setSource(trim(directory.getDescription(type)));
                 break;
             case IptcDirectory.TAG_CAPTION:
-                metadataTags.setDescription(directory.getDescription(type));
-                metadataTags.setCaption(directory.getDescription(type));
+                metadataTags.setDescription(trim(directory.getDescription(type)));
+                metadataTags.setCaption(trim(directory.getDescription(type)));
                 break;
             case IptcDirectory.TAG_HEADLINE:
-                metadataTags.setHeadline(directory.getDescription(type));
+                metadataTags.setHeadline(trim(directory.getDescription(type)));
                 break;
             case IptcDirectory.TAG_COPYRIGHT_NOTICE:
-                metadataTags.setCopyright(directory.getDescription(type));
+                metadataTags.setCopyright(trim(directory.getDescription(type)));
                 break;
             case IptcDirectory.TAG_CREDIT:
-                metadataTags.setCredit(directory.getDescription(type));
+                metadataTags.setCredit(trim(directory.getDescription(type)));
                 break;
             case IptcDirectory.TAG_KEYWORDS:
-                metadataTags.setKeywords(directory.getDescription(type));
+                metadataTags.setKeywords(trim(directory.getDescription(type)));
                 break;
             case IptcDirectory.TAG_CATEGORY:
-                metadataTags.setSubject(directory.getDescription(type));
+                metadataTags.setSubject(trim(directory.getDescription(type)));
                 break;
             case IptcDirectory.TAG_DATE_CREATED:
                 String dateString = directory.getDescription(type);
@@ -164,22 +190,30 @@ public class MailProcessorUtils {
                 break;
             case IptcDirectory.TAG_COUNTRY_OR_PRIMARY_LOCATION_NAME:
             case IptcDirectory.TAG_SUB_LOCATION:
+                final String desc = trim(directory.getDescription(type));
                 if (metadataTags.getLocation() == null) {
-                    metadataTags.setLocation(directory.getDescription(type));
-                } else
-                    metadataTags.setLocation(metadataTags.getLocation() + ";" + directory.getDescription(type));
+                    metadataTags.setLocation(desc);
+                } else {
+                    metadataTags.setLocation(metadataTags.getLocation() + ";" + desc);
+                }
                 break;
             default:
                 break;
         }
     }
 
+    private String trim(final String value) {
+        if (value != null) {
+            return value.trim();
+        }
+        return null;
+    }
 
     public FilesAspectBean getFilesAspectBean(FileInfo fInfo) {
         // atex.Files
         FilesAspectBean filesAspectBean = new FilesAspectBean();
         ContentFileInfo contentFileInfo = new ContentFileInfo(fInfo.getOriginalPath(), fInfo.getURI());
-        HashMap<String, ContentFileInfo> files = new HashMap<String, ContentFileInfo>();
+        Map<String, ContentFileInfo> files = new HashMap<>();
         files.put(fInfo.getOriginalPath(), contentFileInfo);
         filesAspectBean.setFiles(files);
         return filesAspectBean;
@@ -194,91 +228,172 @@ public class MailProcessorUtils {
         return imageInfoAspectBean;
     }
 
-    public InsertionInfoAspectBean getInsertionInfoAspectBean() {
-        // p.InsertionInfo
-        ContentId securityParentContentId = contentManager.resolve(SECURITY_PARENT, Subject.NOBODY_CALLER).getContentId();
-
-        InsertionInfoAspectBean insertionInfoAspectBean = new InsertionInfoAspectBean(securityParentContentId);
-        insertionInfoAspectBean.setInsertParentId(securityParentContentId);
-        return insertionInfoAspectBean;
+    public InsertionInfoAspectBean getInsertionInfoAspectBean(final MailRouteConfig config) {
+        final InsertionInfoAspectBean bean = new InsertionInfoAspectBean();
+        if (StringUtil.notEmpty(config.getDeskLevel())) {
+            resolve(config.getDeskLevel()).ifPresent(bean::setSecurityParentId);
+        }
+        if (StringUtil.notEmpty(config.getWebPage())) {
+            resolve(config.getWebPage()).ifPresent(bean::setInsertParentId);
+        }
+        return bean;
     }
 
-    public MetadataInfo getMetadataInfo() {
+    private Optional<ContentId> resolve(final String externalId) {
+        return Optional.ofNullable(contentManager.resolve(externalId, SYSTEM_SUBJECT))
+                .map(ContentVersionId::getContentId);
+    }
+
+    public MetadataInfo getMetadataInfo(final String taxonomyId) {
         MetadataInfo metadataInfo = new MetadataInfo();
-        Set<String> set = new HashSet<String>();
-        set.add(TAXONOMY_ID);
+        Set<String> set = new HashSet<>();
+        set.add(taxonomyId);
         metadataInfo.setTaxonomyIds(set);
         return metadataInfo;
     }
 
-    public Object getPopulatedImageBean(MailImporterConfig config, MailBean mailBean, MailProcessorUtils.MetadataTagsHolder metadataTags, String filename) {
+    public Object getPopulatedImageBean(final MailImporterConfig config,
+                                        final MailRouteConfig routeConfig,
+                                        final MailBean mailBean,
+                                        final MailProcessorUtils.MetadataTagsHolder metadataTags,
+                                        final String filename) {
         try {
-            ModelType typeFromAspectName = modelDomain.getModelType(config.getImageAspect());
-            Class fromAspectNameClass = ((ModelTypeBean) typeFromAspectName).getBeanClass();
-            Object bean = fromAspectNameClass.newInstance();
-            String byline = metadataTags.customTags.getByline();
-            setProperty(bean, "byline", byline);
-            String subject = metadataTags.customTags.getSubject();
-            setProperty(bean, "section", subject);
-            Integer imageWidth = metadataTags.tags.getImageWidth();
-            setProperty(bean, "width", imageWidth);
-            Integer imageHeight = metadataTags.tags.getImageHeight();
-            setProperty(bean, "height", imageHeight);
-            String description = metadataTags.customTags.getDescription();
-            setProperty(bean, "description", description);
-            Map<String,String> map = new HashMap<>();
-            map.put("filename",filename);
-            map.put("width", Integer.toString(imageWidth));
-            map.put("height", Integer.toString(imageHeight));
-            map.put("description", description);
-            map.put("section", subject);
-            map.put("byline", byline);
-            String name = expandBean(mailBean,map,config.getAttachmentNamePattern());
-            setProperty(bean,"name", name);
+            LOG.debug("Populate image from {}", config.getImageAspect());
+
+            final Object bean = createBean(config.getImageAspect());
+
+            final Map<String, Object> values = new HashMap<>();
+            values.put("byline", metadataTags.customTags.getByline());
+            values.put("section", metadataTags.customTags.getSubject());
+            values.put("width", metadataTags.tags.getImageWidth());
+            values.put("height", metadataTags.tags.getImageHeight());
+            values.put("description", metadataTags.customTags.getDescription());
+            if (StringUtil.notEmpty(routeConfig.getSection())) {
+                values.put("section", routeConfig.getSection());
+            }
+            if (StringUtil.notEmpty(routeConfig.getSource())) {
+                values.put("source", routeConfig.getSource());
+            }
+
+            final List<String> names = Arrays.asList(
+                    "byline",
+                    "section",
+                    "width",
+                    "height",
+                    "description"
+            );
+            final Map<String,String> map = new HashMap<>();
+            for (final String name : names) {
+                map.put(name, toString(values.get(name)));
+            }
+            map.put("filename", filename);
+            values.put("name", expandBean(mailBean, map, config.getAttachmentNamePattern()));
+
+            setProperties(bean, values, routeConfig, config.getImageAspect());
             return bean;
         } catch (IllegalAccessException | InstantiationException e) {
-            log.error("Could not create image bean",e);
+            LOG.error("Could not create image bean", e);
         }
         return null;
     }
 
-    private void setProperty(Object bean, String field, Object value) {
+    private String toString(final Object value) {
+        if (value != null) {
+            return Objects.toString(value);
+        }
+        return null;
+    }
+
+    private void setProperty(final Object bean,
+                             final String field,
+                             final Object value) {
         try {
-            Class propertyType = PropertyUtils.getPropertyType(bean, field);
+            final Class<?> propertyType = PropertyUtils.getPropertyType(bean, field);
+            if (propertyType == null) {
+                LOG.error("Field " + field + " does not exists in class " + bean.getClass());
+                return;
+            }
+            LOG.debug("setProperty on field " + field + " (type is " + propertyType.getName() + ", value type is " + ((value != null) ? value.getClass().getName() : "null") + ")");
             if (propertyType.getName().equals("com.atex.plugins.structured.text.StructuredText") ) {
                 StructuredText structuredText = (StructuredText)PropertyUtils.getProperty(bean,field);
                 if (structuredText == null) {
                     structuredText = new StructuredText();
                 }
-                structuredText.setText((String)value);
+                structuredText.setText((String) value);
                 PropertyUtils.setProperty(bean, field, structuredText);
             } else {
                 BeanUtils.setProperty(bean, field, value);
             }
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | RuntimeException e) {
-            log.error("unable to use type to set property "+field+" to value "+value.toString(),e);
+            LOG.error("unable to use type to set property " + field + " to value " + value, e);
         }
-
     }
 
-    public Object getPopulatedArticleBean(MailImporterConfig config, MailBean mail) {
+    public Object getPopulatedArticleBean(final MailImporterConfig config,
+                                          final MailRouteConfig routeConfig,
+                                          final MailBean mail) {
         try {
-            ModelType typeFromAspectName = modelDomain.getModelType(config.getArticleAspect());
-            Class fromAspectNameClass = ((ModelTypeBean) typeFromAspectName).getBeanClass();
-            Object articleBean = fromAspectNameClass.newInstance();
-            String articlePattern = config.getArticleNamePattern();
-            String name = expandBean(mail, null, articlePattern);
-            setProperty(articleBean, "name", name);
-            setProperty(articleBean, "body", mail.getBody());
-            setProperty(articleBean, "headline", mail.getSubject());
-            setProperty(articleBean, "lead", mail.getLead());
+            LOG.debug("Populate article from {}", config.getArticleAspect());
+
+            final Object articleBean = createBean(config.getArticleAspect());
+
+            final String articlePattern = config.getArticleNamePattern();
+            final String name = expandBean(mail, null, articlePattern);
+
+            final Map<String, Object> values = new HashMap<>();
+            values.put("name", name);
+            values.put("body", mail.getBody());
+            values.put("headline", mail.getSubject());
+            values.put("lead", mail.getLead());
+            if (StringUtil.notEmpty(routeConfig.getSection())) {
+                values.put("section", routeConfig.getSection());
+            }
+            if (StringUtil.notEmpty(routeConfig.getSource())) {
+                values.put("source", routeConfig.getSource());
+            }
+            setProperties(articleBean, values, routeConfig, config.getArticleAspect());
             return articleBean;
         } catch (IllegalAccessException | InstantiationException e) {
-            log.error("Failed to create article bean",e);
+            LOG.error("Failed to create article bean", e);
             return null;
         }
     }
 
+    private Object createBean(final String aspectName) throws IllegalAccessException, InstantiationException {
+        LOG.debug("Create bean for {}", aspectName);
 
+        final ModelType typeFromAspectName = modelDomain.getModelType(aspectName);
+        assert typeFromAspectName != null;
+
+        final Class<?> fromAspectNameClass = ((ModelTypeBean) typeFromAspectName).getBeanClass();
+        assert fromAspectNameClass != null;
+
+        final Object bean = fromAspectNameClass.newInstance();
+
+        LOG.debug("Created classes is {}", bean.getClass().getName());
+
+        return bean;
+    }
+
+    private void setProperties(final Object bean,
+                               final Map<String, Object> values,
+                               final MailRouteConfig routeConfig,
+                               final String aspectName) {
+        final Map<String, String> fieldsMappings = Optional.ofNullable(routeConfig.getFieldsMappings())
+                                                           .map(m -> m.get(aspectName))
+                                                           .orElse(new HashMap<>());
+
+        final Map<String, String> fieldsDefaults = Optional.ofNullable(routeConfig.getFieldsDefaults())
+                                                           .map(m -> m.get(aspectName))
+                                                           .orElse(new HashMap<>());
+        fieldsDefaults.entrySet()
+                      .stream()
+                      .filter(e -> StringUtil.notEmpty(e.getValue()))
+                      .forEach(e -> values.put(e.getKey(), e.getValue()));
+        for (final Map.Entry<String, Object> entry : values.entrySet()) {
+            final String fieldName = fieldsMappings.getOrDefault(entry.getKey(), entry.getKey());
+            setProperty(bean, fieldName, entry.getValue());
+        }
+    }
 
 }
