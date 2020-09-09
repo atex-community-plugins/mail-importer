@@ -123,6 +123,8 @@ public class MailImporterConfig {
     public static class MailRouteConfig {
         private boolean enabled;
         private String uri;
+        private String articleAspect;
+        private String imageAspect;
         private String articlePartition;
         private String imagePartition;
         private String webPage;
@@ -148,6 +150,22 @@ public class MailImporterConfig {
 
         public void setUri(final String uri) {
             this.uri = uri;
+        }
+
+        public String getArticleAspect() {
+            return articleAspect;
+        }
+
+        public void setArticleAspect(final String articleAspect) {
+            this.articleAspect = articleAspect;
+        }
+
+        public String getImageAspect() {
+            return imageAspect;
+        }
+
+        public void setImageAspect(final String imageAspect) {
+            this.imageAspect = imageAspect;
         }
 
         public String getArticlePartition() {
@@ -235,6 +253,8 @@ public class MailImporterConfig {
             return new StringJoiner(", ", MailRouteConfig.class.getSimpleName() + "[", "]")
                     .add("enabled=" + enabled)
                     .add("uri='" + uri + "'")
+                    .add("articleAspect='" + articleAspect + "'")
+                    .add("imageAspect='" + imageAspect + "'")
                     .add("articlePartition='" + articlePartition + "'")
                     .add("imagePartition='" + imagePartition + "'")
                     .add("webPage='" + webPage + "'")

@@ -61,6 +61,8 @@ public class MailImporterConfigLoaderTest {
             Assert.assertNotNull(route);
             Assert.assertEquals("imaps://mailserver?username=pippo", route.getUri());
             Assert.assertTrue(route.isEnabled());
+            Assert.assertEquals("my.article", route.getArticleAspect());
+            Assert.assertEquals("my.image", route.getImageAspect());
             Assert.assertEquals("incoming", route.getImagePartition());
             Assert.assertEquals("incoming2", route.getArticlePartition());
             Assert.assertEquals("Taxo", route.getTaxonomyId());
@@ -96,6 +98,8 @@ public class MailImporterConfigLoaderTest {
     @Test
     public void test_with_mail_uri_and_json_uri() {
         setupValue("mailimporter_enabled", "true");
+        setupValue("article_aspect", "atex.onecms.article");
+        setupValue("image_aspect", "atex.onecms.image");
         setupValue("image_partition", "incoming");
         setupValue("article_partition", "incoming2");
         setupValue("mail_uri", "imaps://mailserver?username=pippo");
@@ -106,6 +110,8 @@ public class MailImporterConfigLoaderTest {
         Assert.assertTrue(config.isEnabled());
         Assert.assertEquals("incoming", config.getImagePartition());
         Assert.assertEquals("incoming2", config.getArticlePartition());
+        Assert.assertEquals("atex.onecms.article", config.getArticleAspect());
+        Assert.assertEquals("atex.onecms.image", config.getImageAspect());
 
         final List<MailRouteConfig> mailUris = config.getMailUris();
         Assert.assertEquals(2, mailUris.size());
@@ -118,6 +124,8 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("incoming2", route.getArticlePartition());
             Assert.assertEquals("Taxo", route.getTaxonomyId());
             Assert.assertEquals("98", route.getPrincipalId());
+            Assert.assertEquals("atex.onecms.article", route.getArticleAspect());
+            Assert.assertEquals("atex.onecms.image", route.getImageAspect());
         }
         {
             final MailRouteConfig route = mailUris.get(1);
@@ -128,6 +136,8 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("archive", route.getArticlePartition());
             Assert.assertEquals("Taxo", route.getTaxonomyId());
             Assert.assertEquals("2020", route.getPrincipalId());
+            Assert.assertEquals("com.my.standard.article", route.getArticleAspect());
+            Assert.assertEquals("com.my.standard.image", route.getImageAspect());
         }
     }
 
@@ -158,6 +168,8 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("SPORT", route.getSection());
             Assert.assertEquals("MAILBOX", route.getSource());
             Assert.assertEquals("2020", route.getPrincipalId());
+            Assert.assertEquals("com.my.standard.article", route.getArticleAspect());
+            Assert.assertEquals("com.my.standard.image", route.getImageAspect());
         }
     }
 
@@ -294,6 +306,8 @@ public class MailImporterConfigLoaderTest {
         setupValue("mailimporter_enabled", "true");
         setupValue("image_partition", "incoming");
         setupValue("article_partition", "production");
+        setupValue("article_aspect", "com.my.standard.article.6");
+        setupValue("image_aspect", "com.my.standard.image.6");
         setupValue("mail_uri", "imaps://mailserver?username=pippo");
         setupJson("/conf6.json");
 
@@ -316,6 +330,8 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("CRONACA", route.getSection());
             Assert.assertEquals("MAIL", route.getSource());
             Assert.assertEquals("2020", route.getPrincipalId());
+            Assert.assertEquals("com.my.standard.article.6", route.getArticleAspect());
+            Assert.assertEquals("com.my.standard.image.6", route.getImageAspect());
 
             final Map<String, Map<String, String>> defaults = route.getFieldsDefaults();
             Assert.assertNotNull(defaults);

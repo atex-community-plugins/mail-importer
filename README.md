@@ -98,7 +98,9 @@ Extendend configuration can be done in the json field, the following contains al
       "deskLevel": "",
       "section": "",
       "source": "",
-      "principalId": ""
+      "principalId": "",
+      "articleAspect": "",
+      "imageAspect": ""
     },
     {
       "enabled": true,

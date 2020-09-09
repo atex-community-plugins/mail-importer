@@ -124,6 +124,8 @@ public class MailImporterConfigLoader {
         route.setUri(uri);
         route.setTaxonomyId(getTaxonomyId());
         route.setPrincipalId("98");
+        route.setArticleAspect(getArticleAspect());
+        route.setImageAspect(getImageAspect());
         return route;
     }
 
@@ -139,6 +141,10 @@ public class MailImporterConfigLoader {
                 StringUtil::notEmpty, route::setArticlePartition);
         getPrimitive(json, "imagePartition", JsonElement::getAsString,
                 StringUtil::notEmpty, route::setImagePartition);
+        getPrimitive(json, "articleAspect", JsonElement::getAsString,
+                StringUtil::notEmpty, route::setArticleAspect);
+        getPrimitive(json, "imageAspect", JsonElement::getAsString,
+                StringUtil::notEmpty, route::setImageAspect);
         return route.isEnabled() ? route : null;
     }
 

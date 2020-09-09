@@ -12,11 +12,11 @@
     <param name="EditState_saveAndClose">true</param>
     <param name="ViewState_insert">false</param>
 
-    <field name="article_bean" input-template="p.TextInput"
-           label="com.atex.plugins.mail-importer.Config.article_bean">
+    <field name="article_aspect" input-template="p.TextInput"
+           label="com.atex.plugins.mail-importer.Config.article_aspect">
     </field>
-    <field name="image_bean" input-template="p.TextInput"
-           label="com.atex.plugins.mail-importer.Config.image_bean">
+    <field name="image_aspect" input-template="p.TextInput"
+           label="com.atex.plugins.mail-importer.Config.image_aspect">
     </field>
     <field name="accepted_image_extensions" input-template="p.TextInput"
            label="com.atex.plugins.mail-importer.Config.accepted_image_extensions">

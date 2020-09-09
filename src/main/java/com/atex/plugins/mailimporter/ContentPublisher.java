@@ -110,7 +110,7 @@ public class ContentPublisher {
             IMPORTER_CONFIG.set(config);
 
             final Object articleBean = createArticle(config, routeConfig, mail);
-            final ContentResult<Object> cr = writeArticleBean(mailProcessorUtils, config, routeConfig, articleBean);
+            final ContentResult<Object> cr = writeArticleBean(mailProcessorUtils, routeConfig, articleBean);
             return cr.getContentId().getContentId();
         } catch (CMException e) {
             throw new RuntimeException("Failed to publish contents!", e);
@@ -161,12 +161,11 @@ public class ContentPublisher {
     }
 
     private ContentResult<Object> writeArticleBean(final MailProcessorUtils mailProcessorUtils,
-                                                   final MailImporterConfig config,
                                                    final MailRouteConfig routeConfig,
                                                    final Object articleBean) {
         ContentWriteBuilder<Object> cwb = new ContentWriteBuilder<>();
         cwb.mainAspectData(articleBean);
-        cwb.type(config.getArticleAspect());
+        cwb.type(routeConfig.getArticleAspect());
 
         final MetadataInfo metadataInfo = mailProcessorUtils.getMetadataInfo(routeConfig.getTaxonomyId());
 
@@ -252,7 +251,7 @@ public class ContentPublisher {
         }
 
         ContentWriteBuilder<Object> cwb = new ContentWriteBuilder<>();
-        cwb.type(config.getImageAspect());
+        cwb.type(routeConfig.getImageAspect());
         cwb.mainAspectData(bean);
 
         cwb.aspect(FilesAspectBean.ASPECT_NAME, filesAspectBean);

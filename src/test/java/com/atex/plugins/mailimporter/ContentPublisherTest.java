@@ -109,7 +109,6 @@ public class ContentPublisherTest {
     @Test
     public void test_publish_simple_article() throws Exception {
         MailImporterConfig config = new MailImporterConfig();
-        config.setArticleAspect("com.my.articleBean");
         config.setArticleNamePattern("Email_${from}_${subject}");
         config.setTaxonomyId("configTaxonomyId.d");
         config.setArticlePartition("production");
@@ -129,6 +128,7 @@ public class ContentPublisherTest {
 
         final MailRouteConfig routeConfig = new MailRouteConfig();
         routeConfig.setTaxonomyId("routeTaxonomy.d");
+        routeConfig.setArticleAspect("com.my.articleBean");
         routeConfig.setArticlePartition("article-partition");
         routeConfig.setDeskLevel("dam.desk.level");
         routeConfig.setWebPage("gong.web.page");
@@ -175,7 +175,6 @@ public class ContentPublisherTest {
     @Test
     public void test_publish_simple_article_without_webpage() throws Exception {
         MailImporterConfig config = new MailImporterConfig();
-        config.setArticleAspect("com.my.articleBean");
         config.setArticleNamePattern("Email_${from}_${subject}");
         config.setTaxonomyId("configTaxonomyId.d");
         config.setArticlePartition("production");
@@ -192,6 +191,7 @@ public class ContentPublisherTest {
 
         final MailRouteConfig routeConfig = new MailRouteConfig();
         routeConfig.setTaxonomyId("routeTaxonomy.d");
+        routeConfig.setArticleAspect("com.my.articleBean");
         routeConfig.setArticlePartition("article-partition");
         routeConfig.setDeskLevel("dam.desk.level");
         routeConfig.setPrincipalId("2020");
@@ -234,7 +234,6 @@ public class ContentPublisherTest {
     @Test
     public void test_publish_with_fields_defaults() throws Exception {
         MailImporterConfig config = new MailImporterConfig();
-        config.setArticleAspect("com.my.articleBean.ext");
         config.setArticleNamePattern("Email_${from}");
         config.setTaxonomyId("configTaxonomyId.d");
         config.setArticlePartition("production");
@@ -260,6 +259,7 @@ public class ContentPublisherTest {
 
         final MailRouteConfig routeConfig = new MailRouteConfig();
         routeConfig.setTaxonomyId("routeTaxonomy.d");
+        routeConfig.setArticleAspect("com.my.articleBean.ext");
         routeConfig.setArticlePartition("my-article-partition");
         routeConfig.setDeskLevel("dam.desk.level");
         routeConfig.setWebPage("gong.web.page");
@@ -309,7 +309,6 @@ public class ContentPublisherTest {
     @Test
     public void test_publish_with_fields_mappings() throws Exception {
         MailImporterConfig config = new MailImporterConfig();
-        config.setArticleAspect("com.my.articleBean.ext");
         config.setArticleNamePattern(null);
         config.setTaxonomyId("configTaxonomyId.d");
         config.setArticlePartition("production");
@@ -338,6 +337,7 @@ public class ContentPublisherTest {
 
         final MailRouteConfig routeConfig = new MailRouteConfig();
         routeConfig.setTaxonomyId("routeTaxonomy.d");
+        routeConfig.setArticleAspect("com.my.articleBean.ext");
         routeConfig.setArticlePartition("my-article-partition");
         routeConfig.setDeskLevel("dam.desk.level");
         routeConfig.setWebPage("gong.web.page");
@@ -389,10 +389,8 @@ public class ContentPublisherTest {
     public void test_publish_simple_article_with_image() throws Exception {
         MailImporterConfig config = new MailImporterConfig();
         config.setTaxonomyId("configTaxonomyId.d");
-        config.setArticleAspect("com.my.articleBean");
         config.setArticleNamePattern("Email_${from}_${subject}");
         config.setArticlePartition("production");
-        config.setImageAspect("com.my.imageBean");
         config.setAcceptedImageExtensions(Collections.singletonList("jpg"));
         config.setImagePartition("incoming");
         config.setAttachmentNamePattern("Attachment_${from}_${filename}");
@@ -429,7 +427,9 @@ public class ContentPublisherTest {
 
         final MailRouteConfig routeConfig = new MailRouteConfig();
         routeConfig.setTaxonomyId("routeTaxonomy.d");
+        routeConfig.setArticleAspect("com.my.articleBean");
         routeConfig.setArticlePartition("article-partition");
+        routeConfig.setImageAspect("com.my.imageBean");
         routeConfig.setImagePartition("image-partition");
         routeConfig.setDeskLevel("dam.desk.level");
         routeConfig.setWebPage("gong.web.page");
@@ -538,10 +538,8 @@ public class ContentPublisherTest {
     public void test_publish_image_with_fields_defaults() throws Exception {
         MailImporterConfig config = new MailImporterConfig();
         config.setTaxonomyId("configTaxonomyId.d");
-        config.setArticleAspect("com.my.articleBean.ext");
         config.setArticleNamePattern("Email_${from}_${subject}");
         config.setArticlePartition("production");
-        config.setImageAspect("com.my.imageBean.ext");
         config.setAcceptedImageExtensions(Collections.singletonList("jpg"));
         config.setImagePartition("incoming");
         config.setAttachmentNamePattern("Attachment_${from}_${filename}");
@@ -596,6 +594,8 @@ public class ContentPublisherTest {
 
         final MailRouteConfig routeConfig = new MailRouteConfig();
         routeConfig.setTaxonomyId("routeTaxonomy.d");
+        routeConfig.setArticleAspect("com.my.articleBean.ext");
+        routeConfig.setImageAspect("com.my.imageBean.ext");
         routeConfig.setArticlePartition("article-partition");
         routeConfig.setImagePartition("image-partition");
         routeConfig.setDeskLevel("dam.desk.level");

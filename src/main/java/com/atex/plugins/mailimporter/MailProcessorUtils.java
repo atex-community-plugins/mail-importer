@@ -258,9 +258,9 @@ public class MailProcessorUtils {
                                         final MailProcessorUtils.MetadataTagsHolder metadataTags,
                                         final String filename) {
         try {
-            LOG.debug("Populate image from {}", config.getImageAspect());
+            LOG.debug("Populate image from {}", routeConfig.getImageAspect());
 
-            final Object bean = createBean(config.getImageAspect());
+            final Object bean = createBean(routeConfig.getImageAspect());
 
             final Map<String, Object> values = new HashMap<>();
             values.put("byline", metadataTags.customTags.getByline());
@@ -289,7 +289,7 @@ public class MailProcessorUtils {
             map.put("filename", filename);
             values.put("name", expandBean(mailBean, map, config.getAttachmentNamePattern()));
 
-            setProperties(bean, values, routeConfig, config.getImageAspect());
+            setProperties(bean, values, routeConfig, routeConfig.getImageAspect());
             return bean;
         } catch (IllegalAccessException | InstantiationException e) {
             LOG.error("Could not create image bean", e);
@@ -333,9 +333,9 @@ public class MailProcessorUtils {
                                           final MailRouteConfig routeConfig,
                                           final MailBean mail) {
         try {
-            LOG.debug("Populate article from {}", config.getArticleAspect());
+            LOG.debug("Populate article from {}", routeConfig.getArticleAspect());
 
-            final Object articleBean = createBean(config.getArticleAspect());
+            final Object articleBean = createBean(routeConfig.getArticleAspect());
 
             final String articlePattern = config.getArticleNamePattern();
             final String name = expandBean(mail, null, articlePattern);
@@ -351,7 +351,7 @@ public class MailProcessorUtils {
             if (StringUtil.notEmpty(routeConfig.getSource())) {
                 values.put("source", routeConfig.getSource());
             }
-            setProperties(articleBean, values, routeConfig, config.getArticleAspect());
+            setProperties(articleBean, values, routeConfig, routeConfig.getArticleAspect());
             return articleBean;
         } catch (IllegalAccessException | InstantiationException e) {
             LOG.error("Failed to create article bean", e);
