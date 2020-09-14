@@ -223,8 +223,8 @@ public class ContentPublisher {
         final MailProcessorUtils.MetadataTagsHolder metadataTags;
 
         try (final ByteArrayInputStream bis = new ByteArrayInputStream(imageData)) {
-
-            final String mimeType = mailProcessorUtils.getFormatName(bis);
+            final String mimeType = MimeTypeUtils.getMimeType(bis)
+                                                 .orElse("image/jpeg");
             bis.reset();
 
             metadataTags = mailProcessorUtils.getMetadataTags(bis);

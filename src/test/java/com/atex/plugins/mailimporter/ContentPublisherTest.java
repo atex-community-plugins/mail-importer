@@ -10,12 +10,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -39,7 +44,10 @@ import com.atex.onecms.content.files.FileInfo;
 import com.atex.onecms.content.files.FileService;
 import com.atex.onecms.content.metadata.MetadataInfo;
 import com.atex.onecms.image.ImageInfoAspectBean;
+import com.atex.plugins.baseline.ws.JettyRule;
+import com.atex.plugins.baseline.ws.JettyWrapper;
 import com.atex.plugins.mailimporter.MailImporterConfig.MailRouteConfig;
+import com.atex.plugins.mailimporter.ws.MetadataServiceServlet;
 import com.polopoly.application.Application;
 import com.polopoly.application.IllegalApplicationStateException;
 import com.polopoly.cm.client.CmClient;
@@ -62,6 +70,12 @@ public class ContentPublisherTest {
 
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();
+
+    @Rule
+    public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
+
+    @Rule
+    public final JettyRule jettyWrapperRule = new JettyRule();
 
     @Mock
     Application application;
@@ -87,7 +101,7 @@ public class ContentPublisherTest {
     ContentPublisher publisher;
 
     @Before
-    public void before() throws IllegalApplicationStateException {
+    public void before() throws Exception {
         final CmClient mockCmClient = mockPreferredComponent(CmClient.class);
         Mockito.when(mockCmClient.getPolicyCMServer())
                .thenReturn(cmServer);
@@ -101,6 +115,16 @@ public class ContentPublisherTest {
         final HttpFileServiceClient mockHttpFileServiceClient = mockPreferredComponent(HttpFileServiceClient.class);
         Mockito.when(mockHttpFileServiceClient.getFileService())
                .thenReturn(fileService);
+
+        final JettyWrapper jw = jettyWrapperRule.getJettyWrapper();
+        final String servletPath = "/metadata/image/extract";
+        jw.addServlet(
+                new MetadataServiceServlet(HttpServletResponse.SC_OK)
+                        .body(this.getClass(), "/metadata.json")
+                        .contentType(MediaType.APPLICATION_JSON),
+                servletPath
+        );
+        System.setProperty("image.metadata.service.url", jw.getURL(servletPath));
 
         publisher = new ContentPublisher(application);
         publisher.init();
@@ -417,7 +441,7 @@ public class ContentPublisherTest {
                 now,
                 now,
                 now);
-        setupFileService("myimage.jpg", fileInfo);
+        final Supplier<byte[]> imgSupplier = setupFileService("myimage.jpg", fileInfo);
 
         final ContentVersionId deskLevelId = IdUtil.fromVersionedString("policy:2.101:1234");
         final ContentVersionId gongWebPageId = IdUtil.fromVersionedString("policy:2.201:5678");
@@ -441,11 +465,14 @@ public class ContentPublisherTest {
         mail.setLead("This is the lead");
         mail.setBody("This is the body");
         mail.setFrom("mnova@atex.com");
+
+        final byte[] imgData;
         try (final InputStream is = ClassUtil.getResourceAsStream(this.getClass(), "/image.jpg")) {
             try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                 IOUtils.copy(is, baos);
                 baos.close();
-                mail.setAttachments(Collections.singletonMap("myimage.jpg", baos.toByteArray()));
+                imgData = baos.toByteArray();
+                mail.setAttachments(Collections.singletonMap("myimage.jpg", imgData));
             }
         }
 
@@ -473,10 +500,8 @@ public class ContentPublisherTest {
             // the image exif value contains some values which are incorrect since we resized the
             // image before importing in the project but all the code paths assumes the exif values
             // contains the correct values.
-            //Assert.assertEquals(600, contentData.getWidth());
-            //Assert.assertEquals(450, contentData.getHeight());
-            Assert.assertEquals(800, contentData.getWidth());
-            Assert.assertEquals(600, contentData.getHeight());
+            Assert.assertEquals(600, contentData.getWidth());
+            Assert.assertEquals(450, contentData.getHeight());
 
             final FilesAspectBean files = cw.getAspect(FilesAspectBean.ASPECT_NAME, FilesAspectBean.class);
             Assert.assertNotNull(files);
@@ -489,8 +514,8 @@ public class ContentPublisherTest {
             final ImageInfoAspectBean imageInfo = cw.getAspect(ImageInfoAspectBean.ASPECT_NAME, ImageInfoAspectBean.class);
             Assert.assertNotNull(imageInfo);
             Assert.assertEquals("myimage.jpg", imageInfo.getFilePath());
-            Assert.assertEquals(800, imageInfo.getWidth());
-            Assert.assertEquals(600, imageInfo.getHeight());
+            Assert.assertEquals(600, imageInfo.getWidth());
+            Assert.assertEquals(450, imageInfo.getHeight());
 
             final MetadataInfo metadataInfo = cw.getAspect(MetadataInfo.ASPECT_NAME, MetadataInfo.class);
             Assert.assertNotNull(metadataInfo);
@@ -532,6 +557,8 @@ public class ContentPublisherTest {
                                      Assert.assertNotNull(subject);
                                      Assert.assertEquals("98", subject.getPrincipalId());
                                  });
+
+        Assert.assertArrayEquals(imgData, imgSupplier.get());
     }
 
     @Test
@@ -566,7 +593,7 @@ public class ContentPublisherTest {
                 now,
                 now,
                 now);
-        setupFileService("myimage.jpg", fileInfo);
+        final Supplier<byte[]> imgSupplier = setupFileService("myimage.jpg", fileInfo);
 
         final ContentVersionId deskLevelId = IdUtil.fromVersionedString("policy:2.101:1234");
         final ContentVersionId gongWebPageId = IdUtil.fromVersionedString("policy:2.201:5678");
@@ -610,11 +637,15 @@ public class ContentPublisherTest {
         mail.setLead("This is the lead");
         mail.setBody("This is the body");
         mail.setFrom("mnova@atex.com");
+
+        final byte[] imgData;
+
         try (final InputStream is = ClassUtil.getResourceAsStream(this.getClass(), "/image.jpg")) {
             try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                 IOUtils.copy(is, baos);
                 baos.close();
-                mail.setAttachments(Collections.singletonMap("myimage.jpg", baos.toByteArray()));
+                imgData = baos.toByteArray();
+                mail.setAttachments(Collections.singletonMap("myimage.jpg", imgData));
             }
         }
 
@@ -644,10 +675,8 @@ public class ContentPublisherTest {
             // the image exif value contains some values which are incorrect since we resized the
             // image before importing in the project but all the code paths assumes the exif values
             // contains the correct values.
-            //Assert.assertEquals(600, contentData.getWidth());
-            //Assert.assertEquals(450, contentData.getHeight());
-            Assert.assertEquals(800, contentData.getWidth());
-            Assert.assertEquals(600, contentData.getHeight());
+            Assert.assertEquals(600, contentData.getWidth());
+            Assert.assertEquals(450, contentData.getHeight());
 
             final FilesAspectBean files = cw.getAspect(FilesAspectBean.ASPECT_NAME, FilesAspectBean.class);
             Assert.assertNotNull(files);
@@ -660,8 +689,8 @@ public class ContentPublisherTest {
             final ImageInfoAspectBean imageInfo = cw.getAspect(ImageInfoAspectBean.ASPECT_NAME, ImageInfoAspectBean.class);
             Assert.assertNotNull(imageInfo);
             Assert.assertEquals("myimage.jpg", imageInfo.getFilePath());
-            Assert.assertEquals(800, imageInfo.getWidth());
-            Assert.assertEquals(600, imageInfo.getHeight());
+            Assert.assertEquals(600, imageInfo.getWidth());
+            Assert.assertEquals(450, imageInfo.getHeight());
 
             final MetadataInfo metadataInfo = cw.getAspect(MetadataInfo.ASPECT_NAME, MetadataInfo.class);
             Assert.assertNotNull(metadataInfo);
@@ -705,6 +734,169 @@ public class ContentPublisherTest {
                                      Assert.assertNotNull(subject);
                                      Assert.assertEquals("1024", subject.getPrincipalId());
                                  });
+
+        Assert.assertArrayEquals(imgData, imgSupplier.get());
+    }
+
+    @Test
+    public void test_publish_simple_article_with_unrecognized_image() throws Exception {
+        final JettyWrapper jw = jettyWrapperRule.getJettyWrapper();
+        final String servletPath = "/metadata/image/extract";
+        jw.addServlet(
+                new MetadataServiceServlet(HttpServletResponse.SC_OK)
+                        .body(this.getClass(), "/metadataExifError.json")
+                        .contentType(MediaType.APPLICATION_JSON),
+                servletPath
+        );
+        MailImporterConfig config = new MailImporterConfig();
+        config.setTaxonomyId("configTaxonomyId.d");
+        config.setArticleNamePattern("Email_${from}_${subject}");
+        config.setArticlePartition("production");
+        config.setAcceptedImageExtensions(Collections.singletonList("jpg"));
+        config.setImagePartition("incoming");
+        config.setAttachmentNamePattern("Attachment_${from}_${filename}");
+
+        publisher.setConfig(config);
+
+        setupModelTypeName("com.my.articleBean", MyArticleBean.class);
+        setupModelTypeName("com.my.imageBean", MyImageBean.class);
+
+        final ContentVersionId articleId = IdUtil.fromVersionedString("onecms:1234:5678");
+        final ContentVersionId imageId = IdUtil.fromVersionedString("onecms:abcd:efgh");
+        final Map<String, ContentVersionId> contentWrites = new HashMap<>();
+        contentWrites.put("com.my.articleBean", articleId);
+        contentWrites.put("com.my.imageBean", imageId);
+        setupContentWrites(contentWrites);
+
+        final long now = System.currentTimeMillis();
+        final FileInfo fileInfo = new FileInfo(
+                "content://myimage.jpg",
+                "image/jpg",
+                "myimage.jpg",
+                0,
+                null,
+                now,
+                now,
+                now);
+        final Supplier<byte[]> imgSupplier = setupFileService("myimage.jpg", fileInfo);
+
+        final ContentVersionId deskLevelId = IdUtil.fromVersionedString("policy:2.101:1234");
+        final ContentVersionId gongWebPageId = IdUtil.fromVersionedString("policy:2.201:5678");
+
+        setupResolve("dam.desk.level", deskLevelId);
+        setupResolve("gong.web.page", gongWebPageId);
+
+        final MailRouteConfig routeConfig = new MailRouteConfig();
+        routeConfig.setTaxonomyId("routeTaxonomy.d");
+        routeConfig.setArticleAspect("com.my.articleBean");
+        routeConfig.setArticlePartition("article-partition");
+        routeConfig.setImageAspect("com.my.imageBean");
+        routeConfig.setImagePartition("image-partition");
+        routeConfig.setDeskLevel("dam.desk.level");
+        routeConfig.setWebPage("gong.web.page");
+        routeConfig.setSection("URGENT");
+        routeConfig.setSource("MAIL");
+
+        final MailBean mail = new MailBean();
+        mail.setSubject("This is the subject");
+        mail.setLead("This is the lead");
+        mail.setBody("This is the body");
+        mail.setFrom("mnova@atex.com");
+
+        final byte[] imgData;
+
+        try (final InputStream is = ClassUtil.getResourceAsStream(this.getClass(), "/image.jpg")) {
+            try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                IOUtils.copy(is, baos);
+                baos.close();
+                imgData = baos.toByteArray();
+                mail.setAttachments(Collections.singletonMap("myimage.jpg", imgData));
+            }
+        }
+
+        final ContentId contentId = publisher.publish(mail, routeConfig);
+        Assert.assertNotNull(contentId);
+        Assert.assertEquals(articleId.getContentId(), contentId);
+
+        Mockito.verify(contentManager, Mockito.times(2))
+               .create(contentWriteCaptor.capture(), contentWriteSubjectCaptor.capture());
+        final List<ContentWrite<?>> cwValues = contentWriteCaptor.getAllValues();
+        Assert.assertNotNull(cwValues);
+        Assert.assertEquals(2, cwValues.size());
+
+        {
+            final ContentWrite<?> cw = cwValues.get(0);
+            Assert.assertEquals("com.my.imageBean", cw.getContentDataType());
+
+            final MyImageBean contentData = (MyImageBean) cw.getContentData();
+            Assert.assertNotNull(contentData);
+            Assert.assertEquals("Attachment_mnova@atex.com_myimage.jpg", contentData.getName());
+            Assert.assertEquals("Atex", contentData.getByline());
+            Assert.assertEquals("OLYMPUS DIGITAL CAMERA", contentData.getDescription());
+            Assert.assertEquals("MAIL", contentData.getSource());
+            Assert.assertEquals("URGENT", contentData.getSection());
+            // the image exif value contains some values which are incorrect since we resized the
+            // image before importing in the project but all the code paths assumes the exif values
+            // contains the correct values.
+            Assert.assertEquals(0, contentData.getWidth());
+            Assert.assertEquals(0, contentData.getHeight());
+
+            final FilesAspectBean files = cw.getAspect(FilesAspectBean.ASPECT_NAME, FilesAspectBean.class);
+            Assert.assertNotNull(files);
+            Assert.assertNotNull(files.getFiles());
+            final ContentFileInfo contentFileInfo = files.getFiles().get("myimage.jpg");
+            Assert.assertNotNull(contentFileInfo);
+            Assert.assertEquals("content://myimage.jpg", contentFileInfo.getFileUri());
+            Assert.assertEquals("myimage.jpg", contentFileInfo.getFilePath());
+
+            final ImageInfoAspectBean imageInfo = cw.getAspect(ImageInfoAspectBean.ASPECT_NAME, ImageInfoAspectBean.class);
+            Assert.assertNotNull(imageInfo);
+            Assert.assertEquals("myimage.jpg", imageInfo.getFilePath());
+            Assert.assertEquals(0, imageInfo.getWidth());
+            Assert.assertEquals(0, imageInfo.getHeight());
+
+            final MetadataInfo metadataInfo = cw.getAspect(MetadataInfo.ASPECT_NAME, MetadataInfo.class);
+            Assert.assertNotNull(metadataInfo);
+            Assert.assertEquals(asSet("routeTaxonomy.d"), metadataInfo.getTaxonomyIds());
+            assertPartition(metadataInfo.getMetadata(), "image-partition");
+
+            final InsertionInfoAspectBean insInfo = cw.getAspect(InsertionInfoAspectBean.ASPECT_NAME, InsertionInfoAspectBean.class);
+            Assert.assertNotNull(insInfo);
+            Assert.assertEquals(deskLevelId.getContentId(), insInfo.getSecurityParentId());
+            Assert.assertEquals(gongWebPageId.getContentId(), insInfo.getInsertParentId());
+        }
+
+        {
+            final ContentWrite<?> cw = cwValues.get(1);
+            Assert.assertEquals("com.my.articleBean", cw.getContentDataType());
+
+            final MyArticleBean contentData = (MyArticleBean) cw.getContentData();
+            Assert.assertNotNull(contentData);
+            Assert.assertEquals("Email_mnova@atex.com_This is the subject", contentData.getName());
+            Assert.assertEquals("This is the subject", contentData.getHeadline());
+            Assert.assertEquals("This is the lead", contentData.getLead());
+            Assert.assertEquals("This is the body", contentData.getBody());
+            Assert.assertEquals("URGENT", contentData.getSection());
+            Assert.assertEquals("MAIL", contentData.getSource());
+
+            final MetadataInfo metadataInfo = cw.getAspect(MetadataInfo.ASPECT_NAME, MetadataInfo.class);
+            Assert.assertNotNull(metadataInfo);
+            Assert.assertEquals(asSet("routeTaxonomy.d"), metadataInfo.getTaxonomyIds());
+            assertPartition(metadataInfo.getMetadata(), "article-partition");
+
+            final InsertionInfoAspectBean insInfo = cw.getAspect(InsertionInfoAspectBean.ASPECT_NAME, InsertionInfoAspectBean.class);
+            Assert.assertNotNull(insInfo);
+            Assert.assertEquals(deskLevelId.getContentId(), insInfo.getSecurityParentId());
+            Assert.assertEquals(gongWebPageId.getContentId(), insInfo.getInsertParentId());
+        }
+
+        contentWriteSubjectCaptor.getAllValues()
+                                 .forEach(subject -> {
+                                     Assert.assertNotNull(subject);
+                                     Assert.assertEquals("98", subject.getPrincipalId());
+                                 });
+
+        Assert.assertArrayEquals(imgData, imgSupplier.get());
     }
 
     private void assertPartition(final Metadata metadata, final String expectedPartition) {
@@ -726,8 +918,9 @@ public class ContentPublisherTest {
         return new HashSet<>(Arrays.asList(values));
     }
 
-    private void setupFileService(final String imageName,
-                                  final FileInfo fileInfo) throws IOException {
+    private Supplier<byte[]> setupFileService(final String imageName,
+                                              final FileInfo fileInfo) throws IOException {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
         Mockito.when(fileService.uploadFile(
                 Mockito.eq("tmp"),
                 Mockito.any(),
@@ -735,7 +928,15 @@ public class ContentPublisherTest {
                 Mockito.any(),
                 Mockito.any(),
                 Mockito.any()))
-               .thenReturn(fileInfo);
+               .thenAnswer(invocation -> {
+                   final InputStream is = invocation.getArgumentAt(3, InputStream.class);
+                   if (is == null) {
+                       throw new AssertionError("missing input stream");
+                   }
+                   IOUtils.copy(is, out);
+                   return fileInfo;
+               });
+        return out::toByteArray;
     }
 
     private void setupResolve(final String externalId,

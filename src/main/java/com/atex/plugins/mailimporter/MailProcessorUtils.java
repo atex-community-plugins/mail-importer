@@ -3,24 +3,23 @@ package com.atex.plugins.mailimporter;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.spi.ImageReaderWriterSpi;
-import javax.imageio.stream.ImageInputStream;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.text.StrLookup;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.slf4j.Logger;
@@ -36,9 +35,9 @@ import com.atex.onecms.content.Subject;
 import com.atex.onecms.content.files.FileInfo;
 import com.atex.onecms.content.metadata.MetadataInfo;
 import com.atex.onecms.image.ImageInfoAspectBean;
+import com.atex.onecms.image.exif.MetadataTagsAspectBean;
 import com.atex.plugins.mailimporter.MailImporterConfig.MailRouteConfig;
 import com.atex.plugins.structured.text.StructuredText;
-import com.atex.standard.image.exif.MetadataTags;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
@@ -63,29 +62,6 @@ public class MailProcessorUtils {
                               final ModelDomain modelDomain) {
         this.contentManager = contentManager;
         this.modelDomain = modelDomain;
-    }
-
-    public String getFormatName(final InputStream is) throws Exception {
-        try {
-            try (final ImageInputStream iis = ImageIO.createImageInputStream(is)) {
-                final Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
-                if (!iter.hasNext()) {
-                    return null;
-                }
-                final ImageReader reader = iter.next();
-                final Optional<String> mimeType = Optional.ofNullable(reader)
-                                                          .map(ImageReader::getOriginatingProvider)
-                                                          .map(ImageReaderWriterSpi::getMIMETypes)
-                                                          .filter(v -> v.length > 0)
-                                                          .map(v -> v[0]);
-                if (mimeType.isPresent()) {
-                    return mimeType.get();
-                }
-            }
-        } catch (IOException e) {
-            LOG.warn(e.getMessage());
-        }
-        return null;
     }
 
     static class BeanStrLookup extends StrLookup {
@@ -118,20 +94,38 @@ public class MailProcessorUtils {
     }
 
     static class MetadataTagsHolder {
-        MetadataTags tags;
+        MetadataTagsAspectBean tags;
         CustomMetadataTags customTags;
     }
 
-    public MetadataTagsHolder getMetadataTags(InputStream is) throws ImageProcessingException, IOException {
-        try (BufferedInputStream bis = new BufferedInputStream(is)) {
-            MetadataTagsHolder result = new MetadataTagsHolder();
-            com.drew.metadata.Metadata metadata = ImageMetadataReader.readMetadata(bis);
-            result.tags = MetadataTags.extract(metadata);
-            result.customTags = extract(metadata);
-            return result;
-        }
-    }
+    public MetadataTagsHolder getMetadataTags(final InputStream is) throws ImageProcessingException, IOException {
+        final MetadataTagsHolder result = new MetadataTagsHolder();
 
+        // resetting the stream is not an option when the stream is quite large, so we have to copy
+        // the stream to a temporary file, we are not using an array since it means we will have a
+        // very large array sitting in memory, but copying to a file in the fileSystem we will relay
+        // on the os files cache.
+
+        final Path tempFile = Files.createTempFile("image.", ".jpg");
+        try {
+            try (final OutputStream os = Files.newOutputStream(tempFile, StandardOpenOption.APPEND)) {
+                IOUtils.copy(is, os);
+            }
+            try (final InputStream fis = Files.newInputStream(tempFile, StandardOpenOption.READ)) {
+                com.drew.metadata.Metadata metadata = ImageMetadataReader.readMetadata(fis);
+                result.customTags = extract(metadata);
+            }
+            try (final InputStream fis = Files.newInputStream(tempFile, StandardOpenOption.READ)) {
+                try (final BufferedInputStream bfis = new BufferedInputStream(fis)) {
+                    final Optional<MetadataTagsAspectBean> metadataTags = new ImageMetadataExtraction().extract(bfis);
+                    metadataTags.ifPresent(metadataTagsAspectBean -> result.tags = metadataTagsAspectBean);
+                }
+            }
+        } finally {
+            Files.deleteIfExists(tempFile);
+        }
+        return result;
+    }
 
     public CustomMetadataTags extract(com.drew.metadata.Metadata metadata) {
 
@@ -219,11 +213,15 @@ public class MailProcessorUtils {
         return filesAspectBean;
     }
 
-    public ImageInfoAspectBean getImageInfoAspectBean(MetadataTags metadataTags, FileInfo fInfo) {
+    public ImageInfoAspectBean getImageInfoAspectBean(MetadataTagsAspectBean metadataTags, FileInfo fInfo) {
         // atex.Image
         ImageInfoAspectBean imageInfoAspectBean = new ImageInfoAspectBean();
-        imageInfoAspectBean.setHeight(metadataTags.getImageHeight());
-        imageInfoAspectBean.setWidth(metadataTags.getImageWidth());
+        if (metadataTags != null) {
+            Optional.ofNullable(metadataTags.getImageHeight())
+                    .ifPresent(imageInfoAspectBean::setHeight);
+            Optional.ofNullable(metadataTags.getImageWidth())
+                    .ifPresent(imageInfoAspectBean::setWidth);
+        }
         imageInfoAspectBean.setFilePath(fInfo.getOriginalPath());
         return imageInfoAspectBean;
     }
@@ -265,8 +263,10 @@ public class MailProcessorUtils {
             final Map<String, Object> values = new HashMap<>();
             values.put("byline", metadataTags.customTags.getByline());
             values.put("section", metadataTags.customTags.getSubject());
-            values.put("width", metadataTags.tags.getImageWidth());
-            values.put("height", metadataTags.tags.getImageHeight());
+            if (metadataTags.tags != null) {
+                values.put("width", metadataTags.tags.getImageWidth());
+                values.put("height", metadataTags.tags.getImageHeight());
+            }
             values.put("description", metadataTags.customTags.getDescription());
             if (StringUtil.notEmpty(routeConfig.getSection())) {
                 values.put("section", routeConfig.getSection());

@@ -1,0 +1,94 @@
+{
+  "_type": "atex.ImageMetadata",
+  "imageWidth": 600,
+  "imageHeight": 450,
+  "byline": "Atex",
+  "title": "Polopoly",
+  "description": "                                                                                                                     ",
+  "tags": {
+    "ExifTool": {
+      "ExifToolVersion": 12.00
+    },
+    "File": {
+      "FileType": "JPEG",
+      "FileTypeExtension": "jpg",
+      "MIMEType": "image/jpeg",
+      "ExifByteOrder": "Little-endian (Intel, II)",
+      "CurrentIPTCDigest": "317f441901af938c37f6c0d55999ec8c",
+      "Comment": "                                                                                                                     ",
+      "ImageWidth": 600,
+      "ImageHeight": 450,
+      "EncodingProcess": "Baseline DCT, Huffman coding",
+      "BitsPerSample": 8,
+      "ColorComponents": 3,
+      "YCbCrSubSampling": "YCbCr4:4:4 (1 1)"
+    },
+    "JFIF": {
+      "JFIFVersion": 1.01,
+      "ResolutionUnit": "inches",
+      "XResolution": 72,
+      "YResolution": 72
+    },
+    "EXIF": {
+      "ImageDescription": "                                                                                                                     ",
+      "Make": "OLYMPUS IMAGING CORP.",
+      "Model": "E-300",
+      "Orientation": "Horizontal (normal)",
+      "XResolution": 72,
+      "YResolution": 72,
+      "ResolutionUnit": "inches",
+      "Software": "GIMP 2.10.14",
+      "ModifyDate": "2020:09:08 15:27:45",
+      "YCbCrPositioning": "Co-sited",
+      "ExposureTime": "1/30",
+      "FNumber": 4.0,
+      "ExposureProgram": "Creative (Slow speed)",
+      "ISO": 200,
+      "ExifVersion": "0221",
+      "DateTimeOriginal": "2007:06:11 17:10:35",
+      "CreateDate": "2007:06:11 17:10:35",
+      "ComponentsConfiguration": "Y, Cb, Cr, -",
+      "ExposureCompensation": 0,
+      "MaxApertureValue": 3.5,
+      "MeteringMode": "Multi-segment",
+      "LightSource": "Cloudy",
+      "Flash": "Off, Did not fire",
+      "FocalLength": "35.0 mm",
+      "UserComment": "",
+      "FlashpixVersion": "0100",
+      "ColorSpace": "sRGB",
+      "ExifImageWidth": 800,
+      "ExifImageHeight": 600,
+      "FileSource": "Digital Camera",
+      "CustomRendered": "Normal",
+      "ExposureMode": "Auto",
+      "WhiteBalance": "Manual",
+      "DigitalZoomRatio": 1,
+      "SceneCaptureType": "Standard",
+      "GainControl": "Low gain up",
+      "Contrast": "Normal",
+      "Saturation": "Normal",
+      "Sharpness": "Normal"
+    },
+    "PrintIM": {
+      "PrintIMVersion": "0300"
+    },
+    "IPTC": {
+      "By-line": "Atex",
+      "Caption-Abstract": "OLYMPUS DIGITAL CAMERA         ",
+      "DateCreated": "2020:09:08",
+      "ObjectName": "Polopoly",
+      "ApplicationRecordVersion": 50,
+      "TimeCreated": "15:27:45-15:27"
+    },
+    "Composite": {
+      "Aperture": 4.0,
+      "ImageSize": "600x450",
+      "Megapixels": 0.270,
+      "ShutterSpeed": "1/30",
+      "DateTimeCreated": "2020:09:08 15:27:45-15:27",
+      "FocalLength35efl": "35.0 mm",
+      "LightValue": 7.9
+    }
+  }
+}
