@@ -8,6 +8,7 @@ import org.apache.camel.Processor;
 import org.springframework.stereotype.Component;
 
 import com.atex.plugins.mailimporter.MailImporterConfig.MailRouteConfig;
+import com.atex.plugins.mailimporter.util.MailImporterServiceLoaderUtil;
 
 /**
  * <p>
@@ -37,7 +38,7 @@ public class MailParseProcessor
     @PostConstruct
     public void init() {
         if (parser == null) {
-            parser = new MailParser();
+            parser = MailImporterServiceLoaderUtil.loadService(MailParser.class, MailParserImpl.class);
         }
     }
 
