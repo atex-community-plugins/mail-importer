@@ -47,6 +47,7 @@ import com.atex.onecms.image.ImageInfoAspectBean;
 import com.atex.plugins.baseline.ws.JettyRule;
 import com.atex.plugins.baseline.ws.JettyWrapper;
 import com.atex.plugins.mailimporter.MailImporterConfig.MailRouteConfig;
+import com.atex.plugins.mailimporter.util.MailImporterServiceLoaderUtil;
 import com.atex.plugins.mailimporter.ws.MetadataServiceServlet;
 import com.polopoly.application.Application;
 import com.polopoly.application.IllegalApplicationStateException;
@@ -126,8 +127,16 @@ public class ContentPublisherTest {
         );
         System.setProperty("image.metadata.service.url", jw.getURL(servletPath));
 
-        publisher = new ContentPublisher(application);
-        publisher.init();
+        publisher = new ContentPublisher();
+        publisher.init(application);
+    }
+
+    @Test
+    public void test_service_loader() {
+        final MailPublisher mailPublisher = MailImporterServiceLoaderUtil.loadService(
+                MailPublisher.class,
+                ContentPublisher.class);
+        Assert.assertNotNull(mailPublisher);
     }
 
     @Test

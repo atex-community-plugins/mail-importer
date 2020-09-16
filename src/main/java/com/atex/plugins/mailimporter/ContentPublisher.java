@@ -47,7 +47,7 @@ import com.polopoly.model.ModelDomain;
  *   <li>All content will have <code>PolopolyPost.d</code> as security parent.</li>
  * </ul>
  */
-public class ContentPublisher {
+public class ContentPublisher implements MailPublisher {
     private static final Logger LOG = LoggerFactory.getLogger(ContentPublisher.class);
 
     private static final String SCHEME_TMP = "tmp";
@@ -61,16 +61,9 @@ public class ContentPublisher {
     private PolicyCMServer cmServer = null;
     private ModelDomain modelDomain;
 
-    private final Application application;
+    private Application application;
 
-    public ContentPublisher(final Application application) {
-        this.application = application;
-        if (application == null) {
-            LOG.error("Failed to get Application");
-        }
-    }
-
-    private Application getApplication() {
+    protected Application getApplication() {
         return application;
     }
 
@@ -91,6 +84,7 @@ public class ContentPublisher {
         IMPORTER_CONFIG.set(config);
     }
 
+    @Override
     public ContentId publish(final MailBean mail,
                              final MailRouteConfig routeConfig) throws Exception {
 
@@ -119,8 +113,14 @@ public class ContentPublisher {
         }
     }
 
-    public void init() {
-        final Application application = getApplication();
+    @Override
+    public void init(final Application application) {
+        this.application = application;
+        if (application == null) {
+            LOG.error("Failed to get Application");
+            throw new RuntimeException("no application has been given");
+        }
+
         final CmClient cmclient = getCmClient(application);
 
         if (contentManager == null) {
@@ -269,7 +269,7 @@ public class ContentPublisher {
         return cr.getContentId().getContentId();
     }
 
-    private CmClient getCmClient(Application application) {
+    protected CmClient getCmClient(Application application) {
         try {
             return application.getPreferredApplicationComponent(CmClient.class);
         } catch (IllegalApplicationStateException e) {
@@ -278,7 +278,7 @@ public class ContentPublisher {
         }
     }
 
-    private ContentManager getContentManager(final Application application) {
+    protected ContentManager getContentManager(final Application application) {
         try {
             final RepositoryClient repositoryClient = application.getPreferredApplicationComponent(RepositoryClient.class);
             if (repositoryClient == null) {

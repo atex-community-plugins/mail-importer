@@ -120,8 +120,15 @@ Customizations
 ==============
 
 MailParser
----------
+----------
 
 You can customize the way the plugin parses an email by implementing the `com.atex.plugins.mailimporter.MailParser`
 interface and let the plugins now about it by writing the implementing class name in a text file named 
 `src/main/resources/META-INF/services/com.atex.plugins.mailimporter.MailParser`.
+
+MailPublisher
+-------------
+
+You can customize the way the plugin publish an email by implementing the `com.atex.plugins.mailimporter.MailPublisher`
+interface and let the plugins now about it by writing the implementing class name in a text file named 
+`src/main/resources/META-INF/services/com.atex.plugins.mailimporter.MailPublisher`.

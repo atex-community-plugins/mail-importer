@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.atex.onecms.content.ContentId;
 import com.atex.onecms.content.IdUtil;
 import com.atex.plugins.mailimporter.MailImporterConfig.MailRouteConfig;
+import com.atex.plugins.mailimporter.util.MailImporterServiceLoaderUtil;
 import com.polopoly.integration.IntegrationServerApplication;
 
 /**
@@ -24,7 +25,7 @@ public class MailPublishProcessor implements Processor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MailPublishProcessor.class.getName());
 
-    private ContentPublisher publisher = null;
+    private MailPublisher publisher = null;
 
     public MailPublishProcessor() {
     }
@@ -36,8 +37,8 @@ public class MailPublishProcessor implements Processor {
     @PostConstruct
     public void init() {
         if (publisher == null) {
-            publisher = new ContentPublisher(IntegrationServerApplication.getPolopolyApplication());
-            publisher.init();
+            publisher = MailImporterServiceLoaderUtil.loadService(MailPublisher.class, ContentPublisher.class);
+            publisher.init(IntegrationServerApplication.getPolopolyApplication());
         }
     }
 
