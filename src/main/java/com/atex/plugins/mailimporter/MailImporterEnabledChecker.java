@@ -69,7 +69,10 @@ public class MailImporterEnabledChecker implements Job {
             for (final Route existingRoute : existingRoutes) {
                 try {
                     if (existingRoute != null) {
-                        LOG.info("Stopping route " + existingRoute.getDescription());
+                        // do not use getDescription since in camel 2.13.2 (used in polopoly 10.18.0)
+                        // does not exists.
+                        //LOG.info("Stopping route " + existingRoute.getDescription());
+                        LOG.info("Stopping route " + existingRoute.getId());
                         camelContext.stopRoute(existingRoute.getId());
                         camelContext.removeRoute(existingRoute.getId());
                     }
@@ -99,8 +102,12 @@ public class MailImporterEnabledChecker implements Job {
                             from(routeConfig.getUri())
                                     .autoStartup(false)
                                     .id(routeId)
-                                    .description(description)
-                                    .setHeader("X-ROUTE-CONFIG", () -> routeConfig)
+                                    // do not use description since in camel 2.13.2 (used in polopoly 10.18.0)
+                                    // does not exists and we cannot use the setHeader too but we can fake it
+                                    // with a anonymous processor.
+                                    //.description(description)
+                                    //.setHeader("X-ROUTE-CONFIG", () -> routeConfig)
+                                    .process((m) -> m.getIn().setHeader("X-ROUTE-CONFIG", routeConfig))
                                     .process(mailProcessor)
                                     .process(publishProcessor);
                         }
