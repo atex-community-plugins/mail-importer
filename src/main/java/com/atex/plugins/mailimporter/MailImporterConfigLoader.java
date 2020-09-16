@@ -138,13 +138,13 @@ public class MailImporterConfigLoader {
         getPrimitive(json, "enabled", JsonElement::getAsBoolean, route::setEnabled);
         getPrimitive(json, "uri", JsonElement::getAsString, route::setUri);
         getPrimitive(json, "articlePartition", JsonElement::getAsString,
-                StringUtil::notEmpty, route::setArticlePartition);
+                StringUtils::notEmpty, route::setArticlePartition);
         getPrimitive(json, "imagePartition", JsonElement::getAsString,
-                StringUtil::notEmpty, route::setImagePartition);
+                StringUtils::notEmpty, route::setImagePartition);
         getPrimitive(json, "articleAspect", JsonElement::getAsString,
-                StringUtil::notEmpty, route::setArticleAspect);
+                StringUtils::notEmpty, route::setArticleAspect);
         getPrimitive(json, "imageAspect", JsonElement::getAsString,
-                StringUtil::notEmpty, route::setImageAspect);
+                StringUtils::notEmpty, route::setImageAspect);
         return route.isEnabled() ? route : null;
     }
 
@@ -183,11 +183,11 @@ public class MailImporterConfigLoader {
         config.setImagePartition(loader.getImagePartition());
         config.setArticlePartition(loader.getArticlePartition());
         config.setTaxonomyId(loader.getTaxonomyId());
-        if (StringUtil.notEmpty(loader.getMailUri())) {
+        if (StringUtils.notEmpty(loader.getMailUri())) {
             config.getMailUris().add(loader.createRouteConfig(loader.getMailUri()));
         }
         final String jsonString = loader.getJson();
-        if (StringUtil.notEmpty(jsonString) && loader.isEnabled()) {
+        if (StringUtils.notEmpty(jsonString) && loader.isEnabled()) {
             final JsonElement jsonElement = new JsonParser().parse(jsonString);
             final AtomicReference<String> defWebPage = new AtomicReference<>(null);
             final AtomicReference<String> defDeskLevel = new AtomicReference<>(null);
@@ -206,10 +206,10 @@ public class MailImporterConfigLoader {
                         defFieldDefaults.putAll(readContentTypesDefaults(defaults));
                     });
             final String defaultPrincipalId = Optional.ofNullable(defPrincipalId.get())
-                                                      .filter(StringUtil::notEmpty)
+                                                      .filter(StringUtils::notEmpty)
                                                       .orElse("98");
             final Map<String, Map<String, String>> defFieldMappings = readContentTypesMappings(jsonElement);
-            if (StringUtil.notEmpty(loader.getMailUri()) && config.getMailUris().size() > 0) {
+            if (StringUtils.notEmpty(loader.getMailUri()) && config.getMailUris().size() > 0) {
                 final MailRouteConfig mainRouteConfig = config.getMailUris().get(0);
                 mainRouteConfig.setWebPage(defWebPage.get());
                 mainRouteConfig.setDeskLevel(defDeskLevel.get());

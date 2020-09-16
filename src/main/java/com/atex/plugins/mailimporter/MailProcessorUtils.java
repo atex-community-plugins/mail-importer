@@ -228,10 +228,10 @@ public class MailProcessorUtils {
 
     public InsertionInfoAspectBean getInsertionInfoAspectBean(final MailRouteConfig config) {
         final InsertionInfoAspectBean bean = new InsertionInfoAspectBean();
-        if (StringUtil.notEmpty(config.getDeskLevel())) {
+        if (StringUtils.notEmpty(config.getDeskLevel())) {
             resolve(config.getDeskLevel()).ifPresent(bean::setSecurityParentId);
         }
-        if (StringUtil.notEmpty(config.getWebPage())) {
+        if (StringUtils.notEmpty(config.getWebPage())) {
             resolve(config.getWebPage()).ifPresent(bean::setInsertParentId);
         }
         return bean;
@@ -268,10 +268,10 @@ public class MailProcessorUtils {
                 values.put("height", metadataTags.tags.getImageHeight());
             }
             values.put("description", metadataTags.customTags.getDescription());
-            if (StringUtil.notEmpty(routeConfig.getSection())) {
+            if (StringUtils.notEmpty(routeConfig.getSection())) {
                 values.put("section", routeConfig.getSection());
             }
-            if (StringUtil.notEmpty(routeConfig.getSource())) {
+            if (StringUtils.notEmpty(routeConfig.getSource())) {
                 values.put("source", routeConfig.getSource());
             }
 
@@ -345,10 +345,10 @@ public class MailProcessorUtils {
             values.put("body", mail.getBody());
             values.put("headline", mail.getSubject());
             values.put("lead", mail.getLead());
-            if (StringUtil.notEmpty(routeConfig.getSection())) {
+            if (StringUtils.notEmpty(routeConfig.getSection())) {
                 values.put("section", routeConfig.getSection());
             }
-            if (StringUtil.notEmpty(routeConfig.getSource())) {
+            if (StringUtils.notEmpty(routeConfig.getSource())) {
                 values.put("source", routeConfig.getSource());
             }
             setProperties(articleBean, values, routeConfig, routeConfig.getArticleAspect());
@@ -388,7 +388,7 @@ public class MailProcessorUtils {
                                                            .orElse(new HashMap<>());
         fieldsDefaults.entrySet()
                       .stream()
-                      .filter(e -> StringUtil.notEmpty(e.getValue()))
+                      .filter(e -> StringUtils.notEmpty(e.getValue()))
                       .forEach(e -> values.put(e.getKey(), e.getValue()));
         for (final Map.Entry<String, Object> entry : values.entrySet()) {
             final String fieldName = fieldsMappings.getOrDefault(entry.getKey(), entry.getKey());

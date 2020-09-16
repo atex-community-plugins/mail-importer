@@ -52,6 +52,10 @@ public abstract class StringUtils {
 
     }
 
+    public static boolean notEmpty(final String value) {
+        return !StringUtil.isEmpty(value);
+    }
+
     public static boolean isHtmlBody(String mailBody) {
         Matcher matcher = EMAIL_HTML_PATTERN.matcher(mailBody);
         return matcher.find();
@@ -59,7 +63,7 @@ public abstract class StringUtils {
 
     public static Optional<String> getFirstNotEmpty(final String...values) {
         for (final String s : values) {
-            if (StringUtil.notEmpty(s)) {
+            if (notEmpty(s)) {
                 return Optional.of(s);
             }
         }

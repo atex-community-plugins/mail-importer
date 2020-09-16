@@ -169,7 +169,7 @@ public class ContentPublisher {
 
         final MetadataInfo metadataInfo = mailProcessorUtils.getMetadataInfo(routeConfig.getTaxonomyId());
 
-        if (StringUtil.notEmpty(routeConfig.getArticlePartition())) {
+        if (StringUtils.notEmpty(routeConfig.getArticlePartition())) {
             final Metadata metadata = new Metadata();
             metadata.addDimension(createDimensionWithEntity(DIMENSION_PARTITION, routeConfig.getArticlePartition()));
             metadataInfo.setMetadata(metadata);
@@ -187,7 +187,7 @@ public class ContentPublisher {
     private Subject createSubject(final MailRouteConfig config) {
         final String principalId = Optional.ofNullable(config)
                                            .map(MailRouteConfig::getPrincipalId)
-                                           .filter(StringUtil::notEmpty)
+                                           .filter(StringUtils::notEmpty)
                                            .orElse("98");
         return new Subject(principalId, null);
     }

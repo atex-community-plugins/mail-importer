@@ -40,7 +40,7 @@ public class ImageMetadataExtraction {
     public ImageMetadataExtraction() {
         this(Optional
                 .ofNullable(System.getProperty(SYSTEM_PARAMETER))
-                .filter(StringUtil::notEmpty)
+                .filter(StringUtils::notEmpty)
                 .orElse(DEFAULT_URL));
     }
 
@@ -68,7 +68,7 @@ public class ImageMetadataExtraction {
             final long elapsed = System.currentTimeMillis() - startTime;
             LOGGER.debug(threadId + "Result (took {}ms) is: {}", elapsed, json);
 
-            if (StringUtil.notEmpty(json)) {
+            if (StringUtils.notEmpty(json)) {
                 return Optional.of(GSON.fromJson(json, MetadataTagsAspectBean.class));
             }
         } catch (UniformInterfaceException e) {
