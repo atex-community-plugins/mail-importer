@@ -14,7 +14,7 @@
       </security-parent>
     </metadata>
     <component group="polopoly.Content" name="name">Mail Importer Configuration</component>
-    <component group="mailimporter_enabled" name="value">true</component>
+    <component group="mailimporter_enabled" name="value">false</component>
     <component group="article_aspect" name="value">atex.onecms.article</component>
     <component group="article_name_pattern" name="value">Email_${from}_${subject}</component>
     <component group="article_partition" name="value"></component>
@@ -23,7 +23,7 @@
     <component group="attachment_name_pattern" name="value">Attachment_${from}_${filename}</component>
     <component group="image_partition" name="value"></component>
     <component group="taxonomyId" name="value">PolopolyPost.d</component>
-    <component group="mail_uri" name="value"><![CDATA[imaps://imap.ethereal.email:993?username=alberto.tromp@ethereal.email&password=JeA3jCS2V5yYS984V1&delete=true&unseen=false]]></component>
+    <component group="mail_uri" name="value"><![CDATA[]]></component>
     <component group="json" name="value"><![CDATA[{
   /*
     The "defaults" section allow you to specify some defaults that will be applied
