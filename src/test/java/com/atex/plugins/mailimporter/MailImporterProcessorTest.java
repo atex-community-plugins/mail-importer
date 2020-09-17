@@ -46,7 +46,7 @@ public class MailImporterProcessorTest extends AbstractProcessorTest {
     public void test_verify_route_config_is_passed_on() throws Exception {
 
         final MimeMessage msg = new MimeMessage((Session) null);
-        msg.setFrom("Marco Nova <mnova@atex.com>");
+        msg.setFrom(new InternetAddress("mnova@example.com", "Marco Nova <mnova@example.com>"));
         msg.setSubject("Test Article");
         msg.setText("This is the simple text");
         msg.setRecipient(RecipientType.TO, new InternetAddress("mock.endpoint@example.com", "Mock Endpoint <mock.endpoint@example.com>"));

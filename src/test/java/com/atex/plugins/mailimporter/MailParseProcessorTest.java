@@ -26,7 +26,7 @@ public class MailParseProcessorTest extends AbstractProcessorTest {
     @Test
     public void testTextMailParse() throws Exception {
         final MimeMessage msg = new MimeMessage((Session) null);
-        msg.setFrom("Marco Nova <mnova@atex.com>");
+        msg.setFrom(new InternetAddress("mnova@example.com", "Marco Nova <mnova@example.com>"));
         msg.setSubject("Test Article");
         msg.setText("This is the simple text");
         msg.setRecipient(RecipientType.TO, new InternetAddress("mock.endpoint@example.com", "Mock Endpoint <mock.endpoint@example.com>"));
@@ -46,7 +46,7 @@ public class MailParseProcessorTest extends AbstractProcessorTest {
                                      .getIn()
                                      .getBody(MailBean.class);
         Assert.assertNotNull(outMail);
-        Assert.assertEquals("mnova@atex.com", outMail.getFrom());
+        Assert.assertEquals("mnova@example.com", outMail.getFrom());
         Assert.assertEquals("Test Article", outMail.getSubject());
         Assert.assertEquals("<p>This is the simple text</p>", outMail.getBody());
         Assert.assertEquals("", outMail.getLead());
@@ -55,7 +55,7 @@ public class MailParseProcessorTest extends AbstractProcessorTest {
     @Test
     public void test_mail_with_lead() throws Exception {
         final MimeMessage msg = new MimeMessage((Session) null);
-        msg.setFrom("Marco Nova <mnova@atex.com>");
+        msg.setFrom(new InternetAddress("mnova@example.com", "Marco Nova <mnova@example.com>"));
         msg.setSubject("Test Article");
         msg.setText("This is the lead\n\nThis is the body");
         msg.setRecipient(RecipientType.TO, new InternetAddress("mock.endpoint@example.com", "Mock Endpoint <mock.endpoint@example.com>"));
@@ -75,7 +75,7 @@ public class MailParseProcessorTest extends AbstractProcessorTest {
                                      .getIn()
                                      .getBody(MailBean.class);
         Assert.assertNotNull(outMail);
-        Assert.assertEquals("mnova@atex.com", outMail.getFrom());
+        Assert.assertEquals("mnova@example.com", outMail.getFrom());
         Assert.assertEquals("Test Article", outMail.getSubject());
         Assert.assertEquals("<p>This is the body</p>", outMail.getBody());
         Assert.assertEquals("This is the lead", outMail.getLead());

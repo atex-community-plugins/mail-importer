@@ -107,6 +107,13 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-email</artifactId>
       <version>1.5</version>
+      <exclusions>
+        <!-- exclude javax.mail which is imported by camel and polopoly -->
+        <exclusion>
+          <groupId>com.sun.mail</groupId>
+          <artifactId>javax.mail</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.polopoly</groupId>
