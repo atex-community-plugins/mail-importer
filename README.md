@@ -10,7 +10,41 @@ Add the following to your project only in the server-integration webapp.
 <dependency>
   <groupId>com.atex.plugins</groupId>
   <artifactId>mail-importer</artifactId>
-  <version>2.0-SNAPSHOT</version>
+  <version>2.0</version>
+</dependency>
+```
+
+In the top pom.xml you need to add the contentData:
+
+```
+<dependency>
+  <groupId>com.atex.plugins</groupId>
+  <artifactId>mail-importer</artifactId>
+  <version>2.0</version>
+  <classifier>contentdata</classifier>
+  <exclusions>
+    <!-- exclude most of the dependencies since we only need the content definitions -->
+    <exclusion>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-email</artifactId>
+    </exclusion>
+    <exclusion>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+    </exclusion>
+    <exclusion>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context-support</artifactId>
+    </exclusion>
+    <exclusion>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-mail</artifactId>
+    </exclusion>
+    <exclusion>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-quartz2</artifactId>
+    </exclusion>
+  </exclusions>
 </dependency>
 ```
 
@@ -116,6 +150,23 @@ Extendend configuration can be done in the json field, the following contains al
 }
 ```
 
+Image Metadata
+--------------
+
+The plugin use the image-metadata-extractor-service to extract exif and iptcs tags, you can control the location of the
+service by setting the property `-Dimage.metadata.service.url=xxx`, it defaults to `http://localhost:8080/image-metadata-extractor-service/image`.
+
+Integration Server
+------------------
+
+To let the integration server know about this plugin you should add:
+
+```
+<context:component-scan base-package="com.atex.plugins" />
+```
+
+to `applicationContext.xml` in the integration-server webapp.
+
 Customizations
 ==============
 
@@ -132,3 +183,4 @@ MailPublisher
 You can customize the way the plugin publish an email by implementing the `com.atex.plugins.mailimporter.MailPublisher`
 interface and let the plugins now about it by writing the implementing class name in a text file named 
 `src/main/resources/META-INF/services/com.atex.plugins.mailimporter.MailPublisher`.
+
