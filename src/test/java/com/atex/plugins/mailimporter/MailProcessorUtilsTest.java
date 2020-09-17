@@ -109,32 +109,6 @@ public class MailProcessorUtilsTest {
         }
     }
 
-    @Test
-    public void test_get_metadata_tags_very_big() throws Exception {
-        final JettyWrapper jw = jettyWrapperRule.getJettyWrapper();
-        final String servletPath = "/metadata/image/extract";
-        final KeepingMetadataServiceServlet servlet = new KeepingMetadataServiceServlet();
-        jw.addServlet(servlet, servletPath);
-        System.setProperty("image.metadata.service.url", jw.getURL(servletPath));
-
-        try (final InputStream is = new FileInputStream(new File("/Users/mnova/dev/tests/data-stunning/Images/Spain-El-Atazar-Dam.jpg"))) {
-            final byte[] imageData = IOUtils.toByteArray(is);
-            try (final ByteArrayInputStream bais = new ByteArrayInputStream(imageData)) {
-
-                final MetadataTagsHolder metadataTags = mpu.getMetadataTags(bais);
-                Assert.assertNotNull(metadataTags);
-
-                Assert.assertNotNull(metadataTags.customTags);
-                Assert.assertNotNull(metadataTags.tags);
-
-                Assert.assertEquals(600, metadataTags.tags.getImageWidth().intValue());
-                Assert.assertEquals(450, metadataTags.tags.getImageHeight().intValue());
-
-                Assert.assertArrayEquals(imageData, servlet.getPostedBytes());
-            }
-        }
-    }
-
     public static class KeepingMetadataServiceServlet extends MetadataServiceServlet {
 
         private byte[] postedBytes;
