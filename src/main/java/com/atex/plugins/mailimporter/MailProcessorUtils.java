@@ -44,6 +44,7 @@ import com.drew.metadata.Directory;
 import com.drew.metadata.Tag;
 import com.drew.metadata.icc.IccDirectory;
 import com.drew.metadata.iptc.IptcDirectory;
+import com.polopoly.metadata.Metadata;
 import com.polopoly.model.ModelDomain;
 import com.polopoly.model.ModelType;
 import com.polopoly.model.ModelTypeBean;
@@ -246,6 +247,7 @@ public class MailProcessorUtils {
         Set<String> set = new HashSet<>();
         set.add(taxonomyId);
         metadataInfo.setTaxonomyIds(set);
+        metadataInfo.setMetadata(new Metadata());
         return metadataInfo;
     }
 
