@@ -15,7 +15,7 @@ public class MailBean {
 
     private String from = null;
 
-    private Map<String, byte[]> attachments = new HashMap<>();
+    private Map<String, MailBeanAttachment> attachments = new HashMap<>();
 
     public MailBean() {
     }
@@ -24,7 +24,7 @@ public class MailBean {
                     final String lead,
                     final String body,
                     final String from,
-                    final Map<String, byte[]> attachments) {
+                    final Map<String, MailBeanAttachment> attachments) {
         this.subject = subject;
 
         this.lead = lead;
@@ -46,7 +46,7 @@ public class MailBean {
         return body;
     }
 
-    public Map<String, byte[]> getAttachments() {
+    public Map<String, MailBeanAttachment> getAttachments() {
         return attachments;
     }
 
@@ -70,7 +70,7 @@ public class MailBean {
         this.from = from;
     }
 
-    public void setAttachments(Map<String, byte[]> attachments) {
+    public void setAttachments(Map<String, MailBeanAttachment> attachments) {
         this.attachments = attachments;
     }
 }

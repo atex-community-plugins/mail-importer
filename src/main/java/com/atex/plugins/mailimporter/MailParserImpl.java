@@ -56,7 +56,7 @@ public class MailParserImpl implements MailParser {
 
         Map<String, DataHandler> attachments = exchange.getIn().getAttachments();
 
-        Map<String, byte[]> attachmentFiles = new HashMap<>();
+        Map<String, MailBeanAttachment> attachmentFiles = new HashMap<>();
 
         if (attachments.size() > 0) {
             for (String attachmentKey : attachments.keySet()) {
@@ -67,7 +67,10 @@ public class MailParserImpl implements MailParser {
                                       .getTypeConverter()
                                       .convertTo(byte[].class, dataHandler.getInputStream());
 
-                attachmentFiles.put(filename, data);
+                final MailBeanAttachment attachment = new MailBeanAttachment();
+                attachment.setContentType(dataHandler.getContentType());
+                attachment.setContent(data);
+                attachmentFiles.put(filename, attachment);
             }
         }
 

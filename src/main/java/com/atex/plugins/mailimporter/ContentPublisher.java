@@ -67,6 +67,14 @@ public class ContentPublisher implements MailPublisher {
         return application;
     }
 
+    protected MailProcessorUtils getMailProcessorUtils() {
+        return mailProcessorUtils;
+    }
+
+    protected void setMailProcessorUtils(final MailProcessorUtils mailProcessorUtils) {
+        this.mailProcessorUtils = mailProcessorUtils;
+    }
+
     public MailImporterConfig getConfig() {
         final MailImporterConfig config = IMPORTER_CONFIG.get();
         if (config != null) {
@@ -82,35 +90,6 @@ public class ContentPublisher implements MailPublisher {
 
     public void setConfig(final MailImporterConfig config) {
         IMPORTER_CONFIG.set(config);
-    }
-
-    @Override
-    public ContentId publish(final MailBean mail,
-                             final MailRouteConfig routeConfig) throws Exception {
-
-        // Please note that the mapping between data and Polopoly types we have to perform here will be
-        // very much simplified in future versions of Polopoly, where the Data-API will have support for
-        // write operations. It will then be possible to manage data mapping and conversions centralized
-        // for the entire project.
-        //
-        // http://support.polopoly.com/confluence/display/Polopoly > Data-API.
-
-        if (routeConfig == null) {
-            throw new Exception("Missing routeConfig, (did you forget to add header X-ROUTE-CONFIG?)");
-        }
-
-        try {
-            final MailImporterConfig config = getConfig();
-            IMPORTER_CONFIG.set(config);
-
-            final Object articleBean = createArticle(config, routeConfig, mail);
-            final ContentResult<Object> cr = writeArticleBean(mailProcessorUtils, routeConfig, articleBean);
-            return cr.getContentId().getContentId();
-        } catch (CMException e) {
-            throw new RuntimeException("Failed to publish contents!", e);
-        } finally {
-            IMPORTER_CONFIG.set(null);
-        }
     }
 
     @Override
@@ -144,14 +123,65 @@ public class ContentPublisher implements MailPublisher {
         }
     }
 
-    private Object createArticle(final MailImporterConfig config,
-                                 final MailRouteConfig routeConfig,
-                                 final MailBean mail) throws Exception {
-        Object articleBean = mailProcessorUtils.getPopulatedArticleBean(config, routeConfig, mail);
+    @Override
+    public ContentId publish(final MailBean mail,
+                             final MailRouteConfig routeConfig) throws Exception {
+
+        // Please note that the mapping between data and Polopoly types we have to perform here will be
+        // very much simplified in future versions of Polopoly, where the Data-API will have support for
+        // write operations. It will then be possible to manage data mapping and conversions centralized
+        // for the entire project.
+        //
+        // http://support.polopoly.com/confluence/display/Polopoly > Data-API.
+
+        if (routeConfig == null) {
+            throw new Exception("Missing routeConfig, (did you forget to add header X-ROUTE-CONFIG?)");
+        }
+
+        try {
+            final MailImporterConfig config = getConfig();
+            IMPORTER_CONFIG.set(config);
+
+            final MailProcessorUtils mailProcessorUtils = getMailProcessorUtils();
+            final ContentResult<Object> cr = processMail(
+                    mailProcessorUtils,
+                    config,
+                    routeConfig,
+                    mail
+            );
+            return cr.getContentId().getContentId();
+        } catch (CMException e) {
+            throw new RuntimeException("Failed to publish contents!", e);
+        } finally {
+            IMPORTER_CONFIG.set(null);
+        }
+    }
+
+    protected ContentResult<Object> processMail(final MailProcessorUtils mailProcessorUtils,
+                                                final MailImporterConfig config,
+                                                final MailRouteConfig routeConfig,
+                                                final MailBean mail) throws Exception {
+        final Object articleBean = createArticle(config, routeConfig, mailProcessorUtils, mail);
+        return writeArticleBean(mailProcessorUtils, routeConfig, articleBean);
+    }
+
+    protected Object createArticle(final MailImporterConfig config,
+                                   final MailRouteConfig routeConfig,
+                                   final MailProcessorUtils mailProcessorUtils,
+                                   final MailBean mail) throws Exception {
+        final Object articleBean = createArticleBean(config, routeConfig, mailProcessorUtils, mail);
         List<ContentId> images = new ArrayList<>();
         for (String filename : mail.getAttachments().keySet()) {
             if (isAcceptedImageExtension(config.getAcceptedImageExtensions(), filename)) {
-                ContentId contentId = createImage(config, routeConfig, mail, filename, mail.getAttachments().get(filename));
+                final ContentId contentId = createImage(
+                        config,
+                        routeConfig,
+                        mailProcessorUtils,
+                        mail,
+                        filename,
+                        mail.getAttachments()
+                            .get(filename)
+                );
                 images.add(0, contentId);
             }
         }
@@ -160,9 +190,60 @@ public class ContentPublisher implements MailPublisher {
         return articleBean;
     }
 
-    private ContentResult<Object> writeArticleBean(final MailProcessorUtils mailProcessorUtils,
-                                                   final MailRouteConfig routeConfig,
-                                                   final Object articleBean) {
+    protected Object createArticleBean(final MailImporterConfig config,
+                                       final MailRouteConfig routeConfig,
+                                       final MailProcessorUtils mailProcessorUtils,
+                                       final MailBean mail) {
+        return mailProcessorUtils.getPopulatedArticleBean(config, routeConfig, mail);
+    }
+
+    protected ContentId createImage(final MailImporterConfig config,
+                                    final MailRouteConfig routeConfig,
+                                    final MailProcessorUtils mailProcessorUtils,
+                                    final MailBean mailBean,
+                                    final String name,
+                                    final MailBeanAttachment attachment) throws Exception {
+        final FileInfo fInfo;
+        final MailProcessorUtils.MetadataTagsHolder metadataTags;
+
+        final byte[] imageData = attachment.getContent();
+
+        try (final ByteArrayInputStream bis = new ByteArrayInputStream(imageData)) {
+            final String mimeType = MimeTypeUtils.getMimeType(bis)
+                                                 .orElse("image/jpeg");
+            bis.reset();
+
+            metadataTags = mailProcessorUtils.getMetadataTags(bis);
+            bis.reset();
+
+            fInfo = fileService.uploadFile(SCHEME_TMP, null, name, bis, mimeType, createSubject(routeConfig));
+            assert fInfo != null;
+        }
+
+        final Object bean = createImageBean(config, routeConfig, mailProcessorUtils, name, metadataTags, mailBean);
+
+        return writeImageBean(
+                mailProcessorUtils,
+                routeConfig,
+                bean,
+                name,
+                fInfo,
+                metadataTags
+        );
+    }
+
+    protected Object createImageBean(final MailImporterConfig config,
+                                     final MailRouteConfig routeConfig,
+                                     final MailProcessorUtils mailProcessorUtils,
+                                     final String name,
+                                     final MailProcessorUtils.MetadataTagsHolder metadataTags,
+                                     final MailBean mail) {
+        return mailProcessorUtils.getPopulatedImageBean(config, routeConfig, mail, metadataTags, name);
+    }
+
+    protected ContentResult<Object> writeArticleBean(final MailProcessorUtils mailProcessorUtils,
+                                                     final MailRouteConfig routeConfig,
+                                                     final Object articleBean) {
         ContentWriteBuilder<Object> cwb = new ContentWriteBuilder<>();
         cwb.mainAspectData(articleBean);
         cwb.type(routeConfig.getArticleAspect());
@@ -184,61 +265,20 @@ public class ContentPublisher implements MailPublisher {
         return contentManager.create(content, createSubject(routeConfig));
     }
 
-    private Subject createSubject(final MailRouteConfig config) {
-        final String principalId = Optional.ofNullable(config)
-                                           .map(MailRouteConfig::getPrincipalId)
-                                           .filter(StringUtils::notEmpty)
-                                           .orElse("98");
-        return new Subject(principalId, null);
-    }
+    protected ContentId writeImageBean(final MailProcessorUtils mailProcessorUtils,
+                                       final MailRouteConfig routeConfig,
+                                       final Object bean,
+                                       final String name,
+                                       final FileInfo fInfo,
+                                       final MailProcessorUtils.MetadataTagsHolder metadataTags) {
 
-    private FileService getFileService(Application application) {
-        try {
-            HttpFileServiceClient httpFileServiceClient = application.getPreferredApplicationComponent(HttpFileServiceClient.class);
-            return httpFileServiceClient.getFileService();
-        } catch (IllegalApplicationStateException e) {
-            throw new RuntimeException(e);
-        }
-    }
+        final ContentWriteBuilder<Object> cwb = new ContentWriteBuilder<>();
+        cwb.type(routeConfig.getImageAspect());
+        cwb.mainAspectData(bean);
 
-    private boolean isAcceptedImageExtension(final List<String> acceptedImageExtensions, final String filename) {
-        for (String suffix : acceptedImageExtensions) {
-            if (filename.toLowerCase().endsWith(suffix)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private Dimension createDimensionWithEntity(String dimension, String entity) {
-        return new Dimension(dimension, dimension, false, new Entity(entity, entity));
-    }
-
-    private ContentId createImage(final MailImporterConfig config,
-                                  final MailRouteConfig routeConfig,
-                                  final MailBean mailBean,
-                                  final String name,
-                                  final byte[] imageData) throws Exception {
-        final FileInfo fInfo;
-        final MailProcessorUtils.MetadataTagsHolder metadataTags;
-
-        try (final ByteArrayInputStream bis = new ByteArrayInputStream(imageData)) {
-            final String mimeType = MimeTypeUtils.getMimeType(bis)
-                                                 .orElse("image/jpeg");
-            bis.reset();
-
-            metadataTags = mailProcessorUtils.getMetadataTags(bis);
-            bis.reset();
-
-            fInfo = fileService.uploadFile(SCHEME_TMP, null, name, bis, mimeType, createSubject(routeConfig));
-            assert fInfo != null;
-        }
-
-        FilesAspectBean filesAspectBean = mailProcessorUtils.getFilesAspectBean(fInfo);
-        ImageInfoAspectBean imageInfoAspectBean = mailProcessorUtils.getImageInfoAspectBean(metadataTags.tags, fInfo);
+        final FilesAspectBean filesAspectBean = mailProcessorUtils.getFilesAspectBean(fInfo);
+        final ImageInfoAspectBean imageInfoAspectBean = mailProcessorUtils.getImageInfoAspectBean(metadataTags.tags, fInfo);
         final InsertionInfoAspectBean insertionInfoAspectBean = mailProcessorUtils.getInsertionInfoAspectBean(routeConfig);
-
-        Object bean = mailProcessorUtils.getPopulatedImageBean(config, routeConfig, mailBean, metadataTags, name);
 
         // leave creation date to prestore hook
         final MetadataInfo metadataInfo = mailProcessorUtils.getMetadataInfo(routeConfig.getTaxonomyId());
@@ -249,10 +289,6 @@ public class ContentPublisher implements MailPublisher {
             metadata.addDimension(partition);
             metadataInfo.setMetadata(metadata);
         }
-
-        ContentWriteBuilder<Object> cwb = new ContentWriteBuilder<>();
-        cwb.type(routeConfig.getImageAspect());
-        cwb.mainAspectData(bean);
 
         cwb.aspect(FilesAspectBean.ASPECT_NAME, filesAspectBean);
         cwb.aspect(ImageInfoAspectBean.ASPECT_NAME, imageInfoAspectBean);
@@ -267,6 +303,38 @@ public class ContentPublisher implements MailPublisher {
         LOG.info("Inserted image " + name + " with contentid: " + IdUtil.toIdString(cr.getContentId().getContentId()));
 
         return cr.getContentId().getContentId();
+    }
+
+    protected Subject createSubject(final MailRouteConfig config) {
+        final String principalId = Optional.ofNullable(config)
+                                           .map(MailRouteConfig::getPrincipalId)
+                                           .filter(StringUtils::notEmpty)
+                                           .orElse("98");
+        return new Subject(principalId, null);
+    }
+
+    protected FileService getFileService(final Application application) {
+        try {
+            HttpFileServiceClient httpFileServiceClient = application.getPreferredApplicationComponent(HttpFileServiceClient.class);
+            return httpFileServiceClient.getFileService();
+        } catch (IllegalApplicationStateException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected boolean isAcceptedImageExtension(final List<String> acceptedImageExtensions,
+                                               final String filename) {
+        for (String suffix : acceptedImageExtensions) {
+            if (filename.toLowerCase().endsWith(suffix)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected Dimension createDimensionWithEntity(final String dimension,
+                                                  final String entity) {
+        return new Dimension(dimension, dimension, false, new Entity(entity, entity));
     }
 
     protected CmClient getCmClient(Application application) {

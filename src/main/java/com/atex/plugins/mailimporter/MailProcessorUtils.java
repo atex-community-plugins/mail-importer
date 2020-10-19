@@ -44,7 +44,6 @@ import com.drew.metadata.Directory;
 import com.drew.metadata.Tag;
 import com.drew.metadata.icc.IccDirectory;
 import com.drew.metadata.iptc.IptcDirectory;
-import com.polopoly.common.lang.StringUtil;
 import com.polopoly.model.ModelDomain;
 import com.polopoly.model.ModelType;
 import com.polopoly.model.ModelTypeBean;
@@ -93,7 +92,7 @@ public class MailProcessorUtils {
         return strSubstitutor.replace(property);
     }
 
-    static class MetadataTagsHolder {
+    public static class MetadataTagsHolder {
         MetadataTagsAspectBean tags;
         CustomMetadataTags customTags;
     }
@@ -261,13 +260,15 @@ public class MailProcessorUtils {
             final Object bean = createBean(routeConfig.getImageAspect());
 
             final Map<String, Object> values = new HashMap<>();
-            values.put("byline", metadataTags.customTags.getByline());
-            values.put("section", metadataTags.customTags.getSubject());
+            if (metadataTags.customTags != null) {
+                values.put("byline", metadataTags.customTags.getByline());
+                values.put("section", metadataTags.customTags.getSubject());
+                values.put("description", metadataTags.customTags.getDescription());
+            }
             if (metadataTags.tags != null) {
                 values.put("width", metadataTags.tags.getImageWidth());
                 values.put("height", metadataTags.tags.getImageHeight());
             }
-            values.put("description", metadataTags.customTags.getDescription());
             if (StringUtils.notEmpty(routeConfig.getSection())) {
                 values.put("section", routeConfig.getSection());
             }
@@ -315,7 +316,7 @@ public class MailProcessorUtils {
             }
             LOG.debug("setProperty on field " + field + " (type is " + propertyType.getName() + ", value type is " + ((value != null) ? value.getClass().getName() : "null") + ")");
             if (propertyType.getName().equals("com.atex.plugins.structured.text.StructuredText") ) {
-                StructuredText structuredText = (StructuredText)PropertyUtils.getProperty(bean,field);
+                StructuredText structuredText = (StructuredText) PropertyUtils.getProperty(bean, field);
                 if (structuredText == null) {
                     structuredText = new StructuredText();
                 }

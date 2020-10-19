@@ -481,7 +481,7 @@ public class ContentPublisherTest {
                 IOUtils.copy(is, baos);
                 baos.close();
                 imgData = baos.toByteArray();
-                mail.setAttachments(Collections.singletonMap("myimage.jpg", imgData));
+                mail.setAttachments(Collections.singletonMap("myimage.jpg", createImageAttachment(imgData)));
             }
         }
 
@@ -654,7 +654,7 @@ public class ContentPublisherTest {
                 IOUtils.copy(is, baos);
                 baos.close();
                 imgData = baos.toByteArray();
-                mail.setAttachments(Collections.singletonMap("myimage.jpg", imgData));
+                mail.setAttachments(Collections.singletonMap("myimage.jpg", createImageAttachment(imgData)));
             }
         }
 
@@ -819,7 +819,7 @@ public class ContentPublisherTest {
                 IOUtils.copy(is, baos);
                 baos.close();
                 imgData = baos.toByteArray();
-                mail.setAttachments(Collections.singletonMap("myimage.jpg", imgData));
+                mail.setAttachments(Collections.singletonMap("myimage.jpg", createImageAttachment(imgData)));
             }
         }
 
@@ -985,6 +985,13 @@ public class ContentPublisherTest {
         Mockito.when(application.getPreferredApplicationComponent(Mockito.eq(classToMock)))
                .thenReturn(mockComponent);
         return mockComponent;
+    }
+
+    private MailBeanAttachment createImageAttachment(final byte[] data) {
+        final MailBeanAttachment a = new MailBeanAttachment();
+        a.setContentType("image/jpeg");
+        a.setContent(data);
+        return a;
     }
 
     public static class MyArticleBean {
