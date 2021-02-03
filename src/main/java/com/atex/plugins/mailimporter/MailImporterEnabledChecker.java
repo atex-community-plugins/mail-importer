@@ -25,8 +25,8 @@ import com.polopoly.cm.client.CMException;
 import com.polopoly.cm.client.CmClient;
 import com.polopoly.cm.client.CmClientBase;
 import com.polopoly.cm.policy.PolicyCMServer;
-import com.polopoly.common.lang.StringUtil;
 import com.polopoly.integration.IntegrationServerApplication;
+import com.polopoly.util.StringUtil;
 
 @Service
 public class MailImporterEnabledChecker implements Job {

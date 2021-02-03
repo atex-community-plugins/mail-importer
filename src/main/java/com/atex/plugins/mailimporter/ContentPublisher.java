@@ -30,11 +30,11 @@ import com.polopoly.cm.client.CMException;
 import com.polopoly.cm.client.CmClient;
 import com.polopoly.cm.client.HttpFileServiceClient;
 import com.polopoly.cm.policy.PolicyCMServer;
-import com.polopoly.common.lang.StringUtil;
 import com.polopoly.metadata.Dimension;
 import com.polopoly.metadata.Entity;
 import com.polopoly.metadata.Metadata;
 import com.polopoly.model.ModelDomain;
+import com.polopoly.util.StringUtil;
 
 /**
  * Utility class used to publish a parsed {@link MailBean}

@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.atex.onecms.image.exif.MetadataTagsAspectBean;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.polopoly.common.lang.StringUtil;
+import com.polopoly.util.StringUtil;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.UniformInterfaceException;
 

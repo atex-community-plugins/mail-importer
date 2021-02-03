@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.polopoly.common.lang.StringUtil;
+import com.polopoly.util.StringUtil;
 
 public abstract class StringUtils {
 

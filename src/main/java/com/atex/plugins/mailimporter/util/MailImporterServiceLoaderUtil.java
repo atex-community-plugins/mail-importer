@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
-import com.polopoly.common.lang.StringUtil;
+import com.polopoly.util.StringUtil;
 
 /**
  * MailImporterServiceLoaderUtil
