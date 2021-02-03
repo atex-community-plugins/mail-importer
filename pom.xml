@@ -60,7 +60,7 @@
     <baseline.version>4.0.11</baseline.version>
     <polopoly.version>10.18.3-fp2</polopoly.version>
     <camel.version>2.24.2</camel.version>
-    <spring.version>4.1.0.RELEASE</spring.version>
+    <spring.version>5.1.6.RELEASE</spring.version>
     <structured-text.version>1.6.5</structured-text.version>
   </properties>
 
