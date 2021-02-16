@@ -16,6 +16,7 @@ public class MailBean {
     private String from = null;
 
     private Map<String, MailBeanAttachment> attachments = new HashMap<>();
+    private String to;
 
     public MailBean() {
     }
@@ -72,5 +73,13 @@ public class MailBean {
 
     public void setAttachments(Map<String, MailBeanAttachment> attachments) {
         this.attachments = attachments;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
+    }
+
+    public String getTo() {
+        return to;
     }
 }
