@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 import javax.activation.DataHandler;
 import javax.mail.Address;
@@ -52,7 +53,8 @@ public class MailParserImpl implements MailParser {
 
         String subject = messageParser.getSubject();
         List<Address> to = messageParser.getTo();
-        if (to.size() > 0) mailBean.setTo(to.get(0).toString());
+        String toAddress = to.stream().map(address -> address.toString()).collect(Collectors.joining(","));
+        mailBean.setTo(toAddress);
         mailBean.setSubject(subject);
 
         String from = messageParser.getFrom();
