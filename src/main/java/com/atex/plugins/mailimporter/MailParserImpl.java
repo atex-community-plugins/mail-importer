@@ -3,10 +3,13 @@ package com.atex.plugins.mailimporter;
 import static com.atex.plugins.mailimporter.StringUtils.EMAIL_HTML_PATTERN;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 import javax.activation.DataHandler;
+import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.internet.MimeMessage;
 
@@ -49,6 +52,9 @@ public class MailParserImpl implements MailParser {
         MailBean mailBean = createMailBean();
 
         String subject = messageParser.getSubject();
+        List<Address> to = messageParser.getTo();
+        String toAddress = to.stream().map(address -> address.toString()).collect(Collectors.joining(","));
+        mailBean.setTo(toAddress);
         mailBean.setSubject(subject);
 
         String from = messageParser.getFrom();
