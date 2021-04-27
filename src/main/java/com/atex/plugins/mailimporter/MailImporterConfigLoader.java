@@ -197,7 +197,7 @@ public class MailImporterConfigLoader {
             final AtomicReference<String> defSection = new AtomicReference<>(null);
             final AtomicReference<String> defSource = new AtomicReference<>(null);
             final AtomicReference<String> defPrincipalId = new AtomicReference<>(null);
-            final AtomicInteger defMinWords = new AtomicInteger(10);
+            final AtomicInteger defMinWords = new AtomicInteger(-1);
             final Map<String, Map<String, String>> defFieldDefaults = new HashMap<>();
             final List<Signature> defSignatures = new ArrayList<>();
             jsonSection(jsonElement, "defaults", JsonElement::isJsonObject, JsonElement::getAsJsonObject)

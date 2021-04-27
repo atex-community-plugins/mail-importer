@@ -131,7 +131,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("98", route.getPrincipalId());
             Assert.assertEquals("atex.onecms.article", route.getArticleAspect());
             Assert.assertEquals("atex.onecms.image", route.getImageAspect());
-            Assert.assertEquals(10, route.getMinWords());
+            Assert.assertEquals(-1, route.getMinWords());
             Assert.assertEquals(0, route.getSignatures().size());
         }
         {
@@ -295,6 +295,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("MAIL", route.getSource());
             Assert.assertEquals("myTaxonomy", route.getTaxonomyId());
             Assert.assertEquals("98", route.getPrincipalId());
+            Assert.assertEquals(-1, route.getMinWords());
             Assert.assertEquals(0, route.getSignatures().size());
         }
     }
@@ -326,6 +327,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("CRONACA", route.getSection());
             Assert.assertEquals("MAIL", route.getSource());
             Assert.assertEquals("98", route.getPrincipalId());
+            Assert.assertEquals(-1, route.getMinWords());
             Assert.assertEquals(0, route.getSignatures().size());
         }
     }
@@ -361,6 +363,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("2020", route.getPrincipalId());
             Assert.assertEquals("com.my.standard.article.6", route.getArticleAspect());
             Assert.assertEquals("com.my.standard.image.6", route.getImageAspect());
+            Assert.assertEquals(-1, route.getMinWords());
 
             final Map<String, Map<String, String>> defaults = route.getFieldsDefaults();
             Assert.assertNotNull(defaults);
