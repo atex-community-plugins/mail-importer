@@ -1,6 +1,10 @@
 package com.atex.plugins.mailimporter;
 
+import java.util.List;
+
 import org.apache.camel.Exchange;
+
+import com.atex.plugins.mailimporter.MailImporterConfig.Signature;
 
 /**
  * MailParser
@@ -14,5 +18,18 @@ public interface MailParser {
     }
 
     MailBean parse(final Exchange exchange) throws Exception;
+
+    default MailBean removeSignatures(final MailBean bean,
+                                      final List<Signature> signatureList) {
+        if (bean != null) {
+            bean.setBody(removeSignatures(bean.getBody(), signatureList));
+        }
+        return bean;
+    }
+
+    default String removeSignatures(final String text,
+                                    final List<Signature> signatureList) {
+        throw new UnsupportedOperationException();
+    }
 
 }

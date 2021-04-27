@@ -67,6 +67,10 @@ public class MailImporterProcessorTest extends AbstractProcessorTest {
                    }
                    throw new AssertionError("No mail message has been received");
                });
+        Mockito.when(parser.removeSignatures(Mockito.any(String.class), Mockito.anyList()))
+               .then(args -> args.getArgumentAt(0, String.class));
+        Mockito.when(parser.removeSignatures(Mockito.any(MailBean.class), Mockito.anyList()))
+               .then(args -> args.getArgumentAt(0, MailBean.class));
 
         final ContentId newId = IdUtil.fromString("oncms:1234");
         Mockito.when(contentPublisher.publish(Mockito.any(), Mockito.any()))

@@ -277,6 +277,9 @@ public class MailProcessorUtils {
             if (StringUtils.notEmpty(routeConfig.getSource())) {
                 values.put("source", routeConfig.getSource());
             }
+            if (StringUtils.notEmpty(mailBean.getLead())) {
+                values.put("byline", mailBean.getLead());
+            }
 
             final List<String> names = Arrays.asList(
                     "byline",
@@ -362,6 +365,19 @@ public class MailProcessorUtils {
         }
     }
 
+    public Map<String, String> getContentBean(final Object bean,
+                                              final List<String> fields,
+                                              final MailRouteConfig routeConfig,
+                                              final String aspectName) {
+
+        return getProperties(
+                bean,
+                fields,
+                routeConfig,
+                aspectName
+        );
+    }
+
     private Object createBean(final String aspectName) throws IllegalAccessException, InstantiationException {
         LOG.debug("Create bean for {}", aspectName);
 
@@ -397,6 +413,44 @@ public class MailProcessorUtils {
             final String fieldName = fieldsMappings.getOrDefault(entry.getKey(), entry.getKey());
             setProperty(bean, fieldName, entry.getValue());
         }
+    }
+
+    private Map<String, String> getProperties(final Object bean,
+                                              final List<String> fields,
+                                              final MailRouteConfig routeConfig,
+                                              final String aspectName) {
+        final Map<String, String> fieldsMappings = Optional.ofNullable(routeConfig.getFieldsMappings())
+                                                           .map(m -> m.get(aspectName))
+                                                           .orElse(new HashMap<>());
+        final Map<String, String> results = new HashMap<>();
+        for (final String field : fields) {
+            final String fieldName = fieldsMappings.getOrDefault(field, field);
+            results.put(field, getProperty(bean, fieldName));
+        }
+        return results;
+    }
+
+    private String getProperty(final Object bean,
+                               final String field) {
+        try {
+            final Class<?> propertyType = PropertyUtils.getPropertyType(bean, field);
+            if (propertyType == null) {
+                LOG.error("Field " + field + " does not exists in class " + bean.getClass());
+                return field;
+            }
+            LOG.debug("setProperty on field " + field + " (type is " + propertyType.getName() + ")");
+            if (propertyType.getName().equals("com.atex.plugins.structured.text.StructuredText") ) {
+                final StructuredText structuredText = (StructuredText) PropertyUtils.getProperty(bean, field);
+                if (structuredText != null) {
+                    return structuredText.getText();
+                }
+            } else {
+                return BeanUtils.getProperty(bean, field);
+            }
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | RuntimeException e) {
+            LOG.error("unable to use type to get property " + field, e);
+        }
+        return null;
     }
 
 }

@@ -139,7 +139,20 @@ Extendend configuration can be done in the json field, the following contains al
       "principalId": "",
       "articleAspect": "",
       "imageAspect": "",
-      "minWords": 10
+      "minWords": 10,
+      
+      // signatures allow you to skip a part of the body because it contains a signature,
+      // since each signature is different you need to configure it based on your emails.
+      "signatures": [
+      
+        // if greater than zero it means these number of line "BEFORE" the identified line
+        // will be removed too.
+        "before": 3,
+        
+        // a regular expression to be used to identify a signature, when matching everything
+        // after the signature (including the matching line) will not be part of the body.
+        "regex": "This communication may contain confidential"
+      ]
     },
     {
       "enabled": true,

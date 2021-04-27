@@ -1,5 +1,7 @@
 package com.atex.plugins.mailimporter;
 
+import java.util.Optional;
+
 import javax.annotation.PostConstruct;
 
 import org.apache.camel.Exchange;
@@ -44,14 +46,10 @@ public class MailParseProcessor
 
     public void process(final Exchange exchange) throws Exception {
         final Message inMsg = exchange.getIn();
-        final MailRouteConfig routeConfig = inMsg.getHeader("X-ROUTE-CONFIG", MailRouteConfig.class);
-
         final MailBean mail = parser.parse(exchange);
-
         exchange.getOut().setBody(mail);
-        if (routeConfig != null) {
-            exchange.getOut().setHeader("X-ROUTE-CONFIG", routeConfig);
-        }
+        Optional.ofNullable(inMsg.getHeader("X-ROUTE-CONFIG", MailRouteConfig.class))
+                .ifPresent(c -> exchange.getOut().setHeader("X-ROUTE-CONFIG", c));
     }
 
 }

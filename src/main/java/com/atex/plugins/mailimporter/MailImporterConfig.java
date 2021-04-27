@@ -120,6 +120,43 @@ public class MailImporterConfig {
                 .toString();
     }
 
+    public static class Signature {
+        private int before = -1;
+        private String regex = "";
+
+        public int getBefore() {
+            return before;
+        }
+
+        public void setBefore(final int before) {
+            this.before = before;
+        }
+
+        public String getRegex() {
+            return regex;
+        }
+
+        public void setRegex(final String regex) {
+            this.regex = regex;
+        }
+
+        public static Signature of(final String regex,
+                                   final int before) {
+            final Signature signature = new Signature();
+            signature.setRegex(regex);
+            signature.setBefore(before);
+            return signature;
+        }
+
+        @Override
+        public String toString() {
+            return new StringJoiner(", ", Signature.class.getSimpleName() + "[", "]")
+                    .add("before=" + before)
+                    .add("regex=" + regex)
+                    .toString();
+        }
+    }
+
     public static class MailRouteConfig {
         private boolean enabled;
         private String uri;
@@ -136,6 +173,7 @@ public class MailImporterConfig {
         private int minWords;
         private Map<String, Map<String, String>> fieldsDefaults = new HashMap<>();
         private Map<String, Map<String, String>> fieldsMappings = new HashMap<>();
+        private List<Signature> signatures = new ArrayList<>();
 
         public boolean isEnabled() {
             return enabled;
@@ -257,6 +295,14 @@ public class MailImporterConfig {
             this.fieldsMappings = fieldsMappings;
         }
 
+        public List<Signature> getSignatures() {
+            return signatures;
+        }
+
+        public void setSignatures(final List<Signature> signatures) {
+            this.signatures = signatures;
+        }
+
         @Override
         public String toString() {
             return new StringJoiner(", ", MailRouteConfig.class.getSimpleName() + "[", "]")
@@ -275,6 +321,7 @@ public class MailImporterConfig {
                     .add("minWords='" + minWords + "'")
                     .add("fieldsDefaults=" + fieldsDefaults)
                     .add("fieldsMappings=" + fieldsMappings)
+                    .add("signatures=" + signatures)
                     .toString();
         }
     }

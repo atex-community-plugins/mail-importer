@@ -18,7 +18,13 @@
       "principalId": "2020",
       "articleAspect": "com.my.standard.article",
       "imageAspect": "com.my.standard.image",
-      "minWords": 20
+      "minWords": 20,
+      "signatures": [
+        {
+          "before": 5,
+          "regex": "This communication may contain confidential"
+        }
+      ]
     }
   ]
 }

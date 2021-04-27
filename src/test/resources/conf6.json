@@ -21,7 +21,17 @@
         "objectType": "graphic",
         "inputTemplate": "p.DamWireGraphic"
       }
-    }
+    },
+    "signatures": [
+      {
+        "before": 1,
+        "regex": "Sign1"
+      },
+      {
+        "before": 2,
+        "regex": "Sign2"
+      }
+    ]
   },
   "mappings": {
     "atex.onecms.article": {

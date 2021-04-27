@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 import com.atex.plugins.baseline.policy.BaselinePolicy;
 import com.atex.plugins.mailimporter.MailImporterConfig.MailRouteConfig;
+import com.atex.plugins.mailimporter.MailImporterConfig.Signature;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -23,7 +24,6 @@ import com.google.gson.JsonParser;
 import com.polopoly.cm.ExternalContentId;
 import com.polopoly.cm.client.CMException;
 import com.polopoly.cm.policy.PolicyCMServer;
-import com.polopoly.util.StringUtil;
 
 /**
  * This is the mail importer configuration loader.
@@ -199,6 +199,7 @@ public class MailImporterConfigLoader {
             final AtomicReference<String> defPrincipalId = new AtomicReference<>(null);
             final AtomicInteger defMinWords = new AtomicInteger(10);
             final Map<String, Map<String, String>> defFieldDefaults = new HashMap<>();
+            final List<Signature> defSignatures = new ArrayList<>();
             jsonSection(jsonElement, "defaults", JsonElement::isJsonObject, JsonElement::getAsJsonObject)
                     .ifPresent(defaults -> {
                         getPrimitive(defaults, "webPage", JsonElement::getAsString, defWebPage::set);
@@ -209,6 +210,7 @@ public class MailImporterConfigLoader {
                         getPrimitive(defaults, "principalId", JsonElement::getAsString, defPrincipalId::set);
                         getPrimitive(defaults, "minWords", JsonElement::getAsInt, defMinWords::set);
                         defFieldDefaults.putAll(readContentTypesDefaults(defaults));
+                        parseSignatures(defaults, defSignatures::add);
                     });
             final String defaultPrincipalId = Optional.ofNullable(defPrincipalId.get())
                                                       .filter(StringUtils::notEmpty)
@@ -225,6 +227,7 @@ public class MailImporterConfigLoader {
                 mainRouteConfig.setFieldsMappings(defFieldMappings);
                 mainRouteConfig.setPrincipalId(defaultPrincipalId);
                 mainRouteConfig.setMinWords(defMinWords.get());
+                mainRouteConfig.getSignatures().addAll(defSignatures);
             }
             jsonSection(jsonElement, "mailUri", JsonElement::isJsonArray, JsonElement::getAsJsonArray)
                     .ifPresent(mailUri -> {
@@ -241,6 +244,7 @@ public class MailImporterConfigLoader {
                                     routeConfig.setTaxonomyId(config.getTaxonomyId());
                                     routeConfig.setPrincipalId(defaultPrincipalId);
                                     routeConfig.setMinWords(defMinWords.get());
+                                    routeConfig.getSignatures().addAll(defSignatures);
                                     getPrimitive(mailJson, "webPage", JsonElement::getAsString, routeConfig::setWebPage);
                                     getPrimitive(mailJson, "deskLevel", JsonElement::getAsString, routeConfig::setDeskLevel);
                                     getPrimitive(mailJson, "section", JsonElement::getAsString, routeConfig::setSection);
@@ -253,6 +257,7 @@ public class MailImporterConfigLoader {
                                     fieldDefaults.putAll(readContentTypesDefaults(mailJson));
                                     routeConfig.setFieldsDefaults(fieldDefaults);
                                     routeConfig.setFieldsMappings(defFieldMappings);
+                                    parseSignatures(mailJson, routeConfig.getSignatures()::add);
                                     config.getMailUris().add(routeConfig);
                                 }
                             }
@@ -260,6 +265,23 @@ public class MailImporterConfigLoader {
                     });
         }
         return config;
+    }
+
+    private static void parseSignatures(final JsonElement json,
+                                        final Consumer<Signature> consumer) {
+        jsonSection(json, "signatures", JsonElement::isJsonArray, JsonElement::getAsJsonArray)
+                .ifPresent(signatures -> {
+                    for (int sigIdx = 0; sigIdx < signatures.size(); sigIdx++) {
+                        final JsonElement sigElement = signatures.get(sigIdx);
+                        if (sigElement.isJsonObject()) {
+                            final JsonObject signJson = sigElement.getAsJsonObject();
+                            final Signature sign = new Signature();
+                            getPrimitive(signJson, "before", JsonElement::getAsInt, sign::setBefore);
+                            getPrimitive(signJson, "regex", JsonElement::getAsString, sign::setRegex);
+                            consumer.accept(sign);
+                        }
+                    }
+                });
     }
 
     private static Map<String, Map<String, String>> readContentTypesDefaults(final JsonElement jsonElement) {
