@@ -133,6 +133,7 @@ public class MailImporterConfig {
         private String source;
         private String taxonomyId;
         private String principalId;
+        private int minWords;
         private Map<String, Map<String, String>> fieldsDefaults = new HashMap<>();
         private Map<String, Map<String, String>> fieldsMappings = new HashMap<>();
 
@@ -232,6 +233,14 @@ public class MailImporterConfig {
             this.principalId = principalId;
         }
 
+        public int getMinWords() {
+            return minWords;
+        }
+
+        public void setMinWords(final int minWords) {
+            this.minWords = minWords;
+        }
+
         public Map<String, Map<String, String>> getFieldsDefaults() {
             return fieldsDefaults;
         }
@@ -263,6 +272,7 @@ public class MailImporterConfig {
                     .add("source='" + source + "'")
                     .add("taxonomyId='" + taxonomyId + "'")
                     .add("principalId='" + principalId + "'")
+                    .add("minWords='" + minWords + "'")
                     .add("fieldsDefaults=" + fieldsDefaults)
                     .add("fieldsMappings=" + fieldsMappings)
                     .toString();

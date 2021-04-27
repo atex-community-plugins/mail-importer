@@ -1,5 +1,8 @@
 package com.atex.plugins.mailimporter;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.mail.Message.RecipientType;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
@@ -67,8 +70,8 @@ public class MailImporterProcessorTest extends AbstractProcessorTest {
 
         final ContentId newId = IdUtil.fromString("oncms:1234");
         Mockito.when(contentPublisher.publish(Mockito.any(), Mockito.any()))
-               .thenReturn(newId);
-        final MockEndpoint mock = setupMockEndpoint(1, ContentId.class);
+               .thenReturn(Collections.singletonList(newId));
+        final MockEndpoint mock = setupMockEndpoint(1, List.class);
 
         final MailRouteConfig expectedRouteConfig = new MailRouteConfig();
         //template.sendBody("direct:start", new MailMessage(msg));
@@ -76,10 +79,13 @@ public class MailImporterProcessorTest extends AbstractProcessorTest {
 
         assertMockEndpointsSatisfied();
 
-        final ContentId outContentId = mock.getReceivedExchanges()
+        final List<ContentId> outIds = mock.getReceivedExchanges()
                                            .get(0)
                                            .getIn()
-                                           .getBody(ContentId.class);
+                                           .getBody(List.class);
+        Assert.assertNotNull(outIds);
+        Assert.assertEquals(1, outIds.size());
+        final ContentId outContentId = outIds.get(0);
         Assert.assertNotNull(outContentId);
         Assert.assertEquals(newId, outContentId);
 

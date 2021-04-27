@@ -17,7 +17,8 @@
       "source": "MAILBOX",
       "principalId": "2020",
       "articleAspect": "com.my.standard.article",
-      "imageAspect": "com.my.standard.image"
+      "imageAspect": "com.my.standard.image",
+      "minWords": 20
     }
   ]
 }

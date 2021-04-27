@@ -35,16 +35,20 @@
     <field name="mail_uri" input-template="p.TextInput"
            label="com.atex.plugins.mail-importer.Config.mail_uri">
       <param name="maxsize">1000</param>
+      <param name="maxlength">1024</param>
     </field>
     <field name="article_partition" input-template="p.TextInput"
            label="com.atex.plugins.mail-importer.Config.article_partition">
+      <param name="maxlength">1024</param>
     </field>
     <field name="image_partition" input-template="p.TextInput"
            label="com.atex.plugins.mail-importer.Config.image_partition">
+      <param name="maxlength">1024</param>
     </field>
 
     <field name="taxonomyId" input-template="p.TextInput"
            label="com.atex.plugins.mail-importer.Config.taxonomyId">
+      <param name="maxlength">1024</param>
     </field>
 
     <field name="json" input-template="p.siteengine.editor.CodeMirror" label="com.atex.plugins.mail-importer.Config.json">

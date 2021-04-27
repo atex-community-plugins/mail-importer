@@ -1,5 +1,8 @@
 package com.atex.plugins.mailimporter;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
@@ -36,17 +39,20 @@ public class MailPublishProcessorTest extends AbstractProcessorTest {
         final ContentId newId = IdUtil.fromString("oncms:1234");
         final MailRouteConfig routeConfig = new MailRouteConfig();
         Mockito.when(contentPublisher.publish(Mockito.any(), Mockito.eq(routeConfig)))
-               .thenReturn(newId);
-        final MockEndpoint mock = setupMockEndpoint(1, ContentId.class);
+               .thenReturn(Collections.singletonList(newId));
+        final MockEndpoint mock = setupMockEndpoint(1, List.class);
         final MailBean bean = new MailBean();
         template.sendBodyAndHeader("direct:start", bean, "X-ROUTE-CONFIG", routeConfig);
 
         assertMockEndpointsSatisfied();
 
-        final ContentId outContentId = mock.getReceivedExchanges()
+        final List<ContentId> outIds = mock.getReceivedExchanges()
                                            .get(0)
                                            .getIn()
-                                           .getBody(ContentId.class);
+                                           .getBody(List.class);
+        Assert.assertNotNull(outIds);
+        Assert.assertEquals(1, outIds.size());
+        final ContentId outContentId = outIds.get(0);
         Assert.assertNotNull(outContentId);
         Assert.assertEquals(newId, outContentId);
 
@@ -61,17 +67,20 @@ public class MailPublishProcessorTest extends AbstractProcessorTest {
     public void test_publish_without_route_config() throws Exception {
         final ContentId newId = IdUtil.fromString("oncms:1234");
         Mockito.when(contentPublisher.publish(Mockito.any(), Mockito.any()))
-               .thenReturn(newId);
-        final MockEndpoint mock = setupMockEndpoint(1, ContentId.class);
+               .thenReturn(Collections.singletonList(newId));
+        final MockEndpoint mock = setupMockEndpoint(1, List.class);
         final MailBean bean = new MailBean();
         template.sendBody("direct:start", bean);
 
         assertMockEndpointsSatisfied();
 
-        final ContentId outContentId = mock.getReceivedExchanges()
+        final List<ContentId> outIds = mock.getReceivedExchanges()
                                            .get(0)
                                            .getIn()
-                                           .getBody(ContentId.class);
+                                           .getBody(List.class);
+        Assert.assertNotNull(outIds);
+        Assert.assertEquals(1, outIds.size());
+        final ContentId outContentId = outIds.get(0);
         Assert.assertNotNull(outContentId);
         Assert.assertEquals(newId, outContentId);
 

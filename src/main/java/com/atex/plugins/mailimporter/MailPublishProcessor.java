@@ -1,5 +1,8 @@
 package com.atex.plugins.mailimporter;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.annotation.PostConstruct;
 
 import org.apache.camel.Exchange;
@@ -47,11 +50,13 @@ public class MailPublishProcessor implements Processor {
         final Message inMsg = exchange.getIn();
         final MailBean mail = inMsg.getBody(MailBean.class);
         final MailRouteConfig routeConfig = inMsg.getHeader("X-ROUTE-CONFIG", MailRouteConfig.class);
-        final ContentId contentId = publisher.publish(mail, routeConfig);
+        final List<ContentId> ids = publisher.publish(mail, routeConfig);
 
-        LOGGER.info(String.format("Article from mail published as '%s'!", IdUtil.toIdString(contentId)));
+        LOGGER.info(String.format("Contents from mail published as '%s'!", ids.stream()
+                                                                             .map(IdUtil::toIdString)
+                                                                             .collect(Collectors.joining(","))));
 
-        exchange.getOut().setBody(contentId);
+        exchange.getOut().setBody(ids);
     }
 
 }

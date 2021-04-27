@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -126,6 +127,7 @@ public class MailImporterConfigLoader {
         route.setPrincipalId("98");
         route.setArticleAspect(getArticleAspect());
         route.setImageAspect(getImageAspect());
+        route.setMinWords(-1);
         return route;
     }
 
@@ -145,6 +147,7 @@ public class MailImporterConfigLoader {
                 StringUtils::notEmpty, route::setArticleAspect);
         getPrimitive(json, "imageAspect", JsonElement::getAsString,
                 StringUtils::notEmpty, route::setImageAspect);
+        getPrimitive(json, "minWords", JsonElement::getAsInt, route::setMinWords);
         return route.isEnabled() ? route : null;
     }
 
@@ -194,6 +197,7 @@ public class MailImporterConfigLoader {
             final AtomicReference<String> defSection = new AtomicReference<>(null);
             final AtomicReference<String> defSource = new AtomicReference<>(null);
             final AtomicReference<String> defPrincipalId = new AtomicReference<>(null);
+            final AtomicInteger defMinWords = new AtomicInteger(10);
             final Map<String, Map<String, String>> defFieldDefaults = new HashMap<>();
             jsonSection(jsonElement, "defaults", JsonElement::isJsonObject, JsonElement::getAsJsonObject)
                     .ifPresent(defaults -> {
@@ -203,6 +207,7 @@ public class MailImporterConfigLoader {
                         getPrimitive(defaults, "source", JsonElement::getAsString, defSource::set);
                         getPrimitive(defaults, "taxonomyId", JsonElement::getAsString, config::setTaxonomyId);
                         getPrimitive(defaults, "principalId", JsonElement::getAsString, defPrincipalId::set);
+                        getPrimitive(defaults, "minWords", JsonElement::getAsInt, defMinWords::set);
                         defFieldDefaults.putAll(readContentTypesDefaults(defaults));
                     });
             final String defaultPrincipalId = Optional.ofNullable(defPrincipalId.get())
@@ -219,6 +224,7 @@ public class MailImporterConfigLoader {
                 mainRouteConfig.setFieldsDefaults(defFieldDefaults);
                 mainRouteConfig.setFieldsMappings(defFieldMappings);
                 mainRouteConfig.setPrincipalId(defaultPrincipalId);
+                mainRouteConfig.setMinWords(defMinWords.get());
             }
             jsonSection(jsonElement, "mailUri", JsonElement::isJsonArray, JsonElement::getAsJsonArray)
                     .ifPresent(mailUri -> {
@@ -234,12 +240,14 @@ public class MailImporterConfigLoader {
                                     routeConfig.setSource(defSource.get());
                                     routeConfig.setTaxonomyId(config.getTaxonomyId());
                                     routeConfig.setPrincipalId(defaultPrincipalId);
+                                    routeConfig.setMinWords(defMinWords.get());
                                     getPrimitive(mailJson, "webPage", JsonElement::getAsString, routeConfig::setWebPage);
                                     getPrimitive(mailJson, "deskLevel", JsonElement::getAsString, routeConfig::setDeskLevel);
                                     getPrimitive(mailJson, "section", JsonElement::getAsString, routeConfig::setSection);
                                     getPrimitive(mailJson, "source", JsonElement::getAsString, routeConfig::setSource);
                                     getPrimitive(mailJson, "taxonomyId", JsonElement::getAsString, routeConfig::setTaxonomyId);
                                     getPrimitive(mailJson, "principalId", JsonElement::getAsString, routeConfig::setPrincipalId);
+                                    getPrimitive(mailJson, "minWords", JsonElement::getAsInt, routeConfig::setMinWords);
                                     final Map<String, Map<String, String>> fieldDefaults = new HashMap<>();
                                     fieldDefaults.putAll(defFieldDefaults);
                                     fieldDefaults.putAll(readContentTypesDefaults(mailJson));

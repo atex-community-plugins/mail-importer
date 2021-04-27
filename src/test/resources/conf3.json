@@ -1,4 +1,7 @@
 {
+  "defaults": {
+    "minWords": 15
+  },
   "mailUri": [
     {
       "uri": "imaps://imap.ethereal?username=rickey.berger",

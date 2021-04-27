@@ -2,6 +2,8 @@ package com.atex.plugins.mailimporter;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,6 +56,7 @@ public class ContentPublisher implements MailPublisher {
     private static final String DIMENSION_PARTITION = "dimension.partition";
 
     static final ThreadLocal<MailImporterConfig> IMPORTER_CONFIG = new ThreadLocal<>();
+    static final ThreadLocal<List<ContentId>> CREATE_IDS = ThreadLocal.withInitial(ArrayList::new);
 
     private FileService fileService = null;
     private ContentManager contentManager = null;
@@ -124,8 +127,8 @@ public class ContentPublisher implements MailPublisher {
     }
 
     @Override
-    public ContentId publish(final MailBean mail,
-                             final MailRouteConfig routeConfig) throws Exception {
+    public List<ContentId> publish(final MailBean mail,
+                                   final MailRouteConfig routeConfig) throws Exception {
 
         // Please note that the mapping between data and Polopoly types we have to perform here will be
         // very much simplified in future versions of Polopoly, where the Data-API will have support for
@@ -141,6 +144,7 @@ public class ContentPublisher implements MailPublisher {
         try {
             final MailImporterConfig config = getConfig();
             IMPORTER_CONFIG.set(config);
+            CREATE_IDS.set(new ArrayList<>());
 
             final MailProcessorUtils mailProcessorUtils = getMailProcessorUtils();
             final ContentResult<Object> cr = processMail(
@@ -149,11 +153,15 @@ public class ContentPublisher implements MailPublisher {
                     routeConfig,
                     mail
             );
-            return cr.getContentId().getContentId();
+            if (cr != null && cr.getStatus().isSuccess()) {
+                CREATE_IDS.get().add(cr.getContentId().getContentId());
+            }
+            return CREATE_IDS.get();
         } catch (CMException e) {
             throw new RuntimeException("Failed to publish contents!", e);
         } finally {
             IMPORTER_CONFIG.set(null);
+            CREATE_IDS.remove();
         }
     }
 
@@ -162,7 +170,23 @@ public class ContentPublisher implements MailPublisher {
                                                 final MailRouteConfig routeConfig,
                                                 final MailBean mail) throws Exception {
         final Object articleBean = createArticle(config, routeConfig, mailProcessorUtils, mail);
-        return writeArticleBean(mailProcessorUtils, routeConfig, articleBean);
+        final int minWords = routeConfig.getMinWords();
+        LOG.debug("Number of minimal words: " + minWords);
+        boolean generateArticle = minWords < 0;
+        if (minWords >= 0) {
+            final String body = mailProcessorUtils.getContentBean(
+                    articleBean,
+                    Collections.singletonList("body"),
+                    routeConfig,
+                    routeConfig.getArticleAspect()).getOrDefault("body", "");
+            generateArticle = getNumberOfWords(body) >= minWords;
+        }
+        LOG.debug("generateArticle: " + generateArticle);
+        if (generateArticle) {
+            return writeArticleBean(mailProcessorUtils, routeConfig, articleBean);
+        } else {
+            return null;
+        }
     }
 
     protected Object createArticle(final MailImporterConfig config,
@@ -183,11 +207,23 @@ public class ContentPublisher implements MailPublisher {
                             .get(filename)
                 );
                 images.add(0, contentId);
+                CREATE_IDS.get().add(contentId);
             }
         }
 
         BeanUtils.setProperty(articleBean, "images", images);
         return articleBean;
+    }
+
+    int getNumberOfWords(final String value) {
+        if (StringUtils.notEmpty(value)) {
+            return (int) Arrays.stream(value.replaceAll("\t", " ")
+                                      .replaceAll("\n", " ")
+                                      .split(" "))
+                               .filter(StringUtils::notEmpty)
+                               .count();
+        }
+        return 0;
     }
 
     protected Object createArticleBean(final MailImporterConfig config,

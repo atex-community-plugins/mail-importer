@@ -10,7 +10,7 @@ Add the following to your project only in the server-integration webapp.
 <dependency>
   <groupId>com.atex.plugins</groupId>
   <artifactId>mail-importer</artifactId>
-  <version>2.0</version>
+  <version>2.4</version>
 </dependency>
 ```
 
@@ -20,7 +20,7 @@ In the top pom.xml you need to add the contentData:
 <dependency>
   <groupId>com.atex.plugins</groupId>
   <artifactId>mail-importer</artifactId>
-  <version>2.0</version>
+  <version>2.4</version>
   <classifier>contentdata</classifier>
   <exclusions>
     <!-- exclude most of the dependencies since we only need the content definitions -->
@@ -73,6 +73,10 @@ Extendend configuration can be done in the json field, the following contains al
 
     // "principalId" is the principalId of the user that will be used to import, defaults to "98".
     // "principalId": "98",
+    
+    // "minWords" allow you to specify the minimum number of words a body needs to have to import it, this
+    // is useful when you want to import just the images contained in the mail without the article.
+    // "minWords": 10
 
     // The "contentTypes" allow you to specify some defaults for specific content types.
     "contentTypes": {
@@ -134,7 +138,8 @@ Extendend configuration can be done in the json field, the following contains al
       "source": "",
       "principalId": "",
       "articleAspect": "",
-      "imageAspect": ""
+      "imageAspect": "",
+      "minWords": 10
     },
     {
       "enabled": true,

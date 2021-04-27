@@ -67,6 +67,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("incoming2", route.getArticlePartition());
             Assert.assertEquals("Taxo", route.getTaxonomyId());
             Assert.assertEquals("98", route.getPrincipalId());
+            Assert.assertEquals(-1, route.getMinWords());
         }
     }
 
@@ -92,6 +93,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("incoming", route.getImagePartition());
             Assert.assertEquals("incoming2", route.getArticlePartition());
             Assert.assertEquals("98", route.getPrincipalId());
+            Assert.assertEquals(-1, route.getMinWords());
         }
     }
 
@@ -126,6 +128,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("98", route.getPrincipalId());
             Assert.assertEquals("atex.onecms.article", route.getArticleAspect());
             Assert.assertEquals("atex.onecms.image", route.getImageAspect());
+            Assert.assertEquals(10, route.getMinWords());
         }
         {
             final MailRouteConfig route = mailUris.get(1);
@@ -138,6 +141,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("2020", route.getPrincipalId());
             Assert.assertEquals("com.my.standard.article", route.getArticleAspect());
             Assert.assertEquals("com.my.standard.image", route.getImageAspect());
+            Assert.assertEquals(20, route.getMinWords());
         }
     }
 
@@ -170,6 +174,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("2020", route.getPrincipalId());
             Assert.assertEquals("com.my.standard.article", route.getArticleAspect());
             Assert.assertEquals("com.my.standard.image", route.getImageAspect());
+            Assert.assertEquals(20, route.getMinWords());
         }
     }
 
@@ -215,6 +220,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("production", route.getArticlePartition());
             Assert.assertEquals("t1", route.getTaxonomyId());
             Assert.assertEquals("2021", route.getPrincipalId());
+            Assert.assertEquals(15, route.getMinWords());
         }
         {
             final MailRouteConfig route = mailUris.get(1);
@@ -225,6 +231,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("production", route.getArticlePartition());
             Assert.assertEquals("t2", route.getTaxonomyId());
             Assert.assertEquals("2022", route.getPrincipalId());
+            Assert.assertEquals(15, route.getMinWords());
         }
         {
             final MailRouteConfig route = mailUris.get(2);
@@ -235,6 +242,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("production", route.getArticlePartition());
             Assert.assertEquals("Taxo", route.getTaxonomyId());
             Assert.assertEquals("98", route.getPrincipalId());
+            Assert.assertEquals(15, route.getMinWords());
         }
     }
 
