@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -19,6 +20,8 @@ import org.apache.camel.Exchange;
 import org.apache.camel.component.mail.MailMessage;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.mail.util.MimeMessageParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.atex.plugins.mailimporter.MailImporterConfig.MailRouteConfig;
 import com.atex.plugins.mailimporter.MailImporterConfig.Signature;
@@ -38,6 +41,9 @@ import com.polopoly.common.lang.StringUtil;
  * </p>
  */
 public class MailParserImpl implements MailParser {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MailParserImpl.class);
+
     private static final String PARAGRAPH_DELIMITER = "\n\n";
 
     public MailParserImpl() {
@@ -72,19 +78,30 @@ public class MailParserImpl implements MailParser {
 
         Map<String, MailBeanAttachment> attachmentFiles = new HashMap<>();
 
+        final MailRouteConfig routeConfig = mailMessage.getHeader("X-ROUTE-CONFIG", MailRouteConfig.class);
         if (attachments.size() > 0) {
+            final long minImageSize = Optional.ofNullable(routeConfig)
+                                              .map(MailRouteConfig::getImageMinSize)
+                                              .orElse(-1L);
             for (String attachmentKey : attachments.keySet()) {
-                DataHandler dataHandler = attachments.get(attachmentKey);
+                final DataHandler dataHandler = attachments.get(attachmentKey);
 
-                String filename = dataHandler.getName();
-                byte[] data = exchange.getContext()
-                                      .getTypeConverter()
-                                      .convertTo(byte[].class, dataHandler.getInputStream());
-
-                final MailBeanAttachment attachment = new MailBeanAttachment();
-                attachment.setContentType(dataHandler.getContentType());
-                attachment.setContent(data);
-                attachmentFiles.put(filename, attachment);
+                final String filename = dataHandler.getName();
+                final byte[] data = exchange.getContext()
+                                            .getTypeConverter()
+                                            .convertTo(byte[].class, dataHandler.getInputStream());
+                if (data.length > minImageSize) {
+                    LOG.info(String.format("Found attachment %s of size %d", filename, data.length));
+                    final MailBeanAttachment attachment = new MailBeanAttachment();
+                    attachment.setContentType(dataHandler.getContentType());
+                    attachment.setContent(data);
+                    attachmentFiles.put(filename, attachment);
+                } else {
+                    LOG.warn(String.format("Skipping attachment %s (size %d) minImageSize is %d",
+                            filename,
+                            data.length,
+                            minImageSize));
+                }
             }
         }
 
@@ -97,7 +114,6 @@ public class MailParserImpl implements MailParser {
             setPlainTextContent(mailBean, body);
         }
 
-        final MailRouteConfig routeConfig = mailMessage.getHeader("X-ROUTE-CONFIG", MailRouteConfig.class);
         if (routeConfig != null) {
             if (routeConfig.getSignatures() != null && routeConfig.getSignatures().size() > 0) {
                 return removeSignatures(mailBean, routeConfig.getSignatures());

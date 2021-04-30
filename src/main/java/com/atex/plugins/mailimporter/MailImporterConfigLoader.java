@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -128,6 +129,7 @@ public class MailImporterConfigLoader {
         route.setArticleAspect(getArticleAspect());
         route.setImageAspect(getImageAspect());
         route.setMinWords(-1);
+        route.setImageMinSize(-1);
         return route;
     }
 
@@ -148,6 +150,7 @@ public class MailImporterConfigLoader {
         getPrimitive(json, "imageAspect", JsonElement::getAsString,
                 StringUtils::notEmpty, route::setImageAspect);
         getPrimitive(json, "minWords", JsonElement::getAsInt, route::setMinWords);
+        getPrimitive(json, "imageMinSize", JsonElement::getAsLong, route::setImageMinSize);
         return route.isEnabled() ? route : null;
     }
 
@@ -198,6 +201,7 @@ public class MailImporterConfigLoader {
             final AtomicReference<String> defSource = new AtomicReference<>(null);
             final AtomicReference<String> defPrincipalId = new AtomicReference<>(null);
             final AtomicInteger defMinWords = new AtomicInteger(-1);
+            final AtomicLong defImageMinSize = new AtomicLong(-1);
             final Map<String, Map<String, String>> defFieldDefaults = new HashMap<>();
             final List<Signature> defSignatures = new ArrayList<>();
             jsonSection(jsonElement, "defaults", JsonElement::isJsonObject, JsonElement::getAsJsonObject)
@@ -209,6 +213,7 @@ public class MailImporterConfigLoader {
                         getPrimitive(defaults, "taxonomyId", JsonElement::getAsString, config::setTaxonomyId);
                         getPrimitive(defaults, "principalId", JsonElement::getAsString, defPrincipalId::set);
                         getPrimitive(defaults, "minWords", JsonElement::getAsInt, defMinWords::set);
+                        getPrimitive(defaults, "imageMinSize", JsonElement::getAsLong, defImageMinSize::set);
                         defFieldDefaults.putAll(readContentTypesDefaults(defaults));
                         parseSignatures(defaults, defSignatures::add);
                     });
@@ -227,6 +232,7 @@ public class MailImporterConfigLoader {
                 mainRouteConfig.setFieldsMappings(defFieldMappings);
                 mainRouteConfig.setPrincipalId(defaultPrincipalId);
                 mainRouteConfig.setMinWords(defMinWords.get());
+                mainRouteConfig.setImageMinSize(defImageMinSize.get());
                 mainRouteConfig.getSignatures().addAll(defSignatures);
             }
             jsonSection(jsonElement, "mailUri", JsonElement::isJsonArray, JsonElement::getAsJsonArray)
@@ -244,6 +250,7 @@ public class MailImporterConfigLoader {
                                     routeConfig.setTaxonomyId(config.getTaxonomyId());
                                     routeConfig.setPrincipalId(defaultPrincipalId);
                                     routeConfig.setMinWords(defMinWords.get());
+                                    routeConfig.setImageMinSize(defImageMinSize.get());
                                     routeConfig.getSignatures().addAll(defSignatures);
                                     getPrimitive(mailJson, "webPage", JsonElement::getAsString, routeConfig::setWebPage);
                                     getPrimitive(mailJson, "deskLevel", JsonElement::getAsString, routeConfig::setDeskLevel);
@@ -252,6 +259,7 @@ public class MailImporterConfigLoader {
                                     getPrimitive(mailJson, "taxonomyId", JsonElement::getAsString, routeConfig::setTaxonomyId);
                                     getPrimitive(mailJson, "principalId", JsonElement::getAsString, routeConfig::setPrincipalId);
                                     getPrimitive(mailJson, "minWords", JsonElement::getAsInt, routeConfig::setMinWords);
+                                    getPrimitive(mailJson, "imageMinSize", JsonElement::getAsLong, routeConfig::setImageMinSize);
                                     final Map<String, Map<String, String>> fieldDefaults = new HashMap<>();
                                     fieldDefaults.putAll(defFieldDefaults);
                                     fieldDefaults.putAll(readContentTypesDefaults(mailJson));

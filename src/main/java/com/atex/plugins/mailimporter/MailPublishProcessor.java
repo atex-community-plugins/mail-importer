@@ -52,9 +52,12 @@ public class MailPublishProcessor implements Processor {
         final MailRouteConfig routeConfig = inMsg.getHeader("X-ROUTE-CONFIG", MailRouteConfig.class);
         final List<ContentId> ids = publisher.publish(mail, routeConfig);
 
-        LOGGER.info(String.format("Contents from mail published as '%s'!", ids.stream()
-                                                                             .map(IdUtil::toIdString)
-                                                                             .collect(Collectors.joining(","))));
+        LOGGER.info(String.format("%d contents from mail '%s' published as '%s'!",
+                ids.size(),
+                mail.getSubject(),
+                ids.stream()
+                   .map(IdUtil::toIdString)
+                   .collect(Collectors.joining(","))));
 
         exchange.getOut().setBody(ids);
     }

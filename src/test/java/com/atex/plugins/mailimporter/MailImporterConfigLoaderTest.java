@@ -69,6 +69,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("Taxo", route.getTaxonomyId());
             Assert.assertEquals("98", route.getPrincipalId());
             Assert.assertEquals(-1, route.getMinWords());
+            Assert.assertEquals(-1L, route.getImageMinSize());
             Assert.assertEquals(0, route.getSignatures().size());
         }
     }
@@ -96,6 +97,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("incoming2", route.getArticlePartition());
             Assert.assertEquals("98", route.getPrincipalId());
             Assert.assertEquals(-1, route.getMinWords());
+            Assert.assertEquals(-1L, route.getImageMinSize());
             Assert.assertEquals(0, route.getSignatures().size());
         }
     }
@@ -132,6 +134,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("atex.onecms.article", route.getArticleAspect());
             Assert.assertEquals("atex.onecms.image", route.getImageAspect());
             Assert.assertEquals(-1, route.getMinWords());
+            Assert.assertEquals(-1L, route.getImageMinSize());
             Assert.assertEquals(0, route.getSignatures().size());
         }
         {
@@ -146,6 +149,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("com.my.standard.article", route.getArticleAspect());
             Assert.assertEquals("com.my.standard.image", route.getImageAspect());
             Assert.assertEquals(20, route.getMinWords());
+            Assert.assertEquals(60000L, route.getImageMinSize());
             Assert.assertEquals(1, route.getSignatures().size());
             {
                 final Signature s = route.getSignatures().get(0);
@@ -185,6 +189,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("com.my.standard.article", route.getArticleAspect());
             Assert.assertEquals("com.my.standard.image", route.getImageAspect());
             Assert.assertEquals(20, route.getMinWords());
+            Assert.assertEquals(60000L, route.getImageMinSize());
             Assert.assertEquals(1, route.getSignatures().size());
             {
                 final Signature s = route.getSignatures().get(0);
@@ -237,6 +242,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("t1", route.getTaxonomyId());
             Assert.assertEquals("2021", route.getPrincipalId());
             Assert.assertEquals(15, route.getMinWords());
+            Assert.assertEquals(70000L, route.getImageMinSize());
             Assert.assertEquals(0, route.getSignatures().size());
         }
         {
@@ -249,6 +255,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("t2", route.getTaxonomyId());
             Assert.assertEquals("2022", route.getPrincipalId());
             Assert.assertEquals(15, route.getMinWords());
+            Assert.assertEquals(70000L, route.getImageMinSize());
             Assert.assertEquals(0, route.getSignatures().size());
         }
         {
@@ -261,6 +268,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("Taxo", route.getTaxonomyId());
             Assert.assertEquals("98", route.getPrincipalId());
             Assert.assertEquals(15, route.getMinWords());
+            Assert.assertEquals(70000L, route.getImageMinSize());
             Assert.assertEquals(0, route.getSignatures().size());
         }
     }
@@ -296,6 +304,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("myTaxonomy", route.getTaxonomyId());
             Assert.assertEquals("98", route.getPrincipalId());
             Assert.assertEquals(-1, route.getMinWords());
+            Assert.assertEquals(-1L, route.getImageMinSize());
             Assert.assertEquals(0, route.getSignatures().size());
         }
     }
@@ -328,6 +337,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("MAIL", route.getSource());
             Assert.assertEquals("98", route.getPrincipalId());
             Assert.assertEquals(-1, route.getMinWords());
+            Assert.assertEquals(-1L, route.getImageMinSize());
             Assert.assertEquals(0, route.getSignatures().size());
         }
     }
@@ -364,6 +374,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals("com.my.standard.article.6", route.getArticleAspect());
             Assert.assertEquals("com.my.standard.image.6", route.getImageAspect());
             Assert.assertEquals(-1, route.getMinWords());
+            Assert.assertEquals(-1L, route.getImageMinSize());
 
             final Map<String, Map<String, String>> defaults = route.getFieldsDefaults();
             Assert.assertNotNull(defaults);

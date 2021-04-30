@@ -171,6 +171,7 @@ public class MailImporterConfig {
         private String taxonomyId;
         private String principalId;
         private int minWords;
+        private long imageMinSize;
         private Map<String, Map<String, String>> fieldsDefaults = new HashMap<>();
         private Map<String, Map<String, String>> fieldsMappings = new HashMap<>();
         private List<Signature> signatures = new ArrayList<>();
@@ -279,6 +280,14 @@ public class MailImporterConfig {
             this.minWords = minWords;
         }
 
+        public long getImageMinSize() {
+            return imageMinSize;
+        }
+
+        public void setImageMinSize(final long imageMinSize) {
+            this.imageMinSize = imageMinSize;
+        }
+
         public Map<String, Map<String, String>> getFieldsDefaults() {
             return fieldsDefaults;
         }
@@ -319,6 +328,7 @@ public class MailImporterConfig {
                     .add("taxonomyId='" + taxonomyId + "'")
                     .add("principalId='" + principalId + "'")
                     .add("minWords='" + minWords + "'")
+                    .add("imageMinSize='" + imageMinSize + "'")
                     .add("fieldsDefaults=" + fieldsDefaults)
                     .add("fieldsMappings=" + fieldsMappings)
                     .add("signatures=" + signatures)

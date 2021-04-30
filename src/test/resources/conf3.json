@@ -1,6 +1,7 @@
 {
   "defaults": {
-    "minWords": 15
+    "minWords": 15,
+    "imageMinSize": 70000
   },
   "mailUri": [
     {

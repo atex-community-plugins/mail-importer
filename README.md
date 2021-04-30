@@ -77,6 +77,10 @@ Extendend configuration can be done in the json field, the following contains al
     // "minWords" allow you to specify the minimum number of words a body needs to have to import it, this
     // is useful when you want to import just the images contained in the mail without the article.
     // "minWords": 10
+    
+    // "imageMinSize" allow you to specify the minimum size (in bytes) an image should have to import it.
+    // This can be used to skip signature images.
+    // "imageMinSize": 60000,
 
     // The "contentTypes" allow you to specify some defaults for specific content types.
     "contentTypes": {
@@ -140,6 +144,7 @@ Extendend configuration can be done in the json field, the following contains al
       "articleAspect": "",
       "imageAspect": "",
       "minWords": 10,
+      "imageMinSize": 60000,
       
       // signatures allow you to skip a part of the body because it contains a signature,
       // since each signature is different you need to configure it based on your emails.
