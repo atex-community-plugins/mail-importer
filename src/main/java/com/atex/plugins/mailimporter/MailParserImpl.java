@@ -85,20 +85,27 @@ public class MailParserImpl implements MailParser {
                                               .orElse(-1L);
             for (String attachmentKey : attachments.keySet()) {
                 final DataHandler dataHandler = attachments.get(attachmentKey);
+                final String contentType = Optional.ofNullable(dataHandler.getContentType())
+                                                   .orElse("")
+                                                   .toLowerCase();
 
                 final String filename = dataHandler.getName();
                 final byte[] data = exchange.getContext()
                                             .getTypeConverter()
                                             .convertTo(byte[].class, dataHandler.getInputStream());
-                if (data.length > minImageSize) {
-                    LOG.info(String.format("Found attachment %s of size %d", filename, data.length));
+                if (!contentType.startsWith("image") || data.length > minImageSize) {
+                    LOG.info(String.format("Found attachment %s (%s) of size %d",
+                            filename,
+                            contentType,
+                            data.length));
                     final MailBeanAttachment attachment = new MailBeanAttachment();
-                    attachment.setContentType(dataHandler.getContentType());
+                    attachment.setContentType(contentType);
                     attachment.setContent(data);
                     attachmentFiles.put(filename, attachment);
                 } else {
-                    LOG.warn(String.format("Skipping attachment %s (size %d) minImageSize is %d",
+                    LOG.warn(String.format("Skipping attachment %s (%s of size %d) minImageSize is %d",
                             filename,
+                            contentType,
                             data.length,
                             minImageSize));
                 }
