@@ -171,7 +171,6 @@ public class ContentPublisher implements MailPublisher {
                                                 final MailBean mail) throws Exception {
         final Object articleBean = createArticle(config, routeConfig, mailProcessorUtils, mail);
         final int minWords = routeConfig.getMinWords();
-        LOG.debug("Number of minimal words: " + minWords);
         boolean generateArticle = minWords < 0;
         if (minWords >= 0) {
             final String body = mailProcessorUtils.getContentBean(
@@ -179,9 +178,16 @@ public class ContentPublisher implements MailPublisher {
                     Collections.singletonList("body"),
                     routeConfig,
                     routeConfig.getArticleAspect()).getOrDefault("body", "");
-            generateArticle = getNumberOfWords(body) >= minWords;
+            final int articleNumWords = getNumberOfWords(body);
+            generateArticle = articleNumWords >= minWords;
+            if (!generateArticle) {
+                LOG.warn(String.format(
+                        "Article number of words: %d, configured min words %d, body will not be imported",
+                        articleNumWords,
+                        minWords
+                ));
+            }
         }
-        LOG.debug("generateArticle: " + generateArticle);
         if (generateArticle) {
             return writeArticleBean(mailProcessorUtils, routeConfig, articleBean);
         } else {
