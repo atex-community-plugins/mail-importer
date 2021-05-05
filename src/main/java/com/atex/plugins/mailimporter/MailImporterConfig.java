@@ -172,6 +172,7 @@ public class MailImporterConfig {
         private String principalId;
         private int minWords;
         private long imageMinSize;
+        private String dumpFolder;
         private Map<String, Map<String, String>> fieldsDefaults = new HashMap<>();
         private Map<String, Map<String, String>> fieldsMappings = new HashMap<>();
         private List<Signature> signatures = new ArrayList<>();
@@ -288,6 +289,14 @@ public class MailImporterConfig {
             this.imageMinSize = imageMinSize;
         }
 
+        public String getDumpFolder() {
+            return dumpFolder;
+        }
+
+        public void setDumpFolder(final String dumpFolder) {
+            this.dumpFolder = dumpFolder;
+        }
+
         public Map<String, Map<String, String>> getFieldsDefaults() {
             return fieldsDefaults;
         }
@@ -329,6 +338,7 @@ public class MailImporterConfig {
                     .add("principalId='" + principalId + "'")
                     .add("minWords='" + minWords + "'")
                     .add("imageMinSize='" + imageMinSize + "'")
+                    .add("dumpFolder='" + dumpFolder + "'")
                     .add("fieldsDefaults=" + fieldsDefaults)
                     .add("fieldsMappings=" + fieldsMappings)
                     .add("signatures=" + signatures)

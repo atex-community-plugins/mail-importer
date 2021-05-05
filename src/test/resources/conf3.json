@@ -1,7 +1,8 @@
 {
   "defaults": {
     "minWords": 15,
-    "imageMinSize": 70000
+    "imageMinSize": 70000,
+    "dumpFolder": "/tmp/mail"
   },
   "mailUri": [
     {

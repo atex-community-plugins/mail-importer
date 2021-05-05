@@ -1,5 +1,10 @@
 package com.atex.plugins.mailimporter;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import javax.mail.Message.RecipientType;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
@@ -11,8 +16,11 @@ import org.apache.camel.builder.ExchangeBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mail.MailMessage;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import com.atex.plugins.mailimporter.MailImporterConfig.MailRouteConfig;
 import com.atex.plugins.mailimporter.MailImporterConfig.Signature;
@@ -24,10 +32,15 @@ import com.atex.plugins.mailimporter.MailImporterConfig.Signature;
  */
 public class MailParseProcessorTest extends AbstractProcessorTest {
 
+    @Rule
+    public TemporaryFolder tmpFolder = new TemporaryFolder();
+
     private final MailParseProcessor mailProcessor = new MailParseProcessor();
 
     @Test
     public void testTextMailParse() throws Exception {
+        final MailRouteConfig config = new MailRouteConfig();
+        config.setDumpFolder(tmpFolder.getRoot().getAbsolutePath());
         final MimeMessage msg = new MimeMessage((Session) null);
         msg.setFrom(new InternetAddress("mnova@example.com", "Marco Nova <mnova@example.com>"));
         msg.setSubject("Test Article");
@@ -40,6 +53,7 @@ public class MailParseProcessorTest extends AbstractProcessorTest {
         final Exchange exchange = ExchangeBuilder.anExchange(template.getCamelContext())
                                                  .build();
         exchange.setIn(mail);
+        mail.setHeader("X-ROUTE-CONFIG", config);
         template.send("direct:start", exchange);
 
         assertMockEndpointsSatisfied();
@@ -53,6 +67,37 @@ public class MailParseProcessorTest extends AbstractProcessorTest {
         Assert.assertEquals("Test Article", outMail.getSubject());
         Assert.assertEquals("<p>This is the simple text</p>", outMail.getBody());
         Assert.assertEquals("", outMail.getLead());
+
+        final String expectedText = "From: \"Marco Nova <mnova@example.com>\" <mnova@example.com>\n" +
+                "To: \"Mock Endpoint <mock.endpoint@example.com>\" <mock.endpoint@example.com>\n" +
+                "Message-ID: <XXXX.JavaMail.mnova@mnova-mac-it>\n" +
+                "Subject: Test Article\n" +
+                "MIME-Version: 1.0\n" +
+                "Content-Type: text/plain; charset=us-ascii\n" +
+                "Content-Transfer-Encoding: 7bit\n" +
+                "\n" +
+                "This is the simple text";
+        final SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+        final File baseFolder = new File(tmpFolder.getRoot(), sdf.format(new Date()));
+        final File[] files = baseFolder.listFiles();
+        Assert.assertNotNull(files);
+        Assert.assertEquals(1, files.length);
+        {
+            final File f = files[0];
+            Assert.assertNotNull(f);
+            Assert.assertTrue(f.getName(), f.getName().endsWith(".gz"));
+
+            final File dst = new GZipper().unzip(f);
+            try (FileInputStream fis = new FileInputStream(dst)) {
+                final String fileContent = IOUtils.toString(fis);
+                Assert.assertEquals(removeMessageId(expectedText), removeMessageId(fileContent));
+            }
+        }
+    }
+
+    private String removeMessageId(final String text) {
+        return text.replaceAll("Message-ID: <(.*)>", "Message-ID: <>")
+                   .replace("\r", "");
     }
 
     @Test

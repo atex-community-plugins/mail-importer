@@ -20,6 +20,7 @@
       "imageAspect": "com.my.standard.image",
       "minWords": 20,
       "imageMinSize": 60000,
+      "dumpFolder": "/tmp/mail",
       "signatures": [
         {
           "before": 5,

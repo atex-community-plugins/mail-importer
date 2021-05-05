@@ -151,6 +151,8 @@ public class MailImporterConfigLoader {
                 StringUtils::notEmpty, route::setImageAspect);
         getPrimitive(json, "minWords", JsonElement::getAsInt, route::setMinWords);
         getPrimitive(json, "imageMinSize", JsonElement::getAsLong, route::setImageMinSize);
+        getPrimitive(json, "dumpFolder", JsonElement::getAsString,
+                StringUtils::notEmpty, route::setDumpFolder);
         return route.isEnabled() ? route : null;
     }
 
@@ -202,6 +204,7 @@ public class MailImporterConfigLoader {
             final AtomicReference<String> defPrincipalId = new AtomicReference<>(null);
             final AtomicInteger defMinWords = new AtomicInteger(-1);
             final AtomicLong defImageMinSize = new AtomicLong(-1);
+            final AtomicReference<String> defDumpFolder = new AtomicReference<>(null);
             final Map<String, Map<String, String>> defFieldDefaults = new HashMap<>();
             final List<Signature> defSignatures = new ArrayList<>();
             jsonSection(jsonElement, "defaults", JsonElement::isJsonObject, JsonElement::getAsJsonObject)
@@ -214,6 +217,7 @@ public class MailImporterConfigLoader {
                         getPrimitive(defaults, "principalId", JsonElement::getAsString, defPrincipalId::set);
                         getPrimitive(defaults, "minWords", JsonElement::getAsInt, defMinWords::set);
                         getPrimitive(defaults, "imageMinSize", JsonElement::getAsLong, defImageMinSize::set);
+                        getPrimitive(defaults, "dumpFolder", JsonElement::getAsString, defDumpFolder::set);
                         defFieldDefaults.putAll(readContentTypesDefaults(defaults));
                         parseSignatures(defaults, defSignatures::add);
                     });
@@ -234,6 +238,7 @@ public class MailImporterConfigLoader {
                 mainRouteConfig.setMinWords(defMinWords.get());
                 mainRouteConfig.setImageMinSize(defImageMinSize.get());
                 mainRouteConfig.getSignatures().addAll(defSignatures);
+                mainRouteConfig.setDumpFolder(defDumpFolder.get());
             }
             jsonSection(jsonElement, "mailUri", JsonElement::isJsonArray, JsonElement::getAsJsonArray)
                     .ifPresent(mailUri -> {
@@ -252,6 +257,7 @@ public class MailImporterConfigLoader {
                                     routeConfig.setMinWords(defMinWords.get());
                                     routeConfig.setImageMinSize(defImageMinSize.get());
                                     routeConfig.getSignatures().addAll(defSignatures);
+                                    routeConfig.setDumpFolder(defDumpFolder.get());
                                     getPrimitive(mailJson, "webPage", JsonElement::getAsString, routeConfig::setWebPage);
                                     getPrimitive(mailJson, "deskLevel", JsonElement::getAsString, routeConfig::setDeskLevel);
                                     getPrimitive(mailJson, "section", JsonElement::getAsString, routeConfig::setSection);
@@ -260,6 +266,7 @@ public class MailImporterConfigLoader {
                                     getPrimitive(mailJson, "principalId", JsonElement::getAsString, routeConfig::setPrincipalId);
                                     getPrimitive(mailJson, "minWords", JsonElement::getAsInt, routeConfig::setMinWords);
                                     getPrimitive(mailJson, "imageMinSize", JsonElement::getAsLong, routeConfig::setImageMinSize);
+                                    getPrimitive(mailJson, "dumpFolder", JsonElement::getAsString, routeConfig::setDumpFolder);
                                     final Map<String, Map<String, String>> fieldDefaults = new HashMap<>();
                                     fieldDefaults.putAll(defFieldDefaults);
                                     fieldDefaults.putAll(readContentTypesDefaults(mailJson));

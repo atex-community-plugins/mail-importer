@@ -136,6 +136,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals(-1, route.getMinWords());
             Assert.assertEquals(-1L, route.getImageMinSize());
             Assert.assertEquals(0, route.getSignatures().size());
+            Assert.assertNull(route.getDumpFolder());
         }
         {
             final MailRouteConfig route = mailUris.get(1);
@@ -156,6 +157,7 @@ public class MailImporterConfigLoaderTest {
                 Assert.assertEquals(5, s.getBefore());
                 Assert.assertEquals("This communication may contain confidential", s.getRegex());
             }
+            Assert.assertEquals("/tmp/mail", route.getDumpFolder());
         }
     }
 
@@ -196,6 +198,7 @@ public class MailImporterConfigLoaderTest {
                 Assert.assertEquals(5, s.getBefore());
                 Assert.assertEquals("This communication may contain confidential", s.getRegex());
             }
+            Assert.assertEquals("/tmp/mail", route.getDumpFolder());
         }
     }
 
@@ -244,6 +247,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals(15, route.getMinWords());
             Assert.assertEquals(70000L, route.getImageMinSize());
             Assert.assertEquals(0, route.getSignatures().size());
+            Assert.assertEquals("/tmp/mail", route.getDumpFolder());
         }
         {
             final MailRouteConfig route = mailUris.get(1);
@@ -257,6 +261,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals(15, route.getMinWords());
             Assert.assertEquals(70000L, route.getImageMinSize());
             Assert.assertEquals(0, route.getSignatures().size());
+            Assert.assertEquals("/tmp/mail", route.getDumpFolder());
         }
         {
             final MailRouteConfig route = mailUris.get(2);
@@ -270,6 +275,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals(15, route.getMinWords());
             Assert.assertEquals(70000L, route.getImageMinSize());
             Assert.assertEquals(0, route.getSignatures().size());
+            Assert.assertEquals("/tmp/mail", route.getDumpFolder());
         }
     }
 
@@ -306,6 +312,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals(-1, route.getMinWords());
             Assert.assertEquals(-1L, route.getImageMinSize());
             Assert.assertEquals(0, route.getSignatures().size());
+            Assert.assertNull(route.getDumpFolder());
         }
     }
 
@@ -339,6 +346,7 @@ public class MailImporterConfigLoaderTest {
             Assert.assertEquals(-1, route.getMinWords());
             Assert.assertEquals(-1L, route.getImageMinSize());
             Assert.assertEquals(0, route.getSignatures().size());
+            Assert.assertNull(route.getDumpFolder());
         }
     }
 
@@ -440,6 +448,7 @@ public class MailImporterConfigLoaderTest {
                 Assert.assertEquals("Sign2", s.getRegex());
             }
 
+            Assert.assertNull(route.getDumpFolder());
         }
     }
 
@@ -478,6 +487,8 @@ public class MailImporterConfigLoaderTest {
             final Map<String, Map<String, String>> mappings = route.getFieldsMappings();
             Assert.assertNotNull(mappings);
             Assert.assertEquals(0, mappings.size());
+
+            Assert.assertNull(route.getDumpFolder());
         }
     }
 
