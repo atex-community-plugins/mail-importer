@@ -10,7 +10,7 @@ Add the following to your project only in the server-integration webapp.
 <dependency>
   <groupId>com.atex.plugins</groupId>
   <artifactId>mail-importer</artifactId>
-  <version>2.4</version>
+  <version>2.5</version>
 </dependency>
 ```
 
@@ -20,7 +20,7 @@ In the top pom.xml you need to add the contentData:
 <dependency>
   <groupId>com.atex.plugins</groupId>
   <artifactId>mail-importer</artifactId>
-  <version>2.4</version>
+  <version>2.5</version>
   <classifier>contentdata</classifier>
   <exclusions>
     <!-- exclude most of the dependencies since we only need the content definitions -->
@@ -81,6 +81,10 @@ Extendend configuration can be done in the json field, the following contains al
     // "imageMinSize" allow you to specify the minimum size (in bytes) an image should have to import it.
     // This can be used to skip signature images.
     // "imageMinSize": 60000,
+    
+    // "dumpFolder", when configured, is a folder where processed email will be written to (in gzip form)
+    // so it is easy to gather them for debug purposes.
+    // "dumpFolder": "",
 
     // The "contentTypes" allow you to specify some defaults for specific content types.
     "contentTypes": {
@@ -145,6 +149,7 @@ Extendend configuration can be done in the json field, the following contains al
       "imageAspect": "",
       "minWords": 10,
       "imageMinSize": 60000,
+      "dumpFolder": "",
       
       // signatures allow you to skip a part of the body because it contains a signature,
       // since each signature is different you need to configure it based on your emails.
