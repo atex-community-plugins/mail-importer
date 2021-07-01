@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.atex.plugins.mailimporter.MailImporterConfig.MailRouteConfig;
 import com.atex.plugins.mailimporter.MailImporterConfig.Signature;
-import com.polopoly.common.lang.StringUtil;
+import com.polopoly.util.StringUtil;
 
 /**
  * <p>
