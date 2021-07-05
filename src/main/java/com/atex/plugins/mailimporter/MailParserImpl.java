@@ -180,15 +180,15 @@ public class MailParserImpl implements MailParser {
                     if (e > top) {
                         ll.subList(top, e).clear();
                     }
-            for (int i = ll.size() - 1; i >= 0; i--) {
-                if (StringUtil.isEmpty(ll.get(i))) {
-                    ll.remove(i);
-                } else {
-                    break;
+                    for (int i = ll.size() - 1; i >= 0; i--) {
+                        if (StringUtil.isEmpty(ll.get(i))) {
+                            ll.remove(i);
+                        } else {
+                            break;
+                        }
+                    }
+                    return String.join("\n", ll);
                 }
-            }
-            return String.join("\n", ll);
-        }
             }
         }
         return text;
@@ -215,7 +215,7 @@ public class MailParserImpl implements MailParser {
         lead = removeInlinedCIDReferences(lead);
         body = removeInlinedCIDReferences(body);
 
-        body = "<p>" + StringEscapeUtils.escapeHtml(body) + "</p>";
+        body = "<p>" + StringEscapeUtils.escapeHtml(body.replace('\u00A0', ' ')) + "</p>";
 
         mailBean.setBody(body);
         mailBean.setLead(lead);
