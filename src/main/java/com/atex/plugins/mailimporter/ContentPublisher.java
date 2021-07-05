@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
@@ -200,18 +202,26 @@ public class ContentPublisher implements MailPublisher {
                                    final MailProcessorUtils mailProcessorUtils,
                                    final MailBean mail) throws Exception {
         final Object articleBean = createArticleBean(config, routeConfig, mailProcessorUtils, mail);
+        final AtomicInteger imageCounter = new AtomicInteger(0);
         List<ContentId> images = new ArrayList<>();
-        for (String filename : mail.getAttachments().keySet()) {
-            if (isAcceptedImageExtension(config.getAcceptedImageExtensions(), filename)) {
-                final ContentId contentId = createImage(
-                        config,
-                        routeConfig,
-                        mailProcessorUtils,
-                        mail,
-                        filename,
-                        mail.getAttachments()
-                            .get(filename)
-                );
+        final List<String> keys = mail.getAttachments()
+                                      .keySet()
+                                      .stream()
+                                      .filter(filename -> isAcceptedImageExtension(config.getAcceptedImageExtensions(), filename))
+                                      .collect(Collectors.toList());
+        for (String filename : keys) {
+            final ContentId contentId = createImage(
+                    config,
+                    routeConfig,
+                    mailProcessorUtils,
+                    mail,
+                    filename,
+                    mail.getAttachments()
+                        .get(filename),
+                    imageCounter.incrementAndGet(),
+                    keys.size()
+            );
+            if (contentId != null) {
                 images.add(0, contentId);
                 CREATE_IDS.get().add(contentId);
             }
@@ -244,7 +254,9 @@ public class ContentPublisher implements MailPublisher {
                                     final MailProcessorUtils mailProcessorUtils,
                                     final MailBean mailBean,
                                     final String name,
-                                    final MailBeanAttachment attachment) throws Exception {
+                                    final MailBeanAttachment attachment,
+                                    final int imageNumber,
+                                    final int imageCount) throws Exception {
         final FileInfo fInfo;
         final MailProcessorUtils.MetadataTagsHolder metadataTags;
 
@@ -262,7 +274,16 @@ public class ContentPublisher implements MailPublisher {
             assert fInfo != null;
         }
 
-        final Object bean = createImageBean(config, routeConfig, mailProcessorUtils, name, metadataTags, mailBean);
+        final Object bean = createImageBean(
+                config,
+                routeConfig,
+                mailProcessorUtils,
+                name,
+                imageNumber,
+                imageCount,
+                metadataTags,
+                mailBean
+        );
 
         return writeImageBean(
                 mailProcessorUtils,
@@ -278,9 +299,19 @@ public class ContentPublisher implements MailPublisher {
                                      final MailRouteConfig routeConfig,
                                      final MailProcessorUtils mailProcessorUtils,
                                      final String name,
+                                     final int imageNumber,
+                                     final int imageCount,
                                      final MailProcessorUtils.MetadataTagsHolder metadataTags,
                                      final MailBean mail) {
-        return mailProcessorUtils.getPopulatedImageBean(config, routeConfig, mail, metadataTags, name);
+        return mailProcessorUtils.getPopulatedImageBean(
+                config,
+                routeConfig,
+                mail,
+                metadataTags,
+                name,
+                imageNumber,
+                imageCount
+        );
     }
 
     protected ContentResult<Object> writeArticleBean(final MailProcessorUtils mailProcessorUtils,

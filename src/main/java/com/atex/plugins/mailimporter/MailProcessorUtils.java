@@ -255,7 +255,9 @@ public class MailProcessorUtils {
                                         final MailRouteConfig routeConfig,
                                         final MailBean mailBean,
                                         final MailProcessorUtils.MetadataTagsHolder metadataTags,
-                                        final String filename) {
+                                        final String filename,
+                                        final int imageNumber,
+                                        final int imageCount) {
         try {
             LOG.debug("Populate image from {}", routeConfig.getImageAspect());
 
@@ -293,6 +295,10 @@ public class MailProcessorUtils {
                 map.put(name, toString(values.get(name)));
             }
             map.put("filename", filename);
+            if (imageCount > 1) {
+                map.put("number", Integer.toString(imageNumber));
+                map.put("count", Integer.toString(imageCount));
+            }
             values.put("name", expandBean(mailBean, map, config.getAttachmentNamePattern()));
 
             setProperties(bean, values, routeConfig, routeConfig.getImageAspect());
