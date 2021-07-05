@@ -187,6 +187,21 @@ public class MailParserImplTest {
         Assert.assertEquals(0, bean.getAttachments().size());
     }
 
+    @Test
+    public void testEmailWithMultilineSignature() throws Exception {
+        final MailBean bean = parse("/mails/mail-with-attachment.eml",
+                Signature.of(
+                        "__+\n*GRUPPO EDITORIALE",
+                        0
+                ));
+        Assert.assertEquals("mnova@atex.com", bean.getFrom());
+        Assert.assertEquals("\"test.collab\" <test.collab@gedivisual.it>", bean.getTo());
+        Assert.assertEquals("PROVA SISTEMI A - SONIA4", bean.getSubject());
+        Assert.assertEquals("<p></p>", bean.getBody());
+        Assert.assertEquals("sonbul", bean.getLead());
+        Assert.assertEquals(0, bean.getAttachments().size());
+    }
+
     private MailBean parse(final String name,
                            final Signature... signatures) throws Exception {
         return parse(name, (Consumer<MailMessage>) null, of(signatures));

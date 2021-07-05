@@ -3,6 +3,7 @@ package com.atex.plugins.mailimporter;
 import static com.atex.plugins.mailimporter.StringUtils.EMAIL_HTML_PATTERN;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -163,32 +164,22 @@ public class MailParserImpl implements MailParser {
         if (StringUtils.notEmpty(text)) {
             final List<Pattern> patterns = signatureList.stream()
                                                         .map(Signature::getRegex)
-                                                        .map(Pattern::compile)
+                                                        .map(re -> Pattern.compile(re, Pattern.MULTILINE))
                                                         .collect(Collectors.toList());
-            final String[] lines = text.split("\n");
-            final List<String> ll = new ArrayList<>();
-            for (String l : lines) {
-                int before = 0;
-                boolean match = false;
-                for (int i = 0; i < patterns.size(); i++) {
-                    final Pattern p = patterns.get(i);
-                    if (p.matcher(l).find()) {
-                        before = signatureList.get(i).getBefore();
-                        match = true;
-                        break;
-                    }
-                }
-                if (match) {
+            String newText = text;
+            for (int pIdx = 0; pIdx < patterns.size(); pIdx++) {
+                final Pattern p = patterns.get(pIdx);
+                final Matcher matcher = p.matcher(newText);
+                if (matcher.find()) {
+                    newText = newText.substring(0, matcher.start());
+                    final String[] lines = newText.split("\n");
+                    final List<String> ll = new ArrayList<>(Arrays.asList(lines));
                     final int e = ll.size();
+                    final int before = signatureList.get(pIdx).getBefore();
                     final int top = Math.max(0, ll.size() - before);
                     if (e > top) {
                         ll.subList(top, e).clear();
                     }
-                    break;
-                } else {
-                    ll.add(l);
-                }
-            }
             for (int i = ll.size() - 1; i >= 0; i--) {
                 if (StringUtil.isEmpty(ll.get(i))) {
                     ll.remove(i);
@@ -197,6 +188,8 @@ public class MailParserImpl implements MailParser {
                 }
             }
             return String.join("\n", ll);
+        }
+            }
         }
         return text;
     }
