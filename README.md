@@ -10,7 +10,7 @@ Add the following to your project only in the server-integration webapp.
 <dependency>
   <groupId>com.atex.plugins</groupId>
   <artifactId>mail-importer</artifactId>
-  <version>2.5</version>
+  <version>2.6</version>
 </dependency>
 ```
 
@@ -20,7 +20,7 @@ In the top pom.xml you need to add the contentData:
 <dependency>
   <groupId>com.atex.plugins</groupId>
   <artifactId>mail-importer</artifactId>
-  <version>2.5</version>
+  <version>2.6</version>
   <classifier>contentdata</classifier>
   <exclusions>
     <!-- exclude most of the dependencies since we only need the content definitions -->
@@ -181,7 +181,7 @@ Extendend configuration can be done in the json field, the following contains al
 Image Metadata
 --------------
 
-The plugin use the image-metadata-extractor-service to extract exif and iptcs tags, you can control the location of the
+The plugin use the image-metadata-extractor-service to extract exif and iptc tags, you can control the location of the
 service by setting the property `-Dimage.metadata.service.url=xxx`, it defaults to `http://localhost:8080/image-metadata-extractor-service/image`.
 
 Integration Server
