@@ -1,7 +1,5 @@
 package com.atex.plugins.mailimporter;
 
-import static com.atex.plugins.mailimporter.StringUtils.EMAIL_HTML_PATTERN;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,6 +19,9 @@ import org.apache.camel.Exchange;
 import org.apache.camel.component.mail.MailMessage;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.mail.util.MimeMessageParser;
+import org.jsoup.Jsoup;
+import org.jsoup.parser.Parser;
+import org.jsoup.safety.Whitelist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +47,7 @@ public class MailParserImpl implements MailParser {
     private static final Logger LOG = LoggerFactory.getLogger(MailParserImpl.class);
 
     private static final String PARAGRAPH_DELIMITER = "\n\n";
+    public static final Pattern EMPTY_PARA_PATTERN = Pattern.compile("^((\\n*<p>(&nbsp;)?</p>\\n*)|(\n+))");
 
     public MailParserImpl() {
     }
@@ -70,7 +72,7 @@ public class MailParserImpl implements MailParser {
                              .map(Address::toString)
                              .collect(Collectors.joining(","));
         mailBean.setTo(toAddress);
-        mailBean.setSubject(subject);
+        mailBean.setSubject(StringUtil.trim(subject));
 
         String from = messageParser.getFrom();
         mailBean.setFrom(from);
@@ -115,7 +117,7 @@ public class MailParserImpl implements MailParser {
 
         mailBean.setAttachments(attachmentFiles);
 
-        String body = normalizeLineEndings(messageParser.getPlainContent());
+        final String body = normalizeLineEndings(getMessageText(messageParser));
         if (StringUtils.isHtmlBody(body)) {
             setHtmlContent(mailBean, body);
         } else {
@@ -132,29 +134,63 @@ public class MailParserImpl implements MailParser {
     }
 
     @Override
+    public String getMessageText(final MimeMessageParser messageParser) {
+        final String content = messageParser.getPlainContent();
+        if (!StringUtil.isEmpty(content)) {
+            return content;
+        }
+        final String htmlContent = messageParser.getHtmlContent();
+        if (htmlContent != null) {
+            return Jsoup.clean(htmlContent, simpleTextWithParagraphs());
+        }
+        return "";
+    }
+
+    private String cleanUpHtml(final String text) {
+        return text
+                   // NBSP will cause lot of issues, convert them
+                   .replace("&nbsp;", " ")
+                   .replace('\u00A0', ' ')
+
+                   // ignore text lines
+                   .replace("\n", "")
+                   .replace("\r", "")
+
+                   // convert paragraphs into new lines.
+                   .replace("<p>", "")
+                   .replace("</p>", "\n")
+
+                   // convert line breaks into new lines
+                   .replace("<br>", "\n")
+                   .replace("<br/>", "\n")
+                   .replace("<br />", "\n")
+
+                   // convert divs into new lines
+                   .replace("<div>", "")
+                   .replace("</div>", "\n")
+
+                   // normalize line endings
+                   .replace("\n ", "\n")
+                   .replace(" \n", "\n")
+                   .replaceAll("\r\n", "\n")
+                   .replaceAll("\r", "\n");
+    }
+
+    private Whitelist simpleTextWithParagraphs() {
+        return new Whitelist().addTags(StringUtils.EMAIL_HTML_TAGS.toArray(new String[] {}));
+    }
+
+    @Override
     public String removeSignatures(final String text,
                                    final List<Signature> signatureList) {
         if (StringUtils.notEmpty(text) && signatureList != null && signatureList.size() > 0) {
-            final StringBuilder sb = new StringBuilder();
-            String s = text;
-            while (true) {
-                int idx = s.toLowerCase().indexOf("<p>");
-                if (idx >= 0) {
-                    sb.append(s, 0, idx);
-                    sb.append("<p>");
-                    int end = s.toLowerCase().indexOf("</p>", idx);
-                    if (end < 0) {
-                        end = s.length();
-                    }
-                    sb.append(cleanupSignatures(s.substring(idx + 3, end), signatureList));
-                    sb.append("</p>");
-                    s = s.substring(end + 4);
-                } else {
-                    sb.append(cleanupSignatures(s, signatureList));
-                    break;
-                }
+            if (text.toLowerCase().contains("<p>")) {
+                final String lines = StringUtils.paragraphsToLines(text);
+                final String newText = cleanupSignatures(lines, signatureList);
+                return StringUtils.linesToParagraphs(newText);
+            } else {
+                return cleanupSignatures(text, signatureList);
             }
-            return sb.toString();
         }
         return text;
     }
@@ -215,37 +251,36 @@ public class MailParserImpl implements MailParser {
         lead = removeInlinedCIDReferences(lead);
         body = removeInlinedCIDReferences(body);
 
-        body = "<p>" + StringEscapeUtils.escapeHtml(body.replace('\u00A0', ' ')) + "</p>";
+        body = StringUtils.linesToParagraphs(
+                StringEscapeUtils.escapeHtml(body.replace('\u00A0', ' '))
+        );
 
         mailBean.setBody(body);
         mailBean.setLead(lead);
     }
 
-    protected void setHtmlContent(MailBean mailBean, String fullText) {
+    protected void setHtmlContent(final MailBean mailBean,
+                                  final String html) {
         // HTML Layout is specified as:
         //          lead
         //          <p>{whitespace}</p>
         //          body
         //
         //          newlines are not required.
-        String lead;
-        String body;
 
-        Matcher matcher = EMAIL_HTML_PATTERN.matcher(fullText);
-        if (matcher.find() && matcher.groupCount() > 0) {
-            int paragraphTagIndex = matcher.end(1);
+        final String fullText = Parser.unescapeEntities(html, true);
 
-            lead = fullText.substring(0, paragraphTagIndex).trim();
-
-            if (matcher.groupCount() > 2) {
-                int bodyStart = matcher.start(3);
-                body = fullText.substring(bodyStart).trim();
-            } else {
-                body = "";
-            }
-        } else {
-            lead = "";
-            body = fullText;
+        String lead = "";
+        // trim lines to make sure we don't have unwanted spaces.
+        String body = StringUtils.trimLines(cleanUpHtml(fullText));
+        if (body.contains("\n\n")) {
+            int paragraphIndex = body.indexOf("\n\n");
+            lead = body.substring(0, paragraphIndex).trim();
+            body = body.substring(paragraphIndex + "\n\n".length()).trim();
+        } else if (body.contains("\n")) {
+            int paragraphIndex = body.indexOf("\n");
+            lead = body.substring(0, paragraphIndex).trim();
+            body = body.substring(paragraphIndex + "\n".length()).trim();
         }
 
         // E-mail clients use in-line chunk data references to mark positions where images
@@ -260,7 +295,7 @@ public class MailParserImpl implements MailParser {
         lead = StringEscapeUtils.unescapeXml(StringEscapeUtils.escapeHtml(lead));
 
         body = removeInlinedCIDReferences(body);
-        body = StringEscapeUtils.unescapeXml(StringEscapeUtils.escapeHtml(body));
+        body = StringUtils.linesToParagraphs(StringEscapeUtils.unescapeXml(StringEscapeUtils.escapeHtml(body)));
 
         mailBean.setBody(body);
         mailBean.setLead(lead);
@@ -270,10 +305,23 @@ public class MailParserImpl implements MailParser {
         if (text == null) {
             return "";
         }
-        return text.replaceAll("\r\n", "\n").replaceAll("\r", "\n");
+        return text.replaceAll("\r\n", "\n")
+                   .replaceAll("\r", "\n");
+    }
+
+    String removeStartingEmptyLines(String body) {
+        while (true) {
+            final Matcher matcher = EMPTY_PARA_PATTERN.matcher(body);
+            if (matcher.find()) {
+                body = body.substring(matcher.end());
+            } else {
+                break;
+            }
+        }
+        return body;
     }
 
     private String removeInlinedCIDReferences(final String text) {
-        return text.replaceAll("\\[cid:.*?\\]\n*", "");
+        return text.replaceAll("\\[cid:.*?]\n*", "");
     }
 }

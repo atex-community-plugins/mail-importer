@@ -118,11 +118,11 @@ public class MailParserImplTest {
                 )
         );
         Assert.assertEquals("This is the lead", bean.getLead());
-        Assert.assertEquals("<p>This is the body line 1\n" +
-                "\n" +
-                "This is the body line 2\n" +
-                "\n" +
-                "This is the body line 3</p>", bean.getBody());
+        Assert.assertEquals("<p>This is the body line 1</p>\n" +
+                "<p></p>\n" +
+                "<p>This is the body line 2</p>\n" +
+                "<p></p>\n" +
+                "<p>This is the body line 3</p>", bean.getBody());
         Assert.assertEquals(0, bean.getAttachments().size());
     }
 
@@ -145,11 +145,11 @@ public class MailParserImplTest {
                 config
         );
         Assert.assertEquals("This is the lead", bean.getLead());
-        Assert.assertEquals("<p>This is the body line 1\n" +
-                "\n" +
-                "This is the body line 2\n" +
-                "\n" +
-                "This is the body line 3</p>", bean.getBody());
+        Assert.assertEquals("<p>This is the body line 1</p>\n" +
+                "<p></p>\n" +
+                "<p>This is the body line 2</p>\n" +
+                "<p></p>\n" +
+                "<p>This is the body line 3</p>", bean.getBody());
         final Map<String, MailBeanAttachment> am = bean.getAttachments();
         Assert.assertEquals(1, am.size());
         final MailBeanAttachment mba = am.get("a0.jpg");
@@ -179,11 +179,11 @@ public class MailParserImplTest {
                 config
         );
         Assert.assertEquals("This is the lead", bean.getLead());
-        Assert.assertEquals("<p>This is the body line 1\n" +
-                "\n" +
-                "This is the body line 2\n" +
-                "\n" +
-                "This is the body line 3</p>", bean.getBody());
+        Assert.assertEquals("<p>This is the body line 1</p>\n" +
+                "<p></p>\n" +
+                "<p>This is the body line 2</p>\n" +
+                "<p></p>\n" +
+                "<p>This is the body line 3</p>", bean.getBody());
         Assert.assertEquals(0, bean.getAttachments().size());
     }
 
@@ -199,6 +199,43 @@ public class MailParserImplTest {
         Assert.assertEquals("PROVA SISTEMI A - SONIA4", bean.getSubject());
         Assert.assertEquals("<p></p>", bean.getBody());
         Assert.assertEquals("sonbul", bean.getLead());
+        Assert.assertEquals(0, bean.getAttachments().size());
+    }
+
+    @Test
+    public void testEmailWithOnlyHtmlText() throws Exception {
+        final MailBean bean = parse("/mails/mail-with-only-html.eml",
+                Signature.of(
+                        "__+\n*GRUPPO EDITORIALE",
+                        0
+                ));
+        Assert.assertEquals("mnova@atex.com", bean.getFrom());
+        Assert.assertEquals("\"test.collab\" <test.collab@gedivisual.it>", bean.getTo());
+        Assert.assertEquals("TEST1", bean.getSubject());
+        Assert.assertEquals("<p><b><u>TESTO A</u></b> - Si aggrava il bilancio dell'incidente stradale " +
+                "avvenuto questa sera a Savigliano, nel Cuneese. Sono due i morti, entrambi i giovani, mentre " +
+                "una ragazza &egrave; ferita. Viaggiavano su un'auto che, per cause in corso di accertamento, " +
+                "si &egrave; scontrata frontalmente con un camion lungo la Sp 115, in direzione Vottignasco. " +
+                "Illeso l'autista del mezzo pesante, sotto choc, sul posto sono intervenuti i vigili del fuoco, " +
+                "i carabinieri e i sanitari. Questa notte la provinciale rester&agrave; chiusa per consentire " +
+                "ai tecnici della viabilit&agrave; di rimuovere i detriti e mettere in sicurezza la strada. " +
+                "(ANSA). GTT</p>", bean.getBody());
+        Assert.assertEquals("SONBUL", bean.getLead());
+        Assert.assertEquals(0, bean.getAttachments().size());
+    }
+
+    @Test
+    public void testHtmlEmailWithSignature() throws Exception {
+        final MailBean bean = parse("/mails/mail-html-with-signature.eml",
+                Signature.of(
+                        "Via Cristoforo Colombo",
+                        4
+                ));
+        Assert.assertEquals("f.basso@gedi.it", bean.getFrom());
+        Assert.assertEquals("\"aosta.collab\" <aosta.collab@gedivisual.it>", bean.getTo());
+        Assert.assertEquals("test gedi desktop con firma", bean.getSubject());
+        Assert.assertEquals("<p>Test da @gedi.it su Desktop con firma</p>", bean.getBody());
+        Assert.assertEquals("FILBAS", bean.getLead());
         Assert.assertEquals(0, bean.getAttachments().size());
     }
 

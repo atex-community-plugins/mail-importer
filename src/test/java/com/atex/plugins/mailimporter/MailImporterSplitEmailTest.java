@@ -18,8 +18,7 @@ public class MailImporterSplitEmailTest {
         MailBean mailBean = new MailBean();
         mailParser.setHtmlContent(mailBean, testBody);
         assertEquals("Leichtathletik Athleten der LG Teck feiern bei verschiedenen Meetings vor allem in den Wurfdisziplinen zahlreiche Erfolge.", mailBean.getLead());
-        assertEquals("<p>Weilheim. Beim Werferabend mit anschlie&szlig;enden Jugendsportfest in Gomaringen, wetteiferten insgesamt rund 260 Jugendliche aus 53 Vereinen aus den Landesverb&auml;nden W&uuml;rttemberg, Baden und Hessen um Siege, Bestleistungen und Normen. Mit dabei waren auch Athleten der LG Teck. Mit neuer pers&ouml;nlicher Bestleistung im Kugelsto&szlig;en der M14 beeindruckte Alexander Doll aus Oberlenningen mit 11,56 Metern. Mit dieser Weite belegt er den siebten Platz in der Deutschen M14-Rangliste. Max Schumacher (LG Teck) wurde mit 9,22 Metern Siebter. Zwei Podestpl&auml;tze erreichte der Weilheimer &bdquo;Techniker&ldquo; im Speerwerfen der M14 mit 30,35 Metern (2.) und im Diskuswerfen mit 31,39 Meter (3.).</p>\n" +
-          "<p> </p>", mailBean.getBody());
+        assertEquals("<p>Weilheim. Beim Werferabend mit anschlie&szlig;enden Jugendsportfest in Gomaringen, wetteiferten insgesamt rund 260 Jugendliche aus 53 Vereinen aus den Landesverb&auml;nden W&uuml;rttemberg, Baden und Hessen um Siege, Bestleistungen und Normen. Mit dabei waren auch Athleten der LG Teck. Mit neuer pers&ouml;nlicher Bestleistung im Kugelsto&szlig;en der M14 beeindruckte Alexander Doll aus Oberlenningen mit 11,56 Metern. Mit dieser Weite belegt er den siebten Platz in der Deutschen M14-Rangliste. Max Schumacher (LG Teck) wurde mit 9,22 Metern Siebter. Zwei Podestpl&auml;tze erreichte der Weilheimer &bdquo;Techniker&ldquo; im Speerwerfen der M14 mit 30,35 Metern (2.) und im Diskuswerfen mit 31,39 Meter (3.).</p>", mailBean.getBody());
     }
 
     @Test
@@ -37,11 +36,7 @@ public class MailImporterSplitEmailTest {
         MailBean mailBean = new MailBean();
         mailParser.setHtmlContent(mailBean, testBody);
         assertEquals("Leichtathletik Athleten der LG Teck feiern bei verschiedenen Meetings vor allem in den Wurfdisziplinen zahlreiche Erfolge.", mailBean.getLead());
-        assertEquals("<p> </p>\n" +
-          "<p> </p>\n" +
-          "<p> </p>\n" +
-          "<p>Weilheim. Beim Werferabend mit anschlie&szlig;enden Jugendsportfest in Gomaringen, wetteiferten insgesamt rund 260 Jugendliche aus 53 Vereinen aus den Landesverb&auml;nden W&uuml;rttemberg, Baden und Hessen um Siege, Bestleistungen und Normen. Mit dabei waren auch Athleten der LG Teck. Mit neuer pers&ouml;nlicher Bestleistung im Kugelsto&szlig;en der M14 beeindruckte Alexander Doll aus Oberlenningen mit 11,56 Metern. Mit dieser Weite belegt er den siebten Platz in der Deutschen M14-Rangliste. Max Schumacher (LG Teck) wurde mit 9,22 Metern Siebter. Zwei Podestpl&auml;tze erreichte der Weilheimer &bdquo;Techniker&ldquo; im Speerwerfen der M14 mit 30,35 Metern (2.) und im Diskuswerfen mit 31,39 Meter (3.).</p>\n" +
-          "<p> </p>", mailBean.getBody());
+        assertEquals("<p>Weilheim. Beim Werferabend mit anschlie&szlig;enden Jugendsportfest in Gomaringen, wetteiferten insgesamt rund 260 Jugendliche aus 53 Vereinen aus den Landesverb&auml;nden W&uuml;rttemberg, Baden und Hessen um Siege, Bestleistungen und Normen. Mit dabei waren auch Athleten der LG Teck. Mit neuer pers&ouml;nlicher Bestleistung im Kugelsto&szlig;en der M14 beeindruckte Alexander Doll aus Oberlenningen mit 11,56 Metern. Mit dieser Weite belegt er den siebten Platz in der Deutschen M14-Rangliste. Max Schumacher (LG Teck) wurde mit 9,22 Metern Siebter. Zwei Podestpl&auml;tze erreichte der Weilheimer &bdquo;Techniker&ldquo; im Speerwerfen der M14 mit 30,35 Metern (2.) und im Diskuswerfen mit 31,39 Meter (3.).</p>", mailBean.getBody());
     }
 
     @Test
@@ -56,8 +51,7 @@ public class MailImporterSplitEmailTest {
         MailBean mailBean = new MailBean();
         mailParser.setHtmlContent(mailBean, testBody);
         assertEquals("Leichtathletik Athleten der LG Teck feiern bei verschiedenen Meetings vor allem in den Wurfdisziplinen zahlreiche Erfolge.", mailBean.getLead());
-        assertEquals("<p>Weilheim. Beim Werferabend mit anschlie&szlig;enden Jugendsportfest in Gomaringen, wetteiferten insgesamt rund 260 Jugendliche aus 53 Vereinen aus den Landesverb&auml;nden W&uuml;rttemberg, Baden und Hessen um Siege, Bestleistungen und Normen. Mit dabei waren auch Athleten der LG Teck. Mit neuer pers&ouml;nlicher Bestleistung im Kugelsto&szlig;en der M14 beeindruckte Alexander Doll aus Oberlenningen mit 11,56 Metern. Mit dieser Weite belegt er den siebten Platz in der Deutschen M14-Rangliste. Max Schumacher (LG Teck) wurde mit 9,22 Metern Siebter. Zwei Podestpl&auml;tze erreichte der Weilheimer &bdquo;Techniker&ldquo; im Speerwerfen der M14 mit 30,35 Metern (2.) und im Diskuswerfen mit 31,39 Meter (3.).</p>\n" +
-          "<p> </p>", mailBean.getBody());
+        assertEquals("<p>Weilheim. Beim Werferabend mit anschlie&szlig;enden Jugendsportfest in Gomaringen, wetteiferten insgesamt rund 260 Jugendliche aus 53 Vereinen aus den Landesverb&auml;nden W&uuml;rttemberg, Baden und Hessen um Siege, Bestleistungen und Normen. Mit dabei waren auch Athleten der LG Teck. Mit neuer pers&ouml;nlicher Bestleistung im Kugelsto&szlig;en der M14 beeindruckte Alexander Doll aus Oberlenningen mit 11,56 Metern. Mit dieser Weite belegt er den siebten Platz in der Deutschen M14-Rangliste. Max Schumacher (LG Teck) wurde mit 9,22 Metern Siebter. Zwei Podestpl&auml;tze erreichte der Weilheimer &bdquo;Techniker&ldquo; im Speerwerfen der M14 mit 30,35 Metern (2.) und im Diskuswerfen mit 31,39 Meter (3.).</p>", mailBean.getBody());
     }
 
     @Test

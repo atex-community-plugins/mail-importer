@@ -3,6 +3,7 @@ package com.atex.plugins.mailimporter;
 import java.util.List;
 
 import org.apache.camel.Exchange;
+import org.apache.commons.mail.util.MimeMessageParser;
 
 import com.atex.plugins.mailimporter.MailImporterConfig.Signature;
 
@@ -18,6 +19,8 @@ public interface MailParser {
     }
 
     MailBean parse(final Exchange exchange) throws Exception;
+
+    String getMessageText(MimeMessageParser messageParser);
 
     default MailBean removeSignatures(final MailBean bean,
                                       final List<Signature> signatureList) {

@@ -1,0 +1,174 @@
+Received: from AS8P193MB1909.EURP193.PROD.OUTLOOK.COM (2603:10a6:20b:3fb::18)
+ by AM8P193MB1044.EURP193.PROD.OUTLOOK.COM with HTTPS; Wed, 5 May 2021
+ 11:50:42 +0000
+Received: from AS8P193MB1448.EURP193.PROD.OUTLOOK.COM (2603:10a6:20b:392::17)
+ by AS8P193MB1909.EURP193.PROD.OUTLOOK.COM (2603:10a6:20b:3fb::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4087.40; Wed, 5 May
+ 2021 11:50:42 +0000
+Received: from AS8P193MB1448.EURP193.PROD.OUTLOOK.COM
+ ([fe80::f54d:13ff:6a7d:1078]) by AS8P193MB1448.EURP193.PROD.OUTLOOK.COM
+ ([fe80::f54d:13ff:6a7d:1078%3]) with mapi id 15.20.4108.025; Wed, 5 May 2021
+ 11:50:42 +0000
+From: Filippo Basso <f.basso@gedi.it>
+To: aosta.collab <aosta.collab@gedivisual.it>
+Subject: test gedi desktop con firma
+Thread-Topic: test gedi desktop con firma
+Thread-Index: AddBpWgha8Ldv4X6SfSGw+Ax+nFEKQ==
+Date: Wed, 5 May 2021 11:50:41 +0000
+Message-ID:
+	<AS8P193MB14481B921EA712F89E6A8F05E2599@AS8P193MB1448.EURP193.PROD.OUTLOOK.COM>
+Accept-Language: it-IT, en-US
+Content-Language: it-IT
+X-MS-Exchange-Organization-AuthAs: Internal
+X-MS-Exchange-Organization-AuthMechanism: 04
+X-MS-Exchange-Organization-AuthSource: AS8P193MB1448.EURP193.PROD.OUTLOOK.COM
+X-MS-Has-Attach: yes
+X-MS-Exchange-Organization-Network-Message-Id:
+	ae6d1267-b691-4395-24c8-08d90fbc0295
+X-MS-Exchange-Organization-SCL: -1
+X-MS-TNEF-Correlator:
+X-MS-Exchange-Organization-RecordReviewCfmType: 0
+x-ms-publictraffictype: Email
+X-Microsoft-Antispam-Mailbox-Delivery:
+	ucf:0;jmr:0;auth:0;dest:I;ENG:(750129)(520011016)(706158)(944506458)(944626604);
+X-Microsoft-Antispam-Message-Info:
+	Kv0JwDgpkq6/SXA0aAhGd+aWwnSud+UCYQ5XSC/JyEnCeLJiktZ5oKeSeEnxq98G9FkNJ7EEl6Xgrr2CcfaTci8hbwiMPk9hTZ0/UCjHouPgl3U6ilQfuNfdag1WehNZLz7cOQpPkRgUzR/8KQQ2g7ybnbqIo4ix+27ltehX9wQUkO2qJJl2BjoLN/JjChdSiIpIDeKuseVqERgobTeSO5Kbx/A7drQoSW0NKJgKh1QVx7fODYUyBxWP8yHdTvbd0+n76LTTIXHeOt7f2sBaqO5ZT6lwQYHOVQqtF2rtItDjbajdj9gF+qaEN/UhEgy+2E8BTDaIf7kLtLYwsWb5e1sUlapyIYrdw8/lDNVCo0hlihI0F2O/WFMFfIvx6R/DooYEZApTfif+ytEXxNFJPA9tglj/aQQYp7jjmZ/DeJcudemKJne4BDg1TKnRhLQAy6HNtTbPxzPLr2Bjo3F2sO6ogTKFMFAGZ685Y7bGlbwKJDncpxFPxdy4k8GKigiJrzpUARtWozBQwF4QyY9D/+cC3JdAa+4ywMun3KJIY01ySxI9CEoq3dgC4Q4Bt1t/WJGeQDoHmbb8FjFGxGcd9EtD9izCrJEbl3d4LrLRFLucFVf4JL9CGnYkk9uypu2X
+Content-Type: multipart/related;
+	boundary="_002_AS8P193MB14481B921EA712F89E6A8F05E2599AS8P193MB1448EURP_";
+	type="text/html"
+MIME-Version: 1.0
+
+--_002_AS8P193MB14481B921EA712F89E6A8F05E2599AS8P193MB1448EURP_
+Content-Type: text/html; charset="us-ascii"
+
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+<meta name="Generator" content="Microsoft Word 15 (filtered medium)">
+<!--[if !mso]><style>v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style><![endif]--><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;
+	mso-fareast-language:EN-US;}
+span.StileMessaggioDiPostaElettronica17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri",sans-serif;
+	mso-fareast-language:EN-US;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:70.85pt 2.0cm 2.0cm 2.0cm;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext="edit" spidmax="1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext="edit">
+<o:idmap v:ext="edit" data="1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang="IT" link="#0563C1" vlink="#954F72" style="word-wrap:break-word">
+<div class="WordSection1">
+<p class="MsoNormal">FILBAS<o:p></o:p></p>
+<p class="MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class="MsoNormal">Test da @gedi.it su Desktop con firma<o:p></o:p></p>
+<p class="MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class="MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class="MsoNormal"><span style="mso-fareast-language:IT"><img width="74" height="35" style="width:.7708in;height:.3645in" id="Immagine_x0020_1" src="cid:image001.png@01D741B6.3A2B5290"><o:p></o:p></span></p>
+<p class="MsoNormal"><span style="mso-fareast-language:IT"><o:p>&nbsp;</o:p></span></p>
+<p class="MsoNormal"><b><span style="color:#1F497D;mso-fareast-language:IT">Filippo Basso<o:p></o:p></span></b></p>
+<p class="MsoNormal"><span style="font-size:9.0pt;color:#1F497D;mso-fareast-language:IT">Direzione Tecnica Centrale<o:p></o:p></span></p>
+<p class="MsoNormal"><span style="font-size:9.0pt;color:#1F497D;mso-fareast-language:IT">Responsabile Sistemi Informativi Editoriali
+<o:p></o:p></span></p>
+<p class="MsoNormal"><span style="color:#1F497D;mso-fareast-language:IT"><o:p>&nbsp;</o:p></span></p>
+<p class="MsoNormal"><span style="font-size:9.0pt;color:#1F497D;mso-fareast-language:IT">Via Cristoforo Colombo, 90 - 00147 ROMA<o:p></o:p></span></p>
+<p class="MsoNormal"><span style="font-size:9.0pt;color:#1F497D;mso-fareast-language:IT">Tel.&nbsp; 0649822731 - Fax 0649822516<o:p></o:p></span></p>
+<p class="MsoNormal"><span style="font-size:9.0pt;color:#1F497D;mso-fareast-language:IT">Mobile +393482511524<o:p></o:p></span></p>
+<p class="MsoNormal"><span style="font-size:9.0pt;color:#1F497D;mso-fareast-language:IT">e-mail:
+<a href="mailto:f.basso@gedi.it"><span style="color:#0563C1">f.basso@gedi.it</span></a><o:p></o:p></span></p>
+<p class="MsoNormal"><o:p>&nbsp;</o:p></p>
+</div>
+</body>
+</html>
+
+--_002_AS8P193MB14481B921EA712F89E6A8F05E2599AS8P193MB1448EURP_
+Content-Type: image/png; name="image001.png"
+Content-Description: image001.png
+Content-Disposition: inline; filename="image001.png"; size=3311;
+	creation-date="Wed, 05 May 2021 11:50:41 GMT";
+	modification-date="Wed, 05 May 2021 11:50:41 GMT"
+Content-ID: <image001.png@01D741B6.3A2B5290>
+Content-Transfer-Encoding: base64
+
+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
+YkzffwFD0vE8vECIRgAAAABJRU5ErkJggg==
+
+--_002_AS8P193MB14481B921EA712F89E6A8F05E2599AS8P193MB1448EURP_--

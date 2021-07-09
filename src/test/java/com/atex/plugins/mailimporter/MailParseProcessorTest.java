@@ -182,11 +182,9 @@ public class MailParseProcessorTest extends AbstractProcessorTest {
         Assert.assertEquals("mnova@example.com", outMail.getFrom());
         Assert.assertEquals("Test Article", outMail.getSubject());
         Assert.assertEquals("Username", outMail.getLead());
-        Assert.assertEquals("<p>" +
-                        "This is the body line 1\n" +
-                        "This is the body line 2\n" +
-                        "This is the body line 3" +
-                        "</p>",
+        Assert.assertEquals("<p>This is the body line 1</p>\n" +
+                        "<p>This is the body line 2</p>\n" +
+                        "<p>This is the body line 3</p>",
                 outMail.getBody());
     }
 

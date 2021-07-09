@@ -1,0 +1,101 @@
+Received: from AS8P193MB1159.EURP193.PROD.OUTLOOK.COM (2603:10a6:20b:339::5)
+ by AM8P193MB1044.EURP193.PROD.OUTLOOK.COM with HTTPS; Thu, 8 Jul 2021
+ 18:36:41 +0000
+Received: from AS8P193MB1160.EURP193.PROD.OUTLOOK.COM (2603:10a6:20b:338::18)
+ by AS8P193MB1159.EURP193.PROD.OUTLOOK.COM (2603:10a6:20b:339::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4287.31; Thu, 8 Jul
+ 2021 18:36:40 +0000
+Received: from AS8P193MB1160.EURP193.PROD.OUTLOOK.COM
+ ([fe80::81dd:6627:1733:24a5]) by AS8P193MB1160.EURP193.PROD.OUTLOOK.COM
+ ([fe80::81dd:6627:1733:24a5%3]) with mapi id 15.20.4308.022; Thu, 8 Jul 2021
+ 18:36:40 +0000
+From: Marco Nova <mnova@atex.com>
+To: test.collab <test.collab@gedivisual.it>
+Subject: TEST1 
+Thread-Topic: TEST1 
+Thread-Index: Add0KDDVrKGppyn3THeTqvTW9S8d1g==
+Date: Thu, 8 Jul 2021 18:36:40 +0000
+Message-ID:
+	<AS8P193MB1160B4414CA99FB72068F98EFD199@AS8P193MB1160.EURP193.PROD.OUTLOOK.COM>
+Accept-Language: it-IT, en-US
+Content-Language: it-IT
+X-MS-Exchange-Organization-AuthAs: Internal
+X-MS-Exchange-Organization-AuthMechanism: 04
+X-MS-Exchange-Organization-AuthSource: AS8P193MB1160.EURP193.PROD.OUTLOOK.COM
+X-MS-Has-Attach:
+X-MS-Exchange-Organization-Network-Message-Id:
+	2afe7e3b-5773-44ac-8b97-08d9423f53f0
+X-MS-Exchange-Organization-SCL: -1
+X-MS-TNEF-Correlator:
+X-MS-Exchange-Organization-RecordReviewCfmType: 0
+x-ms-publictraffictype: Email
+X-Microsoft-Antispam-Mailbox-Delivery:
+	ucf:0;jmr:0;auth:0;dest:I;ENG:(750129)(520011016)(706158)(944506458)(944626604);
+X-Microsoft-Antispam-Message-Info:
+	iFcCmmuF9fUEjfCGjVGecoGwYUxxqh5ZpUVF75pqdx06zzn4qbZWzLI3YAaYzojh2dTmkutpuqSJEfFrnh+m3Ea9H5WHS/K+Ga8Bse2WXc/FLcD1h51mBYZ7Tjr9jVAXWLKPCR1x2j3/X281eAXjsOxg782RvWydLQVI8ZJzkz0mxITALw93Bs/+W5LIwLa8p5IqxIC4WEWiZgaZ029Vr9QIQfdXZyZg5ZQRCLwpkEjwv5IFbj5vylKxy1tr3le9xPRIj2TNMghkuH3XXTwqrzj9GVeoOgJwamam+1mjJUI6Bf55itpP9o/2lCoYH57egBd6b42CUxFBRO6MK8TPPXK8jkg0HRq/54JlwHI7W581bJR5VQfSo5r1LN791wEiNYLK9Hx0b4kRTyXOtgXxbn1uM2LbmHWZvQ8XbeIosF3iRHVf0A9lo777lZJPnzXmHXk0ptkXg/CSDEb1SgCKpRTj1wdyjsXP9+gcWQQhbmI9qWQBVFCVRh5Tb96wgBdalPR1u9DjnoGgj2djNZugtC4PKG+tmQDsGFQlo8GL/Cmx5awcXAARsLljI0g46g7OvilaQ2FNz1t9FsXQUN03q/VnD3dqiSGq4/Z4cd7UF2HQlZSlaZ5WqV9YBuzTUY70pzRXO6sH6MNt0kLoK0Ev2oGUzPTlfpEiLzQWXcSZyTM=
+Content-Type: text/html; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
+1">
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:Roboto;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;
+	mso-fareast-language:EN-US;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-size:10.0pt;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:70.85pt 2.0cm 2.0cm 2.0cm;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"IT" link=3D"#0563C1" vlink=3D"#954F72" style=3D"word-wrap:bre=
+ak-word">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal">SONBUL<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal"><b><u><span style=3D"font-size:10.5pt;font-family:Ro=
+boto;color:#333333;background:#F9F9F9">TESTO A</span></u></b><span style=3D=
+"font-size:10.5pt;font-family:Roboto;color:#333333;background:#F9F9F9"> - S=
+i aggrava il bilancio dell'incidente stradale
+ avvenuto questa sera a Savigliano, nel Cuneese. Sono due i morti, entrambi=
+ i giovani, mentre una ragazza =E8 ferita. Viaggiavano su un'auto che, per =
+cause in corso di accertamento, si =E8 scontrata frontalmente con un camion=
+ lungo la Sp 115, in direzione Vottignasco.
+ Illeso l'autista del mezzo pesante, sotto choc, sul posto sono intervenuti=
+ i vigili del fuoco, i carabinieri e i sanitari. Questa notte la provincial=
+e rester=E0 chiusa per consentire ai tecnici della viabilit=E0 di rimuovere=
+ i detriti e mettere in sicurezza la
+ strada. (ANSA). GTT</span><o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+</div>
+</body>
+</html>
