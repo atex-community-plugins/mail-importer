@@ -1,0 +1,135 @@
+Delivered-To: katrine11@ethereal.email
+Return-Path: <mnova@atex.com>
+Authentication-Results: mx.ethereal.email; spf=pass smtp.mailfrom=hotmail.com
+Received-SPF: Pass (mx.ethereal.email: domain of hotmail.com designates 40.92.74.78 as permitted sender) receiver=mx.ethereal.email; identity=mailfrom; client-ip=40.92.74.78 helo=EUR04-DB3-obe.outbound.protection.outlook.com; envelope-from=<mnova@atex.com>
+Received-SPF: Pass (mx.ethereal.email: domain of EUR04-DB3-obe.outbound.protection.outlook.com designates 40.92.74.78 as permitted sender) receiver=mx.ethereal.email; identity=helo; client-ip=40.92.74.78 helo=EUR04-DB3-obe.outbound.protection.outlook.com; envelope-from=<mnova@atex.com>
+Received: from EUR04-DB3-obe.outbound.protection.outlook.com (mail-oln040092074078.outbound.protection.outlook.com [40.92.74.78])
+	by mx.ethereal.email (Haraka/2.8.25) with ESMTPS id D03AD46D-CBEE-4D6C-BC07-8758499D19A1.1
+	envelope-from <mnova@atex.com>
+	(cipher=ECDHE-RSA-AES128-GCM-SHA256);
+	Fri, 09 Jul 2021 15:49:43 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=OBUWeLefQBxZkdQ2E8tuGe060xqR8smgnjOn+VYE6omC5KWrKVPV85B8AP/vQJUDaxCWYRcnUpo8hGgCbUYpDQdTY8rMYrLuujBJDysEHFQgj9Oi4J9uXa4YWwnDbtSTC/Xz/1LYbJxVIzJ07CFvazspJAJ4jeh3CBeO90qGHcK5fgQI7c3HnEGg+0ygs5QTI9FLtCgH7PybF80ulgetsMlGJsebDD7ekFFsb26uRlqTb82RDaC5FD4mGxHxPMVZG+rRKO6KyDz1Vz22oGRqDBksrASuLNZKjUQf3Ca3Yt2mlBxU2vaQKNKCGzzwclWIzDck+8BItEZtMBV81avaQQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Xi+NaWWSuc6QD3YzD+wQrs5YBV9N566dKk/eJP7gD4k=;
+ b=iH9k47SsK2o53RpZAz5mo16iKIucAvoZ9DnasdYMpaXMDFpOns9tzXq2Sz3sGZ+wrRjJN6SZj2t4rFogh+D6xtArmYXGGFaai82DcPozrrRzAFJMwACrqr1AKr24WXaG05cgLpLD2/kY2d3xQy2qcfH3aUo+Yvq1Nb4pgFcl0JVRBp8/toUa6UE1QopqJCnvlILxkyz8hzITd/5G1RzWgoEI9OL3nBxsh6eAUn2Xd/r+yl4uhFfY2OXKoBnCmj+RD5bcGHL/j+Dz2Yj5hN6QJDLuGQqziq0FixEkzFIYgvcK0mI4oDGcwAHQbspqcqD9ldBCj32ap51ZoXRlE81wbw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hotmail.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Xi+NaWWSuc6QD3YzD+wQrs5YBV9N566dKk/eJP7gD4k=;
+ b=UShZPWG9hEu+zAkdzgEmIwB2cE1GgFznC9D8pOEAsPmQz6bWBOxO17wDbRaOjf4+SNr1EZbjDzDRSyHPvhVBe30JtUr43DLyVlqzkP1Q9JI8Dyv6//paM/4TSSKBey31bnP81wB/dTYCL2qEnTf6L98YKbzLEU9Ys1puxgmzG4j83o2TP1sw/xbrDHlVoKEAtloCNzxQx/2GywlHGzMoPROXneEMWVsFzSYIe6LInyO5Y+5zKOxZloQ8qcG02Bj7SiAnpo/W7uUeLLtYyEYDMJBxS5lhibIcM1djFuXiyloli/7M5zJwjdHgXwa78h4X+RnsrNNl6E3j1GA3Nq7lEA==
+Received: from VI1EUR04FT041.eop-eur04.prod.protection.outlook.com
+ (2a01:111:e400:7e0e::4c) by
+ VI1EUR04HT027.eop-eur04.prod.protection.outlook.com (2a01:111:e400:7e0e::76)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4308.20; Fri, 9 Jul
+ 2021 15:49:42 +0000
+Received: from DB7PR01MB4476.eurprd01.prod.exchangelabs.com
+ (2a01:111:e400:7e0e::48) by VI1EUR04FT041.mail.protection.outlook.com
+ (2a01:111:e400:7e0e::346) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4308.20 via Frontend
+ Transport; Fri, 9 Jul 2021 15:49:42 +0000
+X-IncomingTopHeaderMarker:
+ OriginalChecksum:EE72A8129E941E97461689701F94ABC84856B923FE7FD3E3A91D8F44F3ACE0B4;UpperCasedChecksum:355E6C7E656096964A29EFCDFA2A36D688D94ED99E555D0A6B5B7E5E98592789;SizeAsReceived:8386;Count:43
+Received: from DB7PR01MB4476.eurprd01.prod.exchangelabs.com
+ ([fe80::1962:259c:49b5:426]) by DB7PR01MB4476.eurprd01.prod.exchangelabs.com
+ ([fe80::1962:259c:49b5:426%2]) with mapi id 15.20.4287.035; Fri, 9 Jul 2021
+ 15:49:42 +0000
+From: Nova Marco <mnova@atex.com>
+Content-Type: multipart/alternative;
+	boundary="Apple-Mail=_AD24932A-86B7-4F33-A095-49E46E23BBFB"
+Subject: TEST1 
+Message-ID:
+ <DB7PR01MB4476634AF5A1655886D0E428AB189@DB7PR01MB4476.eurprd01.prod.exchangelabs.com>
+Date: Fri, 9 Jul 2021 17:49:40 +0200
+To: katrine11@ethereal.email
+X-Mailer: Apple Mail (2.3654.100.0.2.22)
+X-TMN: [3mgB4NnCLplwt3TnE6QBQVc9oZRJsOkl]
+X-ClientProxiedBy: MR1P264CA0034.FRAP264.PROD.OUTLOOK.COM
+ (2603:10a6:501:2f::21) To DB7PR01MB4476.eurprd01.prod.exchangelabs.com
+ (2603:10a6:10:61::17)
+X-Microsoft-Original-Message-ID:
+ <54D937D9-7A16-48BD-B740-4F6C161E64C1@hotmail.com>
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from smtpclient.apple (82.50.65.105) by MR1P264CA0034.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:2f::21) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4308.23 via Frontend Transport; Fri, 9 Jul 2021 15:49:41 +0000
+X-MS-PublicTrafficType: Email
+X-IncomingHeaderCount: 43
+X-EOPAttributedMessage: 0
+X-MS-Office365-Filtering-Correlation-Id: a8a09840-0717-493d-cbbd-08d942f12ab1
+X-MS-TrafficTypeDiagnostic: VI1EUR04HT027:
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	YjngvIXkpxUJISovSivFf45xMiEuedsnuVMLpgO3094nrjtrzmJRrO7WUdxfc/VubAHwDqh7cnnoLG+7Z3jk2M7YBfTbtFrSITdzvtKCej4BY28Y6ZUZghbVfDZUyMlQJJgvs/Y+D7I+G62Wy7yqUweOePhaTv9s4K5Y64xFhbXVf+LljV5km+irFnSQw9cpVxbkOTrS6AERwKNX3YG4QujWOoaEAJaGhwkk4Pa8DwFeg7okB3z6XeUJF3KZo/0vkQGV5e1yV7kzPCmp4LpXVPkeOHRQhuPGhq6Lxhv3jwUrN7uFLyARtxlrG1F++I2RrWFI8paJDV6VdXLTz4mT3slG14Z7+QL+I/PZ1qterf00YokRfaHRo8hyFQwX+udiBOHQ0p2VhsZDkdM2CaBSbTeOIzFGO0YEhSz5nrwR4tazgIRrAMMz9SfaD0L4iHps
+X-MS-Exchange-AntiSpam-MessageData:
+	r/11lzJyzZ+TF4xUrs+ICIaEYBL9QdoeLIAXP0OZPqhPgLdFWow03LicvaPb87P1ijs1mo8zAFXdlgT9GOI+O2ZrI6L9DpKicvjFfBHzEQXTM++YoksqPVS6hlC3IaBaN2Oep8JRwPAkjdZiOO1+9w==
+X-OriginatorOrg: hotmail.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a8a09840-0717-493d-cbbd-08d942f12ab1
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jul 2021 15:49:42.7568
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-AuthSource:
+	VI1EUR04FT041.eop-eur04.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: Internet
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
+	00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1EUR04HT027
+
+--Apple-Mail=_AD24932A-86B7-4F33-A095-49E46E23BBFB
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+	charset=utf-8
+
+SONBUL
+=20
+TESTO A - Si aggrava il bilancio dell'incidente stradale avvenuto questa =
+sera a Savigliano, nel Cuneese. Sono due i morti, entrambi i giovani, =
+mentre una ragazza =C3=A8 ferita. Viaggiavano su un'auto che, per cause =
+in corso di accertamento, si =C3=A8 scontrata frontalmente con un camion =
+lungo la Sp 115, in direzione Vottignasco. Illeso l'autista del mezzo =
+pesante, sotto choc, sul posto sono intervenuti i vigili del fuoco, i =
+carabinieri e i sanitari. Questa notte la provinciale rester=C3=A0 =
+chiusa per consentire ai tecnici della viabilit=C3=A0 di rimuovere i =
+detriti e mettere in sicurezza la strada. (ANSA). GTT=
+
+--Apple-Mail=_AD24932A-86B7-4F33-A095-49E46E23BBFB
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html;
+	charset=utf-8
+
+<html><head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8"></=
+head><body style=3D"word-wrap: break-word; -webkit-nbsp-mode: space; line-b=
+reak: after-white-space;" class=3D""><div class=3D"WordSection1" style=3D"p=
+age: WordSection1; caret-color: rgb(0, 0, 0); color: rgb(0, 0, 0); font-fam=
+ily: Helvetica; font-size: 12px; font-style: normal; font-variant-caps: nor=
+mal; font-weight: normal; letter-spacing: normal; orphans: auto; text-align=
+: start; text-indent: 0px; text-transform: none; white-space: normal; widow=
+s: auto; word-spacing: 0px; -webkit-text-size-adjust: auto; -webkit-text-st=
+roke-width: 0px; text-decoration: none;"><p class=3D"MsoNormal" style=3D"ma=
+rgin: 0cm; font-size: 11pt; font-family: Calibri, sans-serif;">SONBUL<o:p c=
+lass=3D""></o:p></p><p class=3D"MsoNormal" style=3D"margin: 0cm; font-size:=
+ 11pt; font-family: Calibri, sans-serif;"><o:p class=3D"">&nbsp;</o:p></p><=
+p class=3D"MsoNormal" style=3D"margin: 0cm; font-size: 11pt; font-family: C=
+alibri, sans-serif;"><b class=3D""><u class=3D""><span style=3D"font-size: =
+10.5pt; font-family: Roboto; color: rgb(51, 51, 51); background-color: rgb(=
+249, 249, 249);" class=3D"">TESTO A</span></u></b><span style=3D"font-size:=
+ 10.5pt; font-family: Roboto; color: rgb(51, 51, 51); background-color: rgb=
+(249, 249, 249);" class=3D""><span class=3D"Apple-converted-space">&nbsp;</=
+span>- Si aggrava il bilancio dell'incidente stradale avvenuto questa sera =
+a Savigliano, nel Cuneese. Sono due i morti, entrambi i giovani, mentre una=
+ ragazza =C3=A8 ferita. Viaggiavano su un'auto che, per cause in corso di a=
+ccertamento, si =C3=A8 scontrata frontalmente con un camion lungo la Sp 115=
+, in direzione Vottignasco. Illeso l'autista del mezzo pesante, sotto choc,=
+ sul posto sono intervenuti i vigili del fuoco, i carabinieri e i sanitari.=
+ Questa notte la provinciale rester=C3=A0 chiusa per consentire ai tecnici =
+della viabilit=C3=A0 di rimuovere i detriti e mettere in sicurezza la strad=
+a. (ANSA). GTT</span></p></div></body></html>=
+
+--Apple-Mail=_AD24932A-86B7-4F33-A095-49E46E23BBFB--

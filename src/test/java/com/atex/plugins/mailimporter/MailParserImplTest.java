@@ -225,11 +225,33 @@ public class MailParserImplTest {
     }
 
     @Test
+    public void testEmailWithOnlyHtmlText2() throws Exception {
+        final MailBean bean = parse("/mails/mail-with-html.eml",
+                Signature.of(
+                        "__+\n*GRUPPO EDITORIALE",
+                        0
+                ));
+        Assert.assertEquals("mnova@atex.com", bean.getFrom());
+        Assert.assertEquals("katrine11@ethereal.email", bean.getTo());
+        Assert.assertEquals("TEST1", bean.getSubject());
+        Assert.assertEquals("<p>TESTO A - Si aggrava il bilancio dell'incidente stradale avvenuto questa " +
+                "sera a Savigliano, nel Cuneese. Sono due i morti, entrambi i giovani, mentre una ragazza " +
+                "&egrave; ferita. Viaggiavano su un'auto che, per cause in corso di accertamento, si &egrave; " +
+                "scontrata frontalmente con un camion lungo la Sp 115, in direzione Vottignasco. Illeso l'autista " +
+                "del mezzo pesante, sotto choc, sul posto sono intervenuti i vigili del fuoco, i carabinieri e " +
+                "i sanitari. Questa notte la provinciale rester&agrave; chiusa per consentire ai tecnici della " +
+                "viabilit&agrave; di rimuovere i detriti e mettere in sicurezza la strada. (ANSA). " +
+                "GTT</p>", bean.getBody());
+        Assert.assertEquals("SONBUL", bean.getLead());
+        Assert.assertEquals(0, bean.getAttachments().size());
+    }
+
+    @Test
     public void testHtmlEmailWithSignature() throws Exception {
         final MailBean bean = parse("/mails/mail-html-with-signature.eml",
                 Signature.of(
                         "Via Cristoforo Colombo",
-                        4
+                        3
                 ));
         Assert.assertEquals("f.basso@gedi.it", bean.getFrom());
         Assert.assertEquals("\"aosta.collab\" <aosta.collab@gedivisual.it>", bean.getTo());

@@ -306,6 +306,7 @@ public class MailParserImpl implements MailParser {
             return "";
         }
         return text.replaceAll("\r\n", "\n")
+                   .replaceAll("\n ", "\n")
                    .replaceAll("\r", "\n");
     }
 
